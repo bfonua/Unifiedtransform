@@ -219,10 +219,6 @@ Route::middleware(['auth','admin'])->group(function (){
   Route::post('tct_edit_other', 'UserController@tct_other_update');
   Route::post('tct_edit_inactive', 'InactiveController@tct_update');
 
-    
-
-
-
   Route::prefix('register')->name('register.')->group(function (){
     Route::get('student', 'UserController@redirectToRegisterStudent');
     Route::get('tct_student', 'UserController@redirectToRegisterTCTStudent'); //Redirect from current page to controller

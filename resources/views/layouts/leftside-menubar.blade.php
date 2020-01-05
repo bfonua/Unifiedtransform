@@ -53,6 +53,7 @@
                 <a class="dropdown-item" href="{{url('tct_users_archive')}}"><i class="material-icons">group</i><span class="nav-link-text">@lang('Archived')</span></a>
             </li>
         </ul>
+
       </li>
       <!-- END OF STUDENT SECTION -->
     @if(Auth::user()->role != 'student')
@@ -63,8 +64,6 @@
         <a class="nav-link" href="{{ url('school/houses') }}"><i class="material-icons">house</i> <span class="nav-link-text">@lang('Houses')</span></a>
     </li>
     <li class="nav-item" style="border-bottom: 1px solid #dbd8d8;"></li>
-    <!-- FEES SECTION --> 
-
     <li class="nav-item dropdown">
         <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
             class="material-icons">monetization_on</i> <span class="nav-link-text">@lang('Fees')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>
@@ -100,8 +99,6 @@
     <a class="nav-link" href="{{ url('#') }}"><i class="material-icons">monetization_on</i> <span class="nav-link-text">@lang('Remaining')</span></a>
     </li>
     <li class="nav-item" style="border-bottom: 1px solid #dbd8d8;"></li>
-
-
     <li class="nav-item dropdown">
         <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
             class="material-icons">date_range</i> <span class="nav-link-text">@lang('Attendance')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>

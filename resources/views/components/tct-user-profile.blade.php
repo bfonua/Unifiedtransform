@@ -9,6 +9,7 @@
 <br>
 @endif
 
+
     <div class="col-md-2" text-center>
         <img src="http://ssl.gstatic.com/accounts/ui/avatar_2x.png" class="avatar img-circle img-thumbnail" alt="avatar">
         <hr>
@@ -27,6 +28,7 @@
                     @include('layouts.master.reinstate-form')
                 @endif
             @endif
+
         </div>
         <br>
         <!-- PROMOTE BUTTON -->
@@ -108,6 +110,7 @@
         @component('components.tct-student-summary',['user'=>$user])
         @endcomponent
         <!-- NAV TABS -->
+
         <ul class="nav nav-tabs">
             <li class="nav-item">
                 <a class="nav-link active " data-toggle="tab" href="#general">Administration</a>
@@ -116,9 +119,11 @@
                 <a class="nav-link" data-toggle="tab" href="#finance">Finance</a>
             </li>
         </ul>
+
         <!-- NAV TABS CONTENT -->
         <div class="tab-content">
             <!-- Admin Details-->
+
             <div class="tab-pane active" id="general">
                 {{-- <button class="btn btn-xs btn-success pull-right" role="button" id="btnPrint"><i class="material-icons">print</i> @lang('Print Profile')</button> --}}
                 {{-- <div class="" id="profile-content">
@@ -308,7 +313,6 @@
                             @endforeach
 
 
-
                         </div>
                     </div>
                 </div>
@@ -321,6 +325,7 @@
 {{-- <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script> --}}
 <script src = "https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
 <script>
     $(function () {
@@ -378,4 +383,3 @@
     });
 </script>
 
-@endsection
