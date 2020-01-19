@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="{{ url('css/loader.css') }}">
 
     <script src="{{ url('js/vendors.js') }}"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+    {{-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script> --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
     <script type="text/javascript">
         $.ajaxSetup({
@@ -36,21 +36,21 @@
         @yield('content')
     </div>
 
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons&style=normal&weight=400"
-      rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons&style=normal&weight=400" rel="stylesheet">
     <link rel="stylesheet" href="{{ url('css/vendors.css') }}" id="bootswatch-print-id">
     <link rel="stylesheet" href="{{ url('css/application.css') }}">
     <script src="{{asset('js/typeahead.js')}}"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap.min.css">
+    <!-- Buttons DataTables -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/jszip-2.5.0/dt-1.10.20/b-1.6.1/b-html5-1.6.1/datatables.min.css"/>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs/jszip-2.5.0/dt-1.10.20/b-1.6.1/b-html5-1.6.1/datatables.min.js"></script>
+
 
     <script>
         $(document).ready(function($){
-            // Set the Options for the 'Bloodhound' suggestion engine
-            $(document).ready( function () {
-                // $('#myTable').DataTable();
-            } );
-
             var engine = new Bloodhound({
                 remote: {
                     url: "{{url('/find?q=%QUERY%')}}",

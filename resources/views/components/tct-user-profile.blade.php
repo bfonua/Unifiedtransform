@@ -210,7 +210,7 @@
                                 </tr>
                             </table>
                             {{-- <h4>Finance Profile</h4> --}}
-                            <div class="col-xs-5">
+                            <div class="col-xs-6 container">
                                 @if($assigned > 0)
                                     @php                              
                                         // print json_encode($feeList);
@@ -225,13 +225,12 @@
                                     @endphp
                                         @foreach ($years as $session) 
                                         @if(isset($feeList[$session]))
-                                        <table class="table table-bordered">
+                                        <div class="text-center">
+                                            <h4>{{$session}}<small> - Channel: {{\App\Fee::find($feeList[$session]['fee_id'])->first()->fee_channel->name}}</small></h4>
+                                        </div>
+                                        <table class="table">
                                             <thead>
-                                                <tr class="bg-info text-white text-center">
-                                                    <td colspan="3" class="text-center" >{{$session}}</td>
-                                                    <td class="text-center"><small>{{\App\Fee::find($feeList[$session]['fee_id'])->first()->fee_channel->name}}</small></td>
-                                                </tr>
-                                                <tr>
+                                                <tr class="bg-secondary text-white">
                                             @if(in_array($session, $sessions))
                                                     <th scope="col" class="text-center">Session</th>
                                                     <th scope="col" class="text-center">Assigned</th>
@@ -291,7 +290,14 @@
                                                             @endphp
                                                         </tr>
                                                     @endforeach
-                                                    <tr>
+                                                    <style>
+                                                        .tr-total{
+                                                          color: #401500;
+                                                          background-color: #FFDDCC;
+                                                          border-color: #792700;
+                                                        }
+                                                    </style>
+                                                    <tr class="tr-total">
                                                         <strong>
                                                         <th class="text-center">TOTAL</th>
                                                         <td class="text-center">{{$userSer->numberformat($total['assign'])}}</td>
@@ -311,7 +317,7 @@
                                                                     'url' => url('fees/reassign'),
                                                                 ])
                                                                     @slot('buttonType')
-                                                                        <button type="button" class="btn btn-primary btn-xs" disabled="disabled" data-toggle="modal" data-target="#assignModal{{$session}}"><i class="material-icons">assignment_returned</i>  
+                                                                        <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#assignModal{{$session}}"><i class="material-icons">assignment_returned</i>  
                                                                     @endslot
                                                                     @slot('form_content')
                                                                         <input type="hidden" value="{{$user->id}}" name="user_id">
@@ -612,11 +618,11 @@
                                             @endslot
                                         @endcomponent
                                     @else
-                                        Please register / poromote student inorder to Assign Fees!
+                                        Please register / promote student inorder to Assign Fees!
                                     @endif
                                 @endif     
                             </div>
-                            <div class="col-xs-6 col-xs-offset-1">
+                            <div class="col-xs-6 container">
                                 @php 
                                     $allPay = \App\Payment::where('user_id', $user->id)->orderBy('pay_date', 'desc')->get();
                                     $oldPayments = \App\PaymentMigrate::where('tct_id', $user->studentInfo->tct_id)->orderBy('pay_date', 'desc')->get();
@@ -647,14 +653,14 @@
                                             <td class="text-center">
                                                 <div class="text-center">
                                                     @component('components.fee-type-form', [
-                                                        'buttonTitle' => 'Edit Payment',
+                                                        'buttonTitle' => 'Edit',
                                                         'modal_name' => 'payment'.$pay->id,
-                                                        'title' => 'Edit Payment',
+                                                        'title' => 'Edit',
                                                         'put_method' => method_field('PUT'),
                                                         'url' => url('fees/tct_payment/'.$pay->id),
                                                     ])
                                                         @slot('buttonType')
-                                                            <button type="button" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#payment{{$pay->id}}"><i class="material-icons">edit</i>  
+                                                            <button type="button" class="btn btn-xs" data-toggle="modal" data-target="#payment{{$pay->id}}"><i class="material-icons">edit</i>  
                                                         @endslot
                                                         @slot('form_content')
                                                             <input type="hidden" value="{{$user->id}}" name="user_id">
@@ -714,14 +720,14 @@
                                             <td class="text-center">
                                                 <div class="text-center">
                                                     @component('components.fee-type-form', [
-                                                        'buttonTitle' => 'Edit Payment',
+                                                        'buttonTitle' => 'Edit',
                                                         'modal_name' => 'paymentMigrate'.$oldPay->pay_id,
-                                                        'title' => 'Edit Previous Payment',
+                                                        'title' => 'Edit',
                                                         'put_method' => method_field('PUT'),
                                                         'url' => url('fees/tct_paymentMigrate/'.$oldPay->pay_id),
                                                     ])
                                                         @slot('buttonType')
-                                                            <button type="button" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#paymentMigrate{{$oldPay->pay_id}}"><i class="material-icons">edit</i>  
+                                                            <button type="button" class="btn btn-xs" data-toggle="modal" data-target="#paymentMigrate{{$oldPay->pay_id}}"><i class="material-icons">edit</i>  
                                                         @endslot
                                                         @slot('form_content')
                                                             <input type="hidden" value="{{$oldPay->tct_id}}" name="user_id">

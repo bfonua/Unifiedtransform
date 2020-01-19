@@ -18,7 +18,6 @@
                             {{ session('status') }}
                         </div>
                     @endif
-                    {{-- @component('components.tct-users-list',['users'=>$users,'current_page'=>$current_page,'per_page'=>$per_page]) --}}
                     @component('components.tct-users-list',['users'=>$users, 'type'=>$type])
                     @endcomponent
                 </div>
@@ -32,9 +31,6 @@
         </div>
     </div>
     <div class="row">
-        {{-- @foreach($users as $user) --}}
-            {{-- {{$user}}<hr> --}}
-        {{-- @endforeach --}}
     </div>
 </div>
 @endsection

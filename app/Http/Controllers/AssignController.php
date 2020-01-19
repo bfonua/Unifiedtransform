@@ -6,6 +6,7 @@ use App\Assign;
 use Illuminate\Http\Request;
 use App\Services\User\UserService;
 use App\User;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 class AssignController extends Controller
 {
@@ -58,8 +59,10 @@ class AssignController extends Controller
      */
     public function store(Request $request)
     {
-        // return $request;
+        
         $channel_id = $request->channel;
+        $user = \App\User::find($request->user_id);
+        $session = $request->session;
         if(isset($request['type'])){
             foreach($request['type'] as $fee_type_id => $toAssign){
                 if($toAssign){
@@ -73,28 +76,48 @@ class AssignController extends Controller
                     $assign->save();
                 }
             }
-            $student = \App\User::find($request->user_id)->studentInfo;
-            $student->assigned = 1;
-            $student->channel_id = $request->channel;
-            $student->save();
-            return redirect('/user/'.\App\User::find($request->user_id)->student_code);
+            if($session > 2019){
+                $student = \App\User::find($request->user_id)->studentInfo;
+                if($student->assigned == 0){
+                    $student->assigned = 1;
+                }
+                $student->channel_id = $request->channel;
+                $student->save();                
+            } else{
+                // INSERT INTO REGTABLE details
+            }
+            if($request->goAssign == "1"){
+                return redirect('fees/unassign');
+            } else{
+                return redirect('/user/'.\App\User::find($request->user_id)->student_code);
+            }
         } else{
-            return back()->with('error2', __('Please select a Fee Channel'));
+            return view('finance.assignForm', compact('user','session'));
+
         }
 
     }
 
     public function reassign(Request $request)
     {
-        // return $request;
-        if(isset($request['type'])){
-            $firstRows = \App\Assign::where('user_id', $request->user_id)
-                ->where('session', $request->session)
-                ->delete();
-            return $this->store($request);
-        } else{
-            return back()->with('errors2', __('Please select a Fee Channel'));
+        try{
+            $user = \App\User::find($request->user_id);
+            $session = $request->session;
+            if(isset($request['type']) and $request->channel != 0){
+                // return $request;
+                $firstRows = \App\Assign::where('user_id', $request->user_id)
+                    ->where('session', $request->session)
+                    ->delete();
+                return $this->store($request);
+            } else{
+                return view('finance.assignForm', compact('user','session'));
+            }
+        } catch(\Exception $e){
+            Log::info('Failed to update Student information'.$e->getMessage());
+            return view('finance.assignForm', compact('user','session'));
         }
+        
+        
     }
 
     /**
@@ -113,7 +136,22 @@ class AssignController extends Controller
         // return $request->user; 
         $user = \App\User::find($request->user_id);
         $session = $request->session;
-        return view('finance.assignForm', compact('user','session'));
+        $feeList = [];
+        $fees_assigned = \App\Assign::with(['fees'])
+        ->where('user_id', $user->id)
+        ->where('session', $session)
+        ->groupBy('fee_id')
+        ->get();
+        if($fees_assigned->first()){
+            $feeList[$session]['year'] = $session;
+            $feeIDs = $fees_assigned->pluck('fee_id')->toArray();
+            $feeTypeIDs = \App\Fee::find($feeIDs)->pluck('fee_type_id')->toArray();
+            $feeType = \App\FeeType::find($feeTypeIDs)->pluck('name')->toArray();
+            $feeList[$session]['types'] = $feeType;
+            $feeList[$session]['fee_id'] = $feeIDs;
+        }
+        $assigned = count($fees_assigned);
+        return view('finance.assignForm', compact('user','session', 'feeList', 'assigned'));
     }
 
     /**

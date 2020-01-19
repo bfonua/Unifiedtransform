@@ -379,29 +379,25 @@ class UserController extends Controller
     public function show($user_code)
     {
         $user = $this->userService->getUserByUserCode($user_code);
-        // $assigned = $user->studentInfo->assigned;
         $assignedCount = $user->feesAssigned()->count('id');
-        // return $assignedCount;
         $sessions = \App\Assign::where('user_id', $user->id)->orderBy('session', 'desc')->groupBy('session')->pluck('session')->toArray();
-            // print($fees_assigned);
         $feeList = [];
         if($assignedCount > 0){ 
             foreach($sessions as $session){
                 $fees_assigned = \App\Assign::with(['fees'])
                     ->where('user_id', $user->id)
                     ->where('session', $session)
+                    ->groupBy('fee_id')
                     ->get();
                 if($fees_assigned->first()){
                     $feeList[$session]['year'] = $session;
                     $feeIDs = $fees_assigned->pluck('fee_id')->toArray();
                     $feeTypeIDs = \App\Fee::find($feeIDs)->pluck('fee_type_id')->toArray();
                     $feeType = \App\FeeType::find($feeTypeIDs)->pluck('name')->toArray();
-
                     $feeList[$session]['types'] = $feeType;
-                    $feeList[$session]['fee_id'] = $fees_assigned->pluck('fee_id')->toArray();
+                    $feeList[$session]['fee_id'] = $feeIDs;
                 }
             }
-
         } else{
             $fees_assigned = "";
         }
@@ -409,6 +405,7 @@ class UserController extends Controller
     }
 
     public function migrationTest(){
+        return view('home');
         $toMigrate = DB::table('assignMigrate')->get()->slice(3000);
         $types = [ 'term1' => 1,'term2' => 2,'term3' => 3, 'term4' => 4,'late' => 5,'pta' => 6,
             'magazine' => 7,
@@ -506,14 +503,6 @@ class UserController extends Controller
             }
             if ($tb->save()) {
                 if ($request->user_role == 'student') {
-                    // $request->validate([
-                    //   'session' => 'required',
-                    //   'version' => 'required',
-                    //   'birthday' => 'required',
-                    //   'religion' => 'required',
-                    //   'father_name' => 'required',
-                    //   'mother_name' => 'required',
-                    // ]);
                     try{
                         // Fire event to store Student information
                         event(new StudentInfoUpdateRequested($request,$tb->id));
@@ -545,6 +534,8 @@ class UserController extends Controller
             $tb2->section_id = $request->section;
             $tb2->save();
 
+        } else{
+            $tb->form_num = $request->form_num;
         }
         $tb->house_id = $request->house;
         $tb->group = $request->status;

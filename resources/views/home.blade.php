@@ -56,8 +56,20 @@
                         <div class="col-sm-8">
                             <div class="panel panel-default" style="background-color: rgba(242,245,245,0.8);">
                                 <div class="panel-body">
-                                    <h3>@lang('Welcome to') {{Auth::user()->school->name}}</h3>
-                                    @lang('Your presence and cooperation will help us to improve the education system of our organization.')
+                                    <h3>@lang('Welcome to') 
+                                        @if(Auth::user()->school->name == "Tupou College")
+                                             TCTNET
+                                        @else
+                                            {{Auth::user()->school->name}}
+                                        @endif
+                                    </h3>
+                                    <ul class="list-group">
+                                        <li class="list-group-item list-group-item-dark">Cras justo odio</li>
+                                        <li class="list-group-item">Dapibus ac facilisis in</li>
+                                        <li class="list-group-item">Morbi leo risus</li>
+                                        <li class="list-group-item">Porta ac consectetur ac</li>
+                                        <li class="list-group-item">Vestibulum at eros</li>
+                                    </ul>
                                 </div>
                             </div>
                             <div class="panel panel-default">

@@ -67,6 +67,11 @@ class User extends Model implements
         return $this->hasMany('App\Inactive', 'user_id');
     }
 
+    public function inactiveNow($session){
+        return $this->hasMany('App\Inactive', 'user_id')->where('session', $session);
+    }
+
+
     public function reinstate(){
         return $this->hasMany('App\Reinstate', 'user_id');
     }

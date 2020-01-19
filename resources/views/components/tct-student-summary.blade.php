@@ -1,5 +1,5 @@
 <div id = "student_summary" class="row">
-    <h3>{{$user->lst_name.', '.$user->given_name}} <small>TCT ID: {{$user->studentInfo->tct_id}}</small></h3>
+    <h3><a href="{{url('/user/'.$user->student_code)}}">{{$user->given_name.' '.$user->lst_name}} </a><small>TCT ID: {{$user->studentInfo->tct_id}}</small></h3>
     <div class="row">
         <div class="col-xs-3"><strong>
             {{($user->studentInfo->session == date('Y'))?'Registered':'Archived'}} 
@@ -30,7 +30,7 @@
                         {{-- ({{($approved)?' Approved': <div class="text-danger">Not Approved</div>}})</ --}}
                 @endif    
             @endif
-            / {{ucfirst($user->studentInfo->group)}}  </strong>
+            / {{ucfirst($user->studentInfo->group)}} / Category: {{$user->studentInfo->category_id}} </strong>
         </div>
         <div class="text-center col-xs-2">
             <strong>Session: </strong> {{$user->studentInfo->session}}
@@ -42,9 +42,9 @@
         <div class="text-center col-xs-2">
             <strong>House:</strong> {{$user->studentInfo->house->house_name}}
         </div>
-        <div class="text-center col-xs-3">
+        <div class="text-center col-xs-2">
             @if($user->studentInfo->assigned)
-                <strong>Fee Channel:</strong> {{\App\FeeChannel::find($user->studentInfo->channel_id)->name}}
+                <strong>Last Fee Channel:</strong> {{\App\FeeChannel::find($user->studentInfo->channel_id)->name}}
             @else
                 <strong>Not assigned</strong>
             @endif

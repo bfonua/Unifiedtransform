@@ -29,15 +29,21 @@ class HomeController extends Controller
             $school_id = \Auth::user()->school->id;
             $classes = \Cache::remember('classes-'.$school_id, $minutes, function () use($school_id) {
               return \App\Myclass::bySchool($school_id)
-                                ->pluck('id')
-                                ->toArray();
+                ->pluck('id')
+                ->toArray();
             });
-            $totalStudents = \Cache::remember('totalStudents-'.$school_id, $minutes, function () use($school_id) {
-              return \App\User::bySchool($school_id)
-                              ->where('role','student')
-                              ->where('active', 1)
-                              ->count();
-            });
+            // $totalStudents = \Cache::remember('totalStudents-'.$school_id, $minutes, function () use($school_id) {
+            //   return \App\User::bySchool($school_id)
+            //     ->where('role','student')
+                // ->studentInfo()
+                // ->where('session', now()->year)
+                // ->where('active', 1)
+            //     ->count();
+            // });
+            $totalStudents = \App\User::whereHas("studentInfo", function($q){
+              $q->where("session",now()->year);
+              })->count();  
+
             $totalTeachers = \Cache::remember('totalTeachers-'.$school_id, $minutes, function () use($school_id) {
               return \App\User::bySchool($school_id)
                               ->where('role','teacher')

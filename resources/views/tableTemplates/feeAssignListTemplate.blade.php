@@ -16,6 +16,16 @@
             </div>
         </div>
     @endforeach
+    <hr>
+    <div class="row form-group">
+        <label for="goAssign" class="col-sm-4 control-label">Go back to Assign List?</label>
+        <div class="col-sm-4">
+            <select id="goAssign" class="form-control" name="goAssign">
+                <option value="1">Yes</option>
+                <option value="0" selected="selected">No</option>
+            </select>
+        </div>
+    </div>
 @else
     <div class="row">
         Please assign fees to selected channel
