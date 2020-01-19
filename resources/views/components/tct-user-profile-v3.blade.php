@@ -536,15 +536,15 @@
                                             @endif
                                             <hr>
                                         @endforeach
-                                        
                                 @else
                                     Student has not been assigned! <br>
                                     <br>
                                     @if($user->studentInfo->session == now()->year)
                                     <form class="form-horizontal" action="{{url('fees/reassignForm')}}" method="post">
                                         {{csrf_field()}}
+                                        {{-- {{$session}} --}}
                                         <input type="hidden" value="{{$user->id}}" name="user_id">
-                                        <input type="hidden" value="{{$session}}" name="session">
+                                        <input type="hidden" value="{{now()->year}}" name="session">
                                         <button type="submit" class="btn btn-primary btn-sm data-to"><i class="material-icons">assignment_returned</i> Assign Fees</button>
                                     </form>
                                     @else
