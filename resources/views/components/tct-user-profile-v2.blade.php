@@ -257,7 +257,7 @@
                                                 {{csrf_field()}}
                                                 <input type="hidden" value="{{$user->id}}" name="user_id">
                                                 <input type="hidden" value="{{$session}}" name="session">
-                                                <button type="submit" disabled = "disabled" class="btn btn-primary btn-sm data-to"><i class="material-icons">assignment_returned</i> Assign Fees</button>
+                                                <button type="submit" class="btn btn-primary btn-sm data-to"><i class="material-icons">assignment_returned</i> Assign Fees</button>
                                             </form>
                                         </td>
                                         {{-- PAYMENT BUTTON --}}
@@ -762,4 +762,5 @@
         });
         });
     </script>
+@endsection
 

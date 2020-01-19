@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @if(count(array($user)) > 0)
-  @section('title', $user->name)
+  @section('title', $user->student_code.' - '.$user->given_name)
 @endif
 
 @section('content')
@@ -19,14 +19,12 @@
                             {{ session('status') }}
                         </div>
                     @endif
-                    @component('components.tct-user-profile-v2',[
+                    @component('components.tct-user-profile-v3',[
                         'user'=>$user,
                         'assigned'=> ($assignedCount > 0)?1:0,
                         'feeList' => $feeList,
                         'sessions' => $sessions,
                         'fees_assigned' => $fees_assigned,
-                        // 'payments' => $payments,
-                        // 'paymentsOld' => $paymentsOld,
                     ])
                     @endcomponent
                 </div>

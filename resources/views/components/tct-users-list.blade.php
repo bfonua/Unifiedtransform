@@ -1,6 +1,5 @@
-{{-- {{$users->links()}} --}}
 <div class="table-responsive">
-<table id='myTable' class="table table-bordered table-data-div table-condensed table-striped table-hover">
+<table id='myTable' class="table table-bordered table-condensed table-striped table-hover">
   <thead>
     <tr>
         <th scope="col" class="text-center">TCT ID</th>
@@ -17,7 +16,6 @@
   <tbody>
     @foreach ($users as $key=>$user)
     <tr>
-      {{-- <th scope="row">{{ ($current_page-1) * $per_page + $key + 1 }}</th> --}}
         <td class="text-center"><small>{{$user->student_code}}</small></td>
         <td class="text-center">
             @if($type == 'registered')
@@ -34,7 +32,7 @@
                 </small>
             </td>
         @endif
-        {{-- <td></td> --}}
+        {{Log::info($user->studentInfo->id)}}
         <td class="text-center"><small>{{$user->section->class->class_number}}{{$user->section->section_number}}</small></td>
         <td class="text-center"><small>{{$user->studentInfo->form_num}}</small></td>
         <td  class="text-center" style="white-space: nowrap;"><small>{{$user->studentInfo->house->house_name}}</small></td>
@@ -43,6 +41,17 @@
   </tbody>
 </table>
 </div>
-{{-- {{$users->links()}} --}}
 
-
+@section('jsFiles')
+    <script>
+        $(document).ready(function($){
+            $('#myTable').DataTable({
+                paging: false,
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'excel', 'pdf'
+                ]
+            });
+        });
+    </script>
+@endsection

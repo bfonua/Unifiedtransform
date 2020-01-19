@@ -51,6 +51,33 @@
                                 @endif
                         </div>
                     </div>
+                    <!-- Form Number -->
+                    <div class="row form-group">
+                        <label for="form_num" class="col-sm-4 control-label">@lang('Select Form Number')</label>
+                        <div class="col-sm-8">
+                            <select id="form_num" class="form-control" name="form_num"
+                                @if($user->studentInfo->session < date("Y")) 
+                                    readonly>
+                                    <option>{{$user->studentInfo->form_num}}</option>
+                                    </select>
+                                @else
+                                    @php
+                                        $allNums = \App\StudentInfo::where('form_id', $user->studentInfo->form_id)
+                                            ->where('session', $user->studentInfo->session)
+                                            ->orderBy('form_num', 'asc')
+                                            ->pluck('form_num')->toArray();
+                                    @endphp
+                                    >
+                                    @foreach ($allNums as $num)
+                                        <option value="{{$num}}" {{($num == $user->studentInfo->form_num)?'selected="selected"':''}}>
+                                            {{$num}}
+                                        </option>
+                                    @endforeach
+                                    </select>
+                                @endif
+
+                        </div>
+                    </div>
                     <!-- House -->
                     <div class="row form-group">
                         <label for="house" class="col-sm-4 control-label">@lang('Select House')</label>
@@ -109,6 +136,8 @@
         </div>
     </div>
 </div>
+<br>
+<br>
 <!-- OTHER DETAILS -->
 <a role="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editOtherDetails{{$user->id}}"><i class="material-icons">edit</i> @lang('Edit Other')</a>
 <div class="modal fade" id="editOtherDetails{{$user->id}}" tabindex="-1" role="dialog" aria-labelledby="#editOtherDetails{{$user->id}}Label">

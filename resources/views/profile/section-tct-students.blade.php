@@ -17,7 +17,7 @@
                 {{-- {{$students}} --}}
               @if($students->first())
                 <div class="panel-body">
-                    <table id="myTable" class="table table-data-div table-bordered">
+                    <table id="myTable" class="table table-bordered">
                         <thead>
                         <tr>
                             <th class="text-center" scope="col">@lang('#')</th>
@@ -41,7 +41,8 @@
                             <td class="text-center">{{$i}}</td>
                             @if($student)
                                 <td class="text-center">{{$student->student->student_code}}</td>
-                                <td class="text-center">{{($student->student->active)?'Active / '.ucfirst($student->group):'Inactive / '.ucfirst($student->student->inactive->type)}}  
+                                <td class="text-center">
+                                    {{($student->student->active =="1")?ucfirst($student->group):'Inactive / '.ucfirst($student->student->inactiveNow($student->session)->first()->type)}}  
                                 <td>
                                     <a href="{{url('user/'.$student->student->student_code)}}">{{($student->student->name == '')?$student->student->given_name.' '.$student->student->lst_name:$student->student->name}}</a>
                                 </td>
@@ -66,4 +67,18 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('jsFiles')
+    <script>
+        $(document).ready(function($){
+            $('#myTable').DataTable({
+                paging: false,
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'excel', 'pdf'
+                ]
+            });
+        });
+    </script>
 @endsection
