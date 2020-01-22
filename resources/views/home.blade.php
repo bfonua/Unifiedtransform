@@ -41,13 +41,13 @@
                             </div>
                         </div>
                         <div class="col-sm-2">
-                            <div class="card text-white bg-danger mb-3">
-                                <div class="card-header">@lang('Classes') - <b>{{$totalClasses}}</b></div>
+                            <div class="card text-white bg-info mb-3">
+                                <div class="card-header">Forms - <b>{{count($sections)}}</b></div>
                             </div>
                         </div>
                         <div class="col-sm-2">
-                            <div class="card text-white bg-info mb-3">
-                                <div class="card-header">@lang('Sections') - <b>{{$totalSections}}</b></div>
+                            <div class="card text-white bg-danger mb-3">
+                                <div class="card-header">@lang('Houses') - <b>{{$housesCount}}</b></div>
                             </div>
                         </div>
                     </div>
@@ -58,18 +58,49 @@
                                 <div class="panel-body">
                                     <h3>@lang('Welcome to') 
                                         @if(Auth::user()->school->name == "Tupou College")
-                                             TCTNET
+                                             TCTNET {{now()->year}}
                                         @else
                                             {{Auth::user()->school->name}}
                                         @endif
                                     </h3>
-                                    <ul class="list-group">
+                                    {{-- <ul class="list-group">
                                         <li class="list-group-item list-group-item-dark">Cras justo odio</li>
                                         <li class="list-group-item">Dapibus ac facilisis in</li>
                                         <li class="list-group-item">Morbi leo risus</li>
                                         <li class="list-group-item">Porta ac consectetur ac</li>
                                         <li class="list-group-item">Vestibulum at eros</li>
-                                    </ul>
+                                    </ul> --}}
+
+                                    <div class="panel panel-default">
+                                        {{-- <div class="page-panel-title">
+                                            Mission Statement
+                                        </div> --}}
+                                        <div class="panel-body">
+                                            <b>Mission Statement</b>: 
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row panel panel-default">
+                                <div class="page-panel-title">@lang('Notices')</div>
+                                <div class="panel-body pre-scrollable">
+                                    @if(count($notices) > 0)
+                                    <div class="list-group">
+                                        @foreach($notices as $notice)
+                                        <a href="{{url($notice->file_path)}}" class="list-group-item" download>
+                                            <i class="badge badge-download material-icons">
+                                                get_app
+                                            </i>
+                                            <h5 class="list-group-item-heading">{{$notice->title}}</h5>
+                                            <p class="list-group-item-text">@lang('Published at'):
+                                                {{$notice->created_at->format('M d Y h:i:sa')}}</p>
+                                        </a>
+                                        @endforeach
+                                    </div>
+                                    @else
+                                    @lang('No New Notice')
+                                    @endif
                                 </div>
                             </div>
                             <div class="panel panel-default">
@@ -96,28 +127,36 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-4">
-                            <div class="panel panel-default">
-                                <div class="page-panel-title">@lang('Notices')</div>
+                        <div class="col-sm-2">
+                            <div class="row panel panel-default">
+                                {{-- <div class="page-panel-title">Form Distribution</div> --}}
                                 <div class="panel-body pre-scrollable">
-                                    @if(count($notices) > 0)
-                                    <div class="list-group">
-                                        @foreach($notices as $notice)
-                                        <a href="{{url($notice->file_path)}}" class="list-group-item" download>
-                                            <i class="badge badge-download material-icons">
-                                                get_app
-                                            </i>
-                                            <h5 class="list-group-item-heading">{{$notice->title}}</h5>
-                                            <p class="list-group-item-text">@lang('Published at'):
-                                                {{$notice->created_at->format('M d Y h:i:sa')}}</p>
-                                        </a>
-                                        @endforeach
-                                    </div>
-                                    @else
-                                    @lang('No New Notice')
+                                    @if($sections->first())
+                                        {{-- <div class="list-group"> --}}
+                                        <table class="table"> 
+                                            <thead>
+                                                <th class="text-center">Form</th>
+                                                <th class="text-center">Count</th>
+                                            </thead> 
+                                            @foreach($sections as $section)
+                                                {{-- <p class="list-group-item-text"> </p>--}}
+                                                <tr>
+                                                    <td class="text-center">
+                                                        {{$section->class->class_number.$section->section_number}}
+                                                    </td>
+                                                    <td class="text-center">
+                                                        {{$studentCountList[$section->id]}}
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </table>  
+                                        {{-- </div> --}}
+
                                     @endif
                                 </div>
+                            
                             </div>
+                           
                         </div>
                     </div>
                     <div class="row">
