@@ -24,6 +24,7 @@ class SectionController extends Controller
         $sections = \App\Section::whereIn('class_id',$classeIds)
                     ->where('active', 1)
                     ->orderBy('class_id')
+                    ->orderBy('section_number', 'asc')
                     ->get();
         $exams = \App\ExamForClass::whereIn('class_id',$classeIds)
                     ->where('active', 1)
