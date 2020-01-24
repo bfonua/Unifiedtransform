@@ -170,6 +170,7 @@ class UserController extends Controller
                 'session' => now()->year,
                 'house_id'=> $house_id
             ])
+        ->orderBy('form_id', 'desc')
         ->orderBy('group', 'asc')
         ->get();
         $house = House::find($house_id);

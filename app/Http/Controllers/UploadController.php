@@ -10,6 +10,7 @@ use App\Imports\TeachersImport;
 use App\Exports\StudentsExport;
 use App\Exports\TeachersExport;
 use App\Exports\allformsListExport;
+use App\Exports\allHouseListExport;
 use Maatwebsite\Excel\Facades\Excel;
 /*
  * jQuery File Upload Plugin PHP Class
@@ -139,7 +140,7 @@ class UploadController extends Controller {
         return Excel::download(new allformsListExport, 'Form List '.date("Y").'.xlsx');
     }
 
-    // public function export_tctHouseList(){
-    //     return Excel::download(new allHouseListExport, 'House List '.date("Y").'.xlsx');
-    // }
+    public function export_tctHouseList(){
+        return Excel::download(new allHouseListExport, 'House List '.date("Y").'.xlsx');
+    }
 }

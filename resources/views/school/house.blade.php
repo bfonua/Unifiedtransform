@@ -13,7 +13,7 @@
         <div class="col-md-10" id="main-container">
             <h4>@lang('All Houses')</h4>
             <br>
-            <a href="{{url('#')}}" class="btn btn-sm btn-success"><i class="material-icons">import_export</i> Export all houses</a>
+            <a href="{{url('students/export/house')}}" class="btn btn-sm btn-success"><i class="material-icons">import_export</i> Export all houses</a>
             @include('layouts.master.add-house-form') <!--NEW HOUSE BUTTON -->
             <hr>
             @if ($errors->any())

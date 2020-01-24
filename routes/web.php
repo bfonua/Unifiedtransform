@@ -267,7 +267,9 @@ Route::middleware(['auth','master.admin'])->group(function (){
   Route::post('upload/file', 'UploadController@upload');
   Route::post('users/import/user-xlsx','UploadController@import');
   Route::get('users/export/students-xlsx', 'UploadController@export');
-  Route::get('students/export/tct', 'UploadController@export_tctFormsList'); // TCT all forms export
+  Route::get('students/export/tct', 'UploadController@export_tctFormsList');
+  Route::get('students/export/house', 'UploadController@export_tctHouseList');
+  // TCT all forms export
 });
 Route::middleware(['auth','teacher'])->group(function (){
   Route::post('calculate-marks','GradeController@calculateMarks');

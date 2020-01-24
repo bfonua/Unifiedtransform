@@ -17,7 +17,7 @@
               @if($students->first())
                 {{-- {{$students}} --}}
                 <div class="panel-body">
-                    <table class="table table-data-div table-bordered">
+                    <table id= "myTable" class="table table-bordered">
                         <thead>
                         <tr>
                             <th class="text-center" scope="col">@lang('#')</th>
@@ -33,14 +33,14 @@
                                 <tr>
                                     <td class="text-center">{{$loop->iteration}}</td>
                                     <td class="text-center">{{$student->tct_id}}</td>
-                                    <td>
-                                        {{($student->student->active)?'Active / '.ucfirst($student->group):'Inactive / '.ucfirst($student->student->inactive->type)}}  
+                                    <td class="text-center">
+                                        {{($student->student->active)? ucfirst($student->group):'Inactive / '.ucfirst($student->student->inactive->type)}}  
                                     </td>
                                     <td>
                                         <a href="{{url('user/'.$student->student->student_code)}}">{{$student->student->given_name.' '.$student->student->lst_name}}</a>
                                     </td>
                                     <td class="text-center">
-                                        {{$student->section->class->class_number}}{{$student->section->section_name}}
+                                        {{$student->section->class->class_number}}{{$student->section->section_number}}
                                     </td>
 
                             @endforeach
@@ -56,4 +56,19 @@
         </div>
     </div>
 </div>
+@endsection
+
+
+@section('jsFiles')
+    <script>
+        $(document).ready(function($){
+            $('#myTable').DataTable({
+                paging: false,
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'excel', 'pdf'
+                ]
+            });
+        });
+    </script>
 @endsection
