@@ -14,7 +14,6 @@
                 @lang('Form') {{$section->class->class_number}}{{$section->section_number}}
             </h4>
             <div class="panel panel-default">
-                {{-- {{$students}} --}}
               @if($students->first())
                 <div class="panel-body">
                     <table id="myTable" class="table table-bordered">
@@ -29,32 +28,21 @@
                         </tr>
                         </thead>
                         <tbody>
-                        @for ($i = 1; $i < $max_loop + 1; $i++)
+                        @foreach($students as $student)
                             <tr>
-                            @php $student = \App\StudentInfo::where(
-                                    [
-                                    'form_id' => $section->id,
-                                    'form_num' => $i,
-                                    'session' => now()->year,
-                                    ])->first();
-                            @endphp
-                            <td class="text-center">{{$i}}</td>
-                            @if($student)
-                                <td class="text-center">{{$student->student->student_code}}</td>
+                                <td class="text-center">{{$student->studentInfo->form_num}}</td>
+                                <td class="text-center">{{$student->student_code}}</td>
                                 <td class="text-center">
-                                    {{($student->student->active =="1")?ucfirst($student->group):'Inactive / '.ucfirst($student->student->inactiveNow($student->session)->first()->type)}}  
+                                    {{($student->active =="1")?ucfirst($student->studentInfo->group):'Inactive / '.ucfirst($student->inactiveNow($student->studentInfo->session)->first()->type)}}  
+                                </td>
                                 <td>
-                                    <a href="{{url('user/'.$student->student->student_code)}}">{{($student->student->name == '')?$student->student->given_name.' '.$student->student->lst_name:$student->student->name}}</a>
+                                    <a href="{{url('user/'.$student->student_code)}}">{{$student->given_name.' '.$student->lst_name}}</a>
                                 </td>
                                 <td class="text-center">
-                                    {{$student->house->house_name}}
+                                    {{$student->studentInfo->house->house_abbrv}}
                                 </td>
-                                {{-- <td><a class="btn btn-xs btn-success" role="button" href="{{url('grades/'.$student->student->id)}}">@lang('View Grade History')</a></td> --}}
-                            @else
-                                <td colspan="4"></td>
-                            @endif
                             </tr>
-                        @endfor
+                        @endforeach
                         </tbody>
                     </table>
                 </div>

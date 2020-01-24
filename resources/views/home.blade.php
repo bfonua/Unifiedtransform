@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', __('TCTNET Home'))
+
 @section('content')
 <style>
     .badge-download {
@@ -154,7 +156,33 @@
 
                                     @endif
                                 </div>
-                            
+                            </div>
+                           
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="row panel panel-default">
+                                <div class="panel-body pre-scrollable">
+                                    @if($houses->first())
+                                        <table class="table"> 
+                                            <thead>
+                                                <th class="text-center">House</th>
+                                                <th class="text-center">Count</th>
+                                            </thead> 
+                                            @foreach($houses as $house)
+                                                <tr>
+                                                    <td class="text-center">
+                                                        {{$house->house_name}}
+                                                    </td>
+                                                    <td class="text-center">
+                                                        {{$studentCountHouse[$house->id]}}
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </table>  
+                                        {{-- </div> --}}
+
+                                    @endif
+                                </div>
                             </div>
                            
                         </div>

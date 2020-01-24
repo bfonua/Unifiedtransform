@@ -42,7 +42,7 @@
                                     </div>
                                     <div class="col-md-3">
                                         @php
-                                            $output = $class->sections()->count('id');
+                                            $output = $class->active_sections()->count('id');
                                             $msg = (($output == 0)? '-': (($output == 1)? '1 section': $output.' sections'));
                                             // $active = $class->sections()->where('active', 1)->count('id');
                                             // ({{$active}} / {{$output - $active}})

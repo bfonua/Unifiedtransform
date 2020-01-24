@@ -62,10 +62,10 @@
                                     </select>
                                 @else
                                     @php
-                                        $allNums = \App\StudentInfo::where('form_id', $user->studentInfo->form_id)
+                                        $maxNums = \App\StudentInfo::where('form_id', $user->studentInfo->form_id)
                                             ->where('session', $user->studentInfo->session)
-                                            ->orderBy('form_num', 'asc')
-                                            ->pluck('form_num')->toArray();
+                                            ->max('form_num');
+                                        $allNums = range(1, $maxNums + 1);
                                     @endphp
                                     >
                                     @foreach ($allNums as $num)
@@ -193,6 +193,22 @@
                             </select>
                         </div>
                     </div>
+                    <hr>
+                    {{-- Previous Class --}}
+                    <div class="row form-group">
+                        <label for="previous_class" class="col-sm-4 control-label">@lang('Previous Form')</label>
+                        <div class="col-sm-8">
+                             <input class="form-control" name="previous_class" type="text" value="{{$user->studentInfo->previous_form}}">
+                        </div>
+                    </div>
+                    {{-- Previous Class --}}
+                    <div class="row form-group">
+                        <label for="previous_school" class="col-sm-4 control-label">@lang('Previous School')</label>
+                        <div class="col-sm-8">
+                             <input class="form-control" name="previous_school" type="text" value="{{$user->studentInfo->previous_school}}">
+                        </div>
+                    </div>
+                    <hr>
                     <!--Church-->
                     <div class="row form-group">
                         <label for="church" class="col-sm-4 control-label">@lang('Church')</label>
@@ -220,7 +236,7 @@
                     </div>
                      <!--Nationality-->
                      <div class="row form-group">
-                        <label for="nationality" class="col-sm-4 control-label">@lang('nationality')</label>
+                        <label for="nationality" class="col-sm-4 control-label">@lang('Nationality')</label>
                         <div class="col-sm-8">
                             <select id="nationality" class="form-control" name="nationality">
                                 @php
@@ -235,6 +251,7 @@
                             </select>
                         </div>
                     </div>
+                    <hr>
                      <!--Health Condition-->
                      <div class="row form-group">
                         <label for="health_conditions" class="col-sm-4 control-label">@lang('Health Conditions')</label>

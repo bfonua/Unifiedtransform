@@ -56,11 +56,24 @@
       
       <!-- END OF STUDENT SECTION -->
     @if(Auth::user()->role != 'student')
-    <li class="nav-item">
-      <a class="nav-link" href="{{ url('school/sections?course=1') }}"><i class="material-icons">class</i> <span class="nav-link-text">@lang('Classes &amp; Sections')</span></a>
+    
+    <li class="nav-item dropdown">
+        <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
+            class="material-icons">class</i> <span class="nav-link-text">@lang('Classes &amp; Sections')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>
+        <ul class="dropdown-menu" style="width: 100%;">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url('school/sections?course=1') }}"><i class="material-icons">class</i> 
+                    <span class="nav-link-text">@lang('Current Sections')</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url('#') }}"><i class="material-icons">class</i> 
+                    <span class="nav-link-text">@lang('Inactive Sections')</span></a>
+            </li>
+        </ul>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="{{ url('school/houses') }}"><i class="material-icons">house</i> <span class="nav-link-text">@lang('Houses')</span></a>
+        <a class="nav-link" href="{{ url('school/houses') }}">
+            <i class="material-icons">house</i> <span class="nav-link-text">@lang('Houses')</span></a>
     </li>
     <li class="nav-item" style="border-bottom: 2px solid #dbd8d8;"></li>
     <li class="nav-item dropdown">

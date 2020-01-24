@@ -135,7 +135,11 @@ class UploadController extends Controller {
     }
     // Controller to export TCT Form Files
     public function export_tctFormsList(){
-        $year = date("Y");
+        // $year = date("Y");
         return Excel::download(new allformsListExport, 'Form List '.date("Y").'.xlsx');
     }
+
+    // public function export_tctHouseList(){
+    //     return Excel::download(new allHouseListExport, 'House List '.date("Y").'.xlsx');
+    // }
 }

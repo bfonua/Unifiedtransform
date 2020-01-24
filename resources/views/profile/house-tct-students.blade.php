@@ -37,7 +37,7 @@
                                         {{($student->student->active)?'Active / '.ucfirst($student->group):'Inactive / '.ucfirst($student->student->inactive->type)}}  
                                     </td>
                                     <td>
-                                        <a href="{{url('user/'.$student->student->student_code)}}">{{$student->student->name}}</a>
+                                        <a href="{{url('user/'.$student->student->student_code)}}">{{$student->student->given_name.' '.$student->student->lst_name}}</a>
                                     </td>
                                     <td class="text-center">
                                         {{$student->section->class->class_number}}{{$student->section->section_name}}

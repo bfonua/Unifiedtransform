@@ -17,8 +17,7 @@ class allFormsListExport implements WithMultipleSheets
         $classes = Myclass::query()
             ->bySchool(\Auth::user()->school->id)
             ->pluck('id');
-        $sections = Section::with('class')
-            ->whereIn('class_id', $classes)
+        $sections = Section::whereIn('class_id', $classes)
             ->where('active', 1)
             ->orderBy('class_id', 'asc')
             ->pluck('id');

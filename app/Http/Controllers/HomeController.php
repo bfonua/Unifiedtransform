@@ -136,6 +136,7 @@ class HomeController extends Controller
               'classes' =>$classes,
               'classIDs' => $classIDs,
               'sections' => $sections,
+              'houses' => $houses,
               'housesCount' => $housesCount,
               'studentCountList' => $studentCountList,
               'studentCountHouse' => $studentCountHouse,
