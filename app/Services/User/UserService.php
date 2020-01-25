@@ -164,6 +164,43 @@ class UserService {
         return ($curr)? $this->numberformat($remain) : $remain;
     }
 
+    // FINANCE FUNCTIONS
+
+    public function getStudentCount($section_id, $session){
+        return \App\StudentInfo::where('form_id', $section_id)
+        ->where('session', $session)
+        ->count('id');
+    }
+
+    public function getAssignedStudentsID($section_id, $session){
+        return \App\StudentInfo::where('form_id', $section_id)
+                ->where('session', $session)
+                ->where('assigned', 1)
+                ->pluck('student_id')->toArray();
+    }
+    /* $students Array 
+    */
+    public function getFeesStudents($session, $students){
+        $assignedFeeIDs = \App\Assign::where('session', $session)
+            ->whereIn('user_id', $students)->pluck('fee_id')->toArray();
+        $totalAssign = 0;
+        if(count($assignedFeeIDs)>0){
+            foreach($assignedFeeIDs as $id){
+                $totalAssign += \App\Fee::find($id)->amount;
+            }
+        }
+        $assign = $totalAssign;
+         $payment = \App\Payment::where('session', $session)
+            ->whereIn('user_id', $students)->sum('amount');
+
+        $remain = $assign - $payment;
+        return array(
+            'assign' => $assign,
+            'payment' => $payment, 
+            'remain' => $remain,
+        );
+    }
+
     public function getOldFees($session){
         if($session == 2017){
             $feeList['Term 1'] = 'term1';

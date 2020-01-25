@@ -69,6 +69,9 @@
                 <a class="nav-link" href="{{ url('#') }}"><i class="material-icons">class</i> 
                     <span class="nav-link-text">@lang('Inactive Sections')</span></a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url('fees/assign') }}"><i class="material-icons">monetization_on</i> <span class="nav-link-text">@lang('Section Finance')</span></a>
+            </li>
         </ul>
     </li>
     <li class="nav-item">
@@ -100,9 +103,7 @@
         @endphp
         <a class="nav-link" href="{{ url('fees/unassign') }}"><i class="material-icons">assignment_late</i> <span class="nav-link-text">@lang('Unassigned')</span>  <span class="badge"> {{$count}}</span></a></a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url('#') }}"><i class="material-icons">monetization_on</i> <span class="nav-link-text">@lang('Assigned')</span></a>
-    </li>
+    
     <li class="nav-item">
     <a class="nav-link" href="{{ url('#') }}"><i class="material-icons">monetization_on</i> <span class="nav-link-text">@lang('Payments')</span></a>
     </li>

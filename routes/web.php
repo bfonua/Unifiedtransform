@@ -71,6 +71,7 @@ Route::middleware(['auth','accountant'])->prefix('fees')->name('fees.')->group(f
     Route::resource('tct_payment', 'PaymentController');
     Route::resource('tct_paymentMigrate', 'PaymentMigrateController');
     Route::post('reassignForm', 'AssignController@showForm');
+    Route::get('section/{id}', 'AssignController@sectionFeeList');
 
     // Finance AJAX
     Route::get('assignListAction', 'AjaxController@getFeeAssignList');

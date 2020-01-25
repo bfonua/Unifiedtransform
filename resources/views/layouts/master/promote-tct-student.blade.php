@@ -19,6 +19,7 @@
                         <label for="section" class="col-sm-4 control-label">@lang('Select Form')</label>
                         <div class="col-sm-8">
                             <select id="section" class="form-control" name="section">
+                                <option value="">Select One:</option>
                                 @php
                                     $sections = $userSer->getAdminDetails()['sections'];
                                     $form_nums = $userSer->getAdminDetails()['form_nums'];
@@ -40,6 +41,7 @@
                         <label for="house" class="col-sm-4 control-label">@lang('Select House')</label>
                         <div class="col-sm-8">
                             <select id="house" class="form-control" name="house">
+                                <option value="">Select One:</option>
                                 @php
                                     $houses = $userSer->getAdminDetails()['houses'];
                                 @endphp

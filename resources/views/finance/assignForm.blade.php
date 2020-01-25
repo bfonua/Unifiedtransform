@@ -66,15 +66,14 @@
                                                 <td class="text-center">{{$userSer->numberformat($assign = \App\Fee::find($id)->amount)}}</td>
                                                 {{-- Checks if Session is before 2020 - to use old Payments table --}}
                                                 @if($session < 2020)
-                                                    {{-- Checks if fee is a school tpye --}}
                                                     @if(in_array($type, $schoolType))
                                                         @if($schoolAmountPaid - $schoolFeesAccrue >= $assign)
                                                             <td class="text-center">{{$userSer->numberformat($payment = $assign)}}</td>
-                                                            @php $schoolFeesAccrue += $assign; @endphp
                                                         @else
-                                                            {{-- <td>{{$payment = $schoolAmountPaid-$schoolFeesAccrue}}</td> --}}
                                                             <td class="text-center">{{$userSer->numberformat($payment = $schoolAmountPaid-$schoolFeesAccrue)}}</td>
                                                         @endif
+                                                        @php $schoolFeesAccrue += $payment; @endphp
+
                                                     @else
                                                         @php $payment = $userSer->getPayment($user->id, $session, $id, 0, $type) @endphp
                                                         <td class="text-center">{{$userSer->numberformat($payment)}}</td>
@@ -83,7 +82,6 @@
                                                     @php $payment = $userSer->getPayment($user->id, $session, $id) @endphp
                                                     <td class="text-center">{{$userSer->numberformat($payment)}}</td>
                                                 @endif
-                                                {{-- <td class="text-center">{{$userSer->numberformat($payment)}}</td> --}}
                                                 <td class="text-center">{{$userSer->numberformat($remain = $assign - $payment)}}</td>
                                                 @php
                                                     $total['assign'] += $assign;

@@ -157,10 +157,7 @@ class UserController extends Controller
     {
         $students = $this->userService->getTCTSectionStudentsWithSchool($section_id);
         $section = Section::find($section_id);
-        $max_form = DB::table('student_infos')->where(['form_id'=> $section_id, 'session'=>now()->year])->max('form_num');
-        $max_loop = ($max_form == 0)? 1 : $max_form;
-
-        return view('profile.section-tct-students', compact('students', 'section', 'max_loop'));
+        return view('profile.section-tct-students', compact('students', 'section'));
     }
 
     public function houseTCTStudents($house_id)
@@ -402,6 +399,7 @@ class UserController extends Controller
         } else{
             $fees_assigned = "";
         }
+        // return $user;
         return view('profile.user', compact('user', 'assignedCount', 'feeList', 'sessions', 'fees_assigned'));
     }
 
@@ -576,6 +574,11 @@ class UserController extends Controller
         // print($request);
 
         // Insert into Regrecord
+        $request->validate([
+            'section' => 'required',
+            'house' => 'required',
+        ]);
+        // return $request;
         $user = User::find($request->user_id);
 
         $tb = Regrecord::firstOrCreate(['user_id' => $request->user_id]);

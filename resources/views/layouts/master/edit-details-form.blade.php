@@ -290,7 +290,7 @@
                         </div>
                     </div>
                     <div class="row form-group">
-                        <label for="father_phone_number" class="col-sm-4 control-label">@lang('Father\'s Occupation')</label>
+                        <label for="father_phone_number" class="col-sm-4 control-label">@lang('Father\'s Phone Number')</label>
                         <div class="col-sm-8">
                             <input id="father_phone_number" type="text" class="form-control" name="father_phone_number" value="{{$user->studentInfo->father_phone_number}}">
                         </div>
@@ -309,7 +309,7 @@
                         </div>
                     </div>
                     <div class="row form-group">
-                        <label for="mother_phone_number" class="col-sm-4 control-label">@lang('Mother\'s Occupation')</label>
+                        <label for="mother_phone_number" class="col-sm-4 control-label">@lang('Mother\'s Phone Number')</label>
                         <div class="col-sm-8">
                             <input id="mother_phone_number" type="text" class="form-control" name="mother_phone_number" value="{{$user->studentInfo->mother_phone_number}}">
                         </div>

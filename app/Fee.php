@@ -16,4 +16,8 @@ class Fee extends Model
         return $this->belongsTo('App\FeeChannel', 'fee_channel_id');
     }
 
+    public function assigns(){
+        return $this->hasMany('App\Assign');
+    }
+
 }

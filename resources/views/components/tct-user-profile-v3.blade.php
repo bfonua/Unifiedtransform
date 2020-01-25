@@ -303,7 +303,7 @@
                                                                         <form class="form-horizontal" action="{{url('fees/reassignForm')}}" method="post">
                                                                             {{csrf_field()}}
                                                                             <input type="hidden" value="{{$user->id}}" name="user_id">
-                                                                            <input type="hidden" value="{{$user->studentInfo->session}}" name="session">
+                                                                            <input type="hidden" value="{{$session}}" name="session">
                                                                             <button type="submit" class="btn btn-primary btn-sm data-to"><i class="material-icons">assignment_returned</i> Reassign</button>
                                                                         </form>
                                                                     </div>
@@ -583,7 +583,7 @@
                                             <td class="text-center">
                                                 <div class="text-center">
                                                     @component('components.fee-type-form', [
-                                                        'buttonTitle' => 'Edit',
+                                                        'buttonTitle' => '',
                                                         'modal_name' => 'payment'.$pay->id,
                                                         'title' => 'Edit',
                                                         'put_method' => method_field('PUT'),
@@ -650,7 +650,7 @@
                                             <td class="text-center">
                                                 <div class="text-center">
                                                     @component('components.fee-type-form', [
-                                                        'buttonTitle' => 'Edit',
+                                                        'buttonTitle' => '',
                                                         'modal_name' => 'paymentMigrate'.$oldPay->pay_id,
                                                         'title' => 'Edit',
                                                         'put_method' => method_field('PUT'),
