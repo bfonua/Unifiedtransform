@@ -39,9 +39,9 @@
                                     @endphp
                                     @foreach ($sections as $section)
                                         @php 
-                                            $user_form_num = ($section->id == $user->section_id)? $user->studentInfo->form_num : $form_nums[$section->id];
+                                            $user_form_num = ($section->id == $user->studentInfo->form_id)? $user->studentInfo->form_num : $form_nums[$section->id];
                                         @endphp
-                                            ><option value="{{$section->id}}" {{($section->id == $user->section_id)?'selected="selected"':''}}>
+                                            ><option value="{{$section->id}}" {{($section->id == $user->studentInfo->form_id)?'selected="selected"':''}}>
                                             {{$section->class->class_number}}{{$section->section_number}}
                                             (#{{$user_form_num}})
                                            
