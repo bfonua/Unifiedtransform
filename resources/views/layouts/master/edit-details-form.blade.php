@@ -66,12 +66,18 @@
                                             ->where('session', $user->studentInfo->session)
                                             ->max('form_num');
                                         $allNums = range(1, $maxNums + 1);
+                                        $takenIDs = \App\StudentInfo::where('form_id', $user->studentInfo->form_id)
+                                            ->where('session', $user->studentInfo->session)
+                                            ->where('form_num', "!=", $user->studentInfo->form_num)
+                                            ->pluck('form_num')->toArray();
                                     @endphp
                                     >
                                     @foreach ($allNums as $num)
-                                        <option value="{{$num}}" {{($num == $user->studentInfo->form_num)?'selected="selected"':''}}>
-                                            {{$num}}
-                                        </option>
+                                        @if(!in_array($num, $takenIDs))
+                                            <option value="{{$num}}" {{($num == $user->studentInfo->form_num)?'selected="selected"':''}}>
+                                                {{$num}}
+                                            </option>
+                                        @endif
                                     @endforeach
                                     </select>
                                 @endif
