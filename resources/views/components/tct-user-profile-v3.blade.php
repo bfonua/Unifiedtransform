@@ -439,6 +439,7 @@
                                                                                                     ->pluck('fee_id')->toArray();
                                                                                                 $assignAm = \App\Fee::find($feeUser)->where('fee_type_id', $feeTypeID)->sum('amount');                                                                                    
                                                                                         }
+                                                                                        // echo $fee_name;
                                                                                         if($userSer->oldPaymentExists($user->studentinfo->tct_id, $fee_name, $session)->first()){
                                                                                             $text = 1;
                                                                                             $paymentAm = $userSer->oldPaymentExists($user->studentinfo->tct_id, $fee_name, $session)->sum('amount');
