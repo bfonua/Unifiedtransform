@@ -212,9 +212,16 @@ class UserService {
         } else{
             $feeList['School Fees'] = 'School Fees';
         }
+        // if($session == 2019){
+            $feeList['Bazaar (Old)'] = 'Bazaar (Old)';
+            $feeList['Bazaar (New)'] = 'Bazaar (New)';
+            $feeList['bazaar'] = 'bazaar';
+        // } elseif($session < 2019){
+        //     $feeList['Bazaar (Old)'] = 'bazaar';
+        //     $feeList['Bazaar (New)'] = 'bazaar';
+        //     $feeList['bazaar'] = 'bazaar';
+        // }
             $feeList['Late Registration'] = 'late';
-            $feeList['Bazaar (Old)'] = 'bazaar';
-            $feeList['Bazaar (New)'] = 'bazaar';
         return $feeList;
         
     }
@@ -231,8 +238,14 @@ class UserService {
             $feeList['Late Registration'] = 'late';
             $feeList['Magazine'] = 'magazine';
             $feeList['PTA'] = 'pta';
-            $feeList['Bazaar (Old)'] = 'bazaar';
-            $feeList['Bazaar (New)'] = 'bazaar';
+            // if($session == 2019){
+            //     $feeList['Bazaar (Old)'] = 'bazaar';
+            //     $feeList['Bazaar (New)'] = 'bazaar';
+            // } else {
+                $feeList['Bazaar (Old)'] = 'Bazaar (Old)';
+                $feeList['Bazaar (New)'] = 'Bazaar (New)';
+                $feeList['bazaar'] = 'bazaar';
+            // }
             $payAmount = \App\PaymentMigrate::where('tct_id', \App\User::find($user_id)->studentInfo->tct_id)
                 ->where('year', $session)
                 ->where('fee_type', $feeList[$type])
