@@ -20,6 +20,7 @@ class allFormsListExport implements WithMultipleSheets
         $sections = Section::whereIn('class_id', $classes)
             ->where('active', 1)
             ->orderBy('class_id', 'asc')
+            ->orderBy('section_number', 'asc')
             ->pluck('id');
         // $classes_id = Myclass::with('sections')->where('school_id',\Auth::user()->school->id)
         //     ->orderBy('class_id','asc')->pluck('id');

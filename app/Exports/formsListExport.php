@@ -20,6 +20,14 @@ class formsListExport implements WithEvents, WithTitle
         $this->section_id = $section_id;
     }
 
+    public function split_name($name) {
+        $parts = explode(' ', $name); // $meta->post_title
+        $name_first = array_shift($parts);
+        $name_last = array_pop($parts);
+        $name_middle = trim(implode(' ', $parts));
+        return array($name_first, $name_last, $name_middle);
+    }
+
     public function title(): string
     {
         $formRec = Section::find($this->section_id);
@@ -61,17 +69,15 @@ class formsListExport implements WithEvents, WithTitle
                 $inactiveStyle = array(
                     'fill' => array(
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'color' => array('')
+                        'color' => array('argb' => '909090')
                     ),
                 );
-
                 $sheet->getStyle('A1')->applyFromArray($title_style);
                 $event->sheet->setCellValue('A2', "TCT ID")
                     ->setCellValue('B2', '#')
                     ->setCellValue('C2', 'Name')
                     ->setCellValue('D2', 'House');
                 $sheet->getStyle('A2:D2')->applyFromArray($heading_style);
-
                 $reslist = \App\StudentInfo::where('form_id', $this->section_id)
                     ->where('session', now()->year)
                     ->orderBy('form_num', 'asc')->get();
@@ -85,17 +91,17 @@ class formsListExport implements WithEvents, WithTitle
                         $count++;
                         $row++;
                     }
-                    $name = $res->student->given_name." ".$res->student->lst_name;
+                    $name = $this->split_name($res->student->given_name)[0]." ". $this->split_name($res->student->given_name)[1]." ".$res->student->lst_name;
                     if($res->group == "Head Prefect"){
-                        $name .= '(HP)';
-                    } elseif($res->group == "Prefect"){
-                        $name .= "(P)";
+                        $name .= ' (HP)';
+                    } elseif(ucfirst($res->group) == "Prefect"){
+                        $name .= " (P)";
                     }
                     $sheet->setCellValue('A'.$row, $res->tct_id)
                         ->setCellValue('B'.$row, $res->form_num)
                         ->setCellValue('C'.$row, $name)
                         ->setCellValue('D'.$row, $res->house->house_abbrv);
-                        if($res->student->active == 0){
+                        if($res->student->active == '0'){
                             $sheet->getStyle("A".$row.":D".$row)->applyFromArray($inactiveStyle);
                         }
                         $row++;
@@ -111,7 +117,6 @@ class formsListExport implements WithEvents, WithTitle
                 );
                 $sheet->getStyle("B3:B{$last_border}")->applyFromArray($center);
                 $sheet->getStyle("D3:D{$last_border}")->applyFromArray($center);
-
                 $borderArray = array(
                     'borders' => array(
                         'allBorders' => array(
@@ -119,12 +124,9 @@ class formsListExport implements WithEvents, WithTitle
                         ),
                     ),
                 );
-
                 $sheet->getStyle("A1:L{$last_border}")->applyFromArray($borderArray);
-
                 $sheet -> getHeaderFooter()->setDifferentOddEven(false)
 							->setOddHeader('&RForm List  - &D');
-
                 // WIDTHS
                 $sheet->getColumnDimension('A')->setWidth(7);
                 $sheet->getColumnDimension('B')->setWidth(5);

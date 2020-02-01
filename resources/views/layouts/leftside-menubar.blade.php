@@ -47,6 +47,9 @@
             <li class="nav-item">
                 <a class="dropdown-item" href="#"><i class="material-icons">group</i><span class="nav-link-text">@lang('Inactive')</span></a>
             </li>
+            <li class="nav-item">
+                <a class="dropdown-item" href="#"><i class="material-icons">group</i><span class="nav-link-text">@lang('Prefects')</span></a>
+            </li>
             <li class="nav-item"> 
                 <a class="dropdown-item" href="{{url('tct_users_archive')}}"><i class="material-icons">group</i><span class="nav-link-text">@lang('Archived')</span></a>
             </li>
