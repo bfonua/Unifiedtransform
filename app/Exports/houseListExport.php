@@ -21,6 +21,14 @@ class houseListExport implements WithEvents, WithTitle
         $this->house_id = $house_id;
     }
 
+    public function split_name($name) {
+        $parts = explode(' ', $name); // $meta->post_title
+        $name_first = array_shift($parts);
+        $name_last = array_pop($parts);
+        $name_middle = trim(implode(' ', $parts));
+        return array($name_first, $name_last, $name_middle);
+    }
+
     public function title(): string
     {
         $houseRec = House::find($this->house_id);
@@ -74,27 +82,33 @@ class houseListExport implements WithEvents, WithTitle
                 ->setCellValue('E2', "Form");
                 $sheet->getStyle('A2:E2')->applyFromArray($heading_style);
 
+                $groups = ['Head Prefect', 'prefect', 'old', 'new'];
+                $groupsOrder = implode(',', $groups);
+
+
                 $reslist = \App\StudentInfo::where('session', now()->year)
                     ->where('house_id', $this->house_id)
-                    ->orderBy('form_id', 'desc')
-                    ->orderBy('group', 'asc')
+                    // ->orderBy('form_id', 'desc')
+                    // ->orderByRaw(\DB::raw("CASE WHEN group = 'Head Prefect' THEN group END ASC"))
                     ->get();
                 $row = 3; 
                 $count = 1;
                 foreach($reslist as $res){
-                    $name = $res->student->given_name." ".$res->student->lst_name;
+                    $name = $this->split_name($res->student->given_name)[0]." ". $this->split_name($res->student->given_name)[1]." ".$res->student->lst_name;
                     if($res->group == "Head Prefect"){
-                        $name .= '(HP)';
+                        $name .= ' (HP)';
                     }
-                    elseif($res->group == "Prefect"){
-                        $name .= '(P)';
+                    elseif($res->group == "prefect"){
+                        $name .= ' (P)';
                     }
+                    $role = (ucfirst($res->group) == "Head Prefect")? 'HP': ucfirst($res->group);
+                        
                     $sheet->setCellValue('A'.$row, $res->tct_id)
                     ->setCellValue('B'.$row, $count)
-                    ->setCellValue('C'.$row, ucfirst($res->group))
+                    ->setCellValue('C'.$row, $role)
                     ->setCellValue('D'.$row, $name)
                     ->setCellValue('E'.$row, $res->section->class->class_number.$res->section->section_number);
-                    if($res->reg_type == "Inactive"){
+                    if($res->student->active == 0){
                         $sheet->getStyle("A".$row.":E".$row)->applyFromArray($inactiveStyle);
                     }
                     $row++;
@@ -109,6 +123,7 @@ class houseListExport implements WithEvents, WithTitle
                     )
                 );
                 $sheet->getStyle("B3:B{$last_border}")->applyFromArray($center);
+                $sheet->getStyle("C3:C{$last_border}")->applyFromArray($center);
                 $sheet->getStyle("E3:E{$last_border}")->applyFromArray($center);
 
                 $borderArray = array(
@@ -127,10 +142,10 @@ class houseListExport implements WithEvents, WithTitle
 
                 // WIDTHS
                 $sheet->getColumnDimension('A')->setWidth(7);
-                $sheet->getColumnDimension('B')->setWidth(5);
-                $sheet->getColumnDimension('C')->setWidth(6);
+                $sheet->getColumnDimension('B')->setWidth(4);
+                $sheet->getColumnDimension('C')->setWidth(7);
                 $sheet->getColumnDimension('D')->setWidth(35);
-                $sheet->getColumnDimension('E')->setWidth(6);
+                $sheet->getColumnDimension('E')->setWidth(7);
                 foreach(range('F','M') as $columnID){
                     $sheet->getColumnDimension($columnID)->setWidth(4);
                 }
