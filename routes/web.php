@@ -72,6 +72,10 @@ Route::middleware(['auth','accountant'])->prefix('fees')->name('fees.')->group(f
     Route::resource('tct_paymentMigrate', 'PaymentMigrateController');
     Route::post('reassignForm', 'AssignController@showForm');
     Route::get('section/{id}', 'AssignController@sectionFeeList');
+    // Route::get('exportAssign', 'UploadController@export_tctFinanceAssignList');
+    // Route::get('exportPayment', 'UploadController@export_tctFinancePaymentList');
+    // Route::get('exportRemain', 'UploadController@export_tctFinanceRemainList');
+
 
     // Finance AJAX
     Route::get('assignListAction', 'AjaxController@getFeeAssignList');
@@ -109,6 +113,7 @@ Route::middleware(['auth'])->group(function (){
   Route::get('section/students/{section_id}', 'UserController@sectionStudents');
   Route::get('section/tct_students/{section_id}', 'UserController@sectionTCTStudents');
   Route::get('house/tct_students/{house_id}', 'UserController@houseTCTStudents');
+  Route::get('prefects/tct_students', 'UserController@prefectTCTStudents');
 
 
   
@@ -218,7 +223,7 @@ Route::middleware(['auth','admin'])->group(function (){
     Route::post('promote-students','UserController@promoteSectionStudentsPost');
     Route::post('theme','SchoolController@changeTheme');
     Route::post('set-ignore-sessions','SchoolController@setIgnoreSessions');
-    Route::resource('inactive', 'InactiveController')->only(['index', 'edit', 'store', 'update']);
+    Route::resource('inactive', 'InactiveController');
     Route::resource('reinstate', 'ReinstateController')->only(['index', 'edit', 'store', 'update']);
     Route::post('reinstate_approval', 'ReinstateController@approval');
     Route::post('promote-tct-student', 'UserController@promote_tct_student');

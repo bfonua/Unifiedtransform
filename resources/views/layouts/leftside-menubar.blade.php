@@ -45,10 +45,10 @@
                 <a class="dropdown-item" href="{{url('tct_users/'.Auth::user()->school->code.'/1/0')}}"><i class="material-icons">group</i><span class="nav-link-text">@lang('Registered')</span></a>
             </li>
             <li class="nav-item">
-                <a class="dropdown-item" href="#"><i class="material-icons">group</i><span class="nav-link-text">@lang('Inactive')</span></a>
+                <a class="dropdown-item" href="{{url('school/inactive')}}"><i class="material-icons">group</i><span class="nav-link-text">@lang('Inactive')</span></a>
             </li>
             <li class="nav-item">
-                <a class="dropdown-item" href="#"><i class="material-icons">group</i><span class="nav-link-text">@lang('Prefects')</span></a>
+                <a class="dropdown-item" href="{{url('prefects/tct_students')}}"><i class="material-icons">group</i><span class="nav-link-text">@lang('Prefects')</span></a>
             </li>
             <li class="nav-item"> 
                 <a class="dropdown-item" href="{{url('tct_users_archive')}}"><i class="material-icons">group</i><span class="nav-link-text">@lang('Archived')</span></a>

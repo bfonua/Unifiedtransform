@@ -532,7 +532,6 @@ class UserController extends Controller
             $tb->form_num = $this->userService->getMaxFormNumber($request->section);
             $tb2->section_id = $request->section;
             $tb2->save();
-
         } else{
             $tb->form_num = $request->form_num;
         }
@@ -580,7 +579,6 @@ class UserController extends Controller
         ]);
         // return $request;
         $user = User::find($request->user_id);
-
         $tb = Regrecord::firstOrCreate(['user_id' => $request->user_id]);
         $tb->user_id = $user->id;
         $tb->session = $user->studentInfo->session;
@@ -591,7 +589,6 @@ class UserController extends Controller
         // $tb->reg_date = $user->studentInfo->updated
         $tb->notes = $user->StudentInfo->reg_notes;
         $tb->save();
-
         // Update StudentInfo Table
         $tb2 = $user->studentInfo;
         $tb2->form_id = $request->section;
@@ -600,13 +597,9 @@ class UserController extends Controller
         $tb2->reg_notes = $request->notes;
         // $tb2->form_id = $request->section;
         $tb2->group = $request->status;
-
         $tb2->assigned = 0;
         $tb2->channel_id = '';
         $tb2->save();
-
-
-
         return redirect("/user/$user->student_code");
     }
 
@@ -664,5 +657,17 @@ class UserController extends Controller
       // ]):response()->json([
       //   'status' => 'error'
       // ]);
+    }
+
+    public function prefectTCTStudents()
+    {
+        $prefects = \App\StudentInfo::where('session', now()->year)
+            ->whereIn('group', ['Prefect', 'Head Prefect'])
+            ->orderBy('group', 'asc')
+            ->orderBy('house_id', 'asc')
+            ->get();
+        return view('profile.prefects-tct-students', [
+            'prefects' => $prefects,
+        ]);
     }
 }

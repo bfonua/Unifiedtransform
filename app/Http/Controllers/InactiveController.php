@@ -15,7 +15,18 @@ class InactiveController extends Controller
      */
     public function index()
     {
-        //
+
+        $maxSession = \App\StudentInfo::max('session');
+        $inactive = \App\User::whereHas('studentInfo', function($q) use($maxSession){
+            $q->where('session', $maxSession);
+        })->where('active', 0)
+        ->get();
+        // return $inactive;  
+        
+        return view('profile.inactive-tct-students', [
+            'inactive' => $inactive,
+            'maxSession' => $maxSession,
+        ]);
     }
 
     /**
