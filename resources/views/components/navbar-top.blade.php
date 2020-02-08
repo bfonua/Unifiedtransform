@@ -15,7 +15,7 @@
             <a class="navbar-brand" href="{{ url('/home') }}" style="color: #000;">
                 {{ (Auth::check() && (Auth::user()->role == 'student' || Auth::user()->role == 'teacher' ||
                 Auth::user()->role == 'admin' || Auth::user()->role == 'accountant' || Auth::user()->role ==
-                'librarian'))?Auth::user()->school->name:config('app.name') }}
+                'librarian'))? 'TCTNET':'TCTNET'}}
             </a>
         </div>
 
