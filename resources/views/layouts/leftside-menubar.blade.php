@@ -72,9 +72,7 @@
                 <a class="nav-link" href="{{ url('#') }}"><i class="material-icons">class</i> 
                     <span class="nav-link-text">@lang('Inactive Sections')</span></a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url('fees/assign') }}"><i class="material-icons">monetization_on</i> <span class="nav-link-text">@lang('Section Finance')</span></a>
-            </li>
+           
         </ul>
     </li>
     <li class="nav-item">
@@ -106,14 +104,11 @@
         @endphp
         <a class="nav-link" href="{{ url('fees/unassign') }}"><i class="material-icons">assignment_late</i> <span class="nav-link-text">@lang('Unassigned')</span>  <span class="badge"> {{$count}}</span></a></a>
     </li>
-    
     <li class="nav-item">
-    <a class="nav-link" href="{{ url('#') }}"><i class="material-icons">monetization_on</i> <span class="nav-link-text">@lang('Payments')</span></a>
-    </li>
-    <li class="nav-item">
-    <a class="nav-link" href="{{ url('#') }}"><i class="material-icons">monetization_on</i> <span class="nav-link-text">@lang('Remaining')</span></a>
+        <a class="nav-link" href="{{ url('fees/assign') }}"><i class="material-icons">monetization_on</i> <span class="nav-link-text">@lang('Section Finance')</span></a>
     </li>
     <li class="nav-item" style="border-bottom: 1px solid #dbd8d8;"></li>
+    
     <li class="nav-item dropdown">
         <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
             class="material-icons">date_range</i> <span class="nav-link-text">@lang('Attendance')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>

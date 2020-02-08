@@ -14,45 +14,49 @@
 @endif
 
 <div>
-    <div class="col-md-2" text-center>
-        <img src="http://ssl.gstatic.com/accounts/ui/avatar_2x.png" class="avatar img-circle img-thumbnail" alt="avatar">
-        <hr>
-        <!-- INACTIVE / REINSTATE BUTTONS -->
-        <div class="row text-center">
-            @if ($user->active)
-                @include('layouts.master.set-inactive')
-            @else
-                @if($userSer->checkReinstate($user))
-                    @if($userSer->getReinstateRequest($user)->approved)
-                        @include('layouts.master.set-inactive')
-                    @else
-                        @include('layouts.master.reinstate-approval')
-                    @endif
+    @if(Auth::user()->role == 'admin')
+        <div class="col-md-2" text-center>
+            <img src="http://ssl.gstatic.com/accounts/ui/avatar_2x.png" class="avatar img-circle img-thumbnail" alt="avatar">
+            <hr>
+            <!-- INACTIVE / REINSTATE BUTTONS -->
+            <div class="row text-center">
+                @if ($user->active)
+                    @include('layouts.master.set-inactive')
                 @else
-                    @include('layouts.master.reinstate-form')
+                    @if($userSer->checkReinstate($user))
+                        @if($userSer->getReinstateRequest($user)->approved)
+                            @include('layouts.master.set-inactive')
+                        @else
+                            @include('layouts.master.reinstate-approval')
+                        @endif
+                    @else
+                        @include('layouts.master.reinstate-form')
+                    @endif
                 @endif
-            @endif
 
+            </div>
+            <br>
+            <!-- PROMOTE BUTTON -->
+            <div class="row text-center">
+                @if($user->active & $user->studentInfo->session != date('Y'))
+                    @include('layouts.master.promote-tct-student')
+                    <br>
+                @endif
+            </div>
+            <br>
+            <!-- EDIT BUTTONS -->
+            <div class="row text-center">
+                @include('layouts.master.edit-details-form')
+            </div>
         </div>
-        <br>
-        <!-- PROMOTE BUTTON -->
-        <div class="row text-center">
-            @if($user->active & $user->studentInfo->session != date('Y'))
-                @include('layouts.master.promote-tct-student')
-                <br>
-            @endif
-        </div>
-        <br>
-        <!-- EDIT BUTTONS -->
-        <div class="row text-center">
-            @include('layouts.master.edit-details-form')
-        </div>
-    </div>
+    @endif
+
+
     <div class="col-md-10" id="main-container">
         <!-- STUDENT SUMMARY -->
         <div class="row">
-                @component('components.tct-student-summary',['user'=>$user])
-                @endcomponent 
+            @component('components.tct-student-summary',['user'=>$user])
+            @endcomponent 
         </div>
         <hr>
         <div class="row">
@@ -61,9 +65,11 @@
                 <li class="nav-item">
                     <a class="nav-link active " data-toggle="tab" href="#general">Administration</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-toggle="tab" href="#finance">Finance</a>
-                </li>
+                @if(Auth::user()->role != 'teacher')
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#finance">Finance</a>
+                    </li>
+                @endif
             </ul>
             <!-- NAV TABS CONTENT -->
             <div class="tab-content">
@@ -427,32 +433,41 @@
                                                                                     <hr>
                                                                                     @php
                                                                                         $oldFees = $userSer->getOldFees($session);
+                                                                                        // return $oldFees;
+                                                                                        // print json_encode($oldFees);
                                                                                     @endphp
                                                                                     @foreach($oldFees as $feeType=>$fee_name)
                                                                                         @php
-                                                                                        if($feeType == 'School Fees'){
+                                                                                            $bazaars = ["Bazaar (Old)", "Bazaar (New)", "bazaar"];
+                                                                                            $feeUser = \App\Assign::where('user_id', $user->id)
+                                                                                                        ->where('session', $session)
+                                                                                                        ->pluck('fee_id')->toArray();
+                                                                                            if($feeType == 'School Fees'){
                                                                                                 $assignAm = $userSer->getSchoolassigned($user->id, $session);
-                                                                                            } else{
+                                                                                            } 
+                                                                                            // elseif(in_array($feeType, $bazaars)){
+                                                                                            //     $feeTypeID = \App\FeeType::whereIn('name', $bazaars)->pluck('id')->toArray();
+                                                                                            //     $assignAm = \App\Fee::find($feeUser)->whereIn('fee_type_id', $feeTypeID)->sum('amount');   
+                                                                                            // } 
+                                                                                            else{
                                                                                                 $feeTypeID = \App\FeeType::where('name', $feeType)->first()->id;
-                                                                                                $feeUser = \App\Assign::where('user_id', $user->id)
-                                                                                                    ->where('session', $session)
-                                                                                                    ->pluck('fee_id')->toArray();
-                                                                                                $assignAm = \App\Fee::find($feeUser)->where('fee_type_id', $feeTypeID)->sum('amount');                                                                                    
-                                                                                        }
-                                                                                        // echo $fee_name;
-                                                                                        if($userSer->oldPaymentExists($user->studentinfo->tct_id, $fee_name, $session)->first()){
-                                                                                            $text = 1;
-                                                                                            $paymentAm = $userSer->oldPaymentExists($user->studentinfo->tct_id, $fee_name, $session)->sum('amount');
-                                                                                            $remainAm = $assignAm - $paymentAm;
-                                                                                        } else{ 
-                                                                                            {{Log::info('Fee type is '.$feeType);}}
-                                                                                            $text = 0;
-                                                                                            if($assignAm == 0){
-                                                                                                break;
-                                                                                            } else {
-                                                                                                $remainAm = $assignAm;
+                                                                                                $assignAm = \App\Fee::find($feeUser)->where('fee_type_id', $feeTypeID)->sum('amount');   
+                                                                                                echo(\App\Fee::find($feeUser)->where('fee_type_id', $feeTypeID));
+                                                                                                echo($feeType." ".$assignAm);                                                                                 
                                                                                             }
-                                                                                        }
+                                                                                            if($userSer->oldPaymentExists($user->studentinfo->tct_id, $fee_name, $session)->first()){
+                                                                                                $text = 1;
+                                                                                                $paymentAm = $userSer->oldPaymentExists($user->studentinfo->tct_id, $fee_name, $session)->sum('amount');
+                                                                                                $remainAm = $assignAm - $paymentAm;
+                                                                                            } else{ 
+                                                                                                {{Log::info('Fee type is '.$feeType);}}
+                                                                                                $text = 0;
+                                                                                                if($assignAm == 0){
+                                                                                                    break;
+                                                                                                } else {
+                                                                                                    $remainAm = $assignAm;
+                                                                                                }
+                                                                                            }
                                                                                         @endphp
                                                                                         @if($remainAm > 0)
                                                                                             <div class="row form-group">

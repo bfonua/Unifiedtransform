@@ -236,7 +236,8 @@ class UserController extends Controller
         }
         else {
             return view('profile.impersonate', [
-                'other_users' => $this->user->where('id', '!=', auth()->id())->get([ 'id', 'name', 'role' ])
+                'other_users' => $this->user->where('id', '!=', auth()->id())
+                    ->where('role', '!=', 'student')->get([ 'id', 'name', 'role' ])
             ]);
         }
     }
@@ -669,5 +670,39 @@ class UserController extends Controller
         return view('profile.prefects-tct-students', [
             'prefects' => $prefects,
         ]);
+    }
+
+    public function queryTest()
+    {
+        $section = \App\Section::where('active', 1)
+            ->orderBy('class_id', 'asc')
+            ->orderBy('section_number', 'asc')
+            ->first();
+        // echo('<table>
+        //     <thead>
+        //         <th>Form</th>
+        //         <th>Count</th>
+        //         <th>Assign</th>
+        //         <th>Payment</th>
+        //         <th>Remainging</th>
+        //     </thead>
+        //     <tbody>');
+        // foreach($section as $section){
+        //     $assign = $section->totalAssigned()->sum('fees.amount');
+        //     $payment = $section->payment()->sum('amount');
+        //     $remain = $assign - $payment;
+        //     echo('<tr>
+        //         <td>'.$section->class->class_number.$section->section_number.'</td>
+        //         <td>'.$section->students()->count().'</td>
+        //         <td>'.$assign.'</td>
+        //         <td>'.$payment.'</td>
+        //         <td>'.$remain.'</td>
+        //     </tr>');
+        // }
+        // echo('</tbody>
+        // </table>');
+
+
+
     }
 }

@@ -11,6 +11,9 @@ use App\Exports\StudentsExport;
 use App\Exports\TeachersExport;
 use App\Exports\allformsListExport;
 use App\Exports\allHouseListExport;
+use App\Exports\allFinanceAssignListExport;
+use App\Exports\allFinancePaymentListExport;
+use App\Exports\allFinanceRemainListExport;
 use Maatwebsite\Excel\Facades\Excel;
 /*
  * jQuery File Upload Plugin PHP Class
@@ -142,5 +145,17 @@ class UploadController extends Controller {
 
     public function export_tctHouseList(){
         return Excel::download(new allHouseListExport, 'House List '.date("Y").'.xlsx');
+    }
+
+    public function export_tctFinanceAssignList(){
+        return Excel::download(new allFinanceAssignListExport, 'Assigned List '.date("Y").'.xlsx');
+    }
+
+    public function export_tctFinancePaymentList(){
+        return Excel::download(new allFinancePaymentListExport, 'Payment List '.date("Y").'.xlsx');
+    }
+
+    public function export_tctFinanceRemainList(){
+        return Excel::download(new allFinanceRemainListExport, 'Remaining List '.date("Y").'.xlsx');
     }
 }

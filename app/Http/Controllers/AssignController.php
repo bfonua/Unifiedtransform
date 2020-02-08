@@ -38,39 +38,39 @@ class AssignController extends Controller
             ->orderBy('class_id')
             ->orderBy('section_number', 'asc')
             ->get();
-        $classAssign =  $classTotalAssign = $studentCount = $sectionPayment = $sectionRemain = $test = [];
-        foreach($classes as $class){
-            $forms = $class->active_sections()->get();
-            $assignTotal = 0;
-            $assignAssign = [];
-            foreach($forms as $form){
-                $studentCount[$form->id] = $this->userService->getStudentCount($form->id, now()->year);
-                $students = $this->userService->getAssignedStudentsID($form->id, now()->year);
+        // $classAssign =  $classTotalAssign = $studentCount = $sectionPayment = $sectionRemain = $test = [];
+        // foreach($classes as $class){
+        //     $forms = $class->active_sections()->get();
+        //     $assignTotal = 0;
+        //     $assignAssign = [];
+        //     foreach($forms as $form){
+        //         $studentCount[$form->id] = $this->userService->getStudentCount($form->id, now()->year);
+        //         $students = $this->userService->getAssignedStudentsID($form->id, now()->year);
 
-                $minutes = 1440;// 24 hours = 1440 minutes
-                $school_id = \Auth::user()->school->id;
-                $getFees = \Cache::remember('totalFees'.$form->id.'-'.$school_id, $minutes, function () use($school_id, $students) {
-                    return $this->userService->getFeesStudents(now()->year, $students);
-                });
-                // return $getFees;
-                $assignAssign[$form->id] = $getFees['assign'];
-                $assignTotal += $getFees['assign'];
-                $sectionPayment[$form->id] = $getFees['payment'];
-                $sectionRemain[$form->id] = $getFees['remain'];
-            }
-            $classAssign[$class->class_number] = $assignAssign;
-            $classTotalAssign[$class->class_number] = $assignTotal;
-        }
+        //         $minutes = 1440;// 24 hours = 1440 minutes
+        //         $school_id = \Auth::user()->school->id;
+        //         $getFees = \Cache::remember('totalFees'.$form->id.'-'.$school_id, $minutes, function () use($school_id, $students) {
+        //             return $this->userService->getFeesStudents(now()->year, $students);
+        //         });
+        //         // return $getFees;
+        //         $assignAssign[$form->id] = $getFees['assign'];
+        //         $assignTotal += $getFees['assign'];
+        //         $sectionPayment[$form->id] = $getFees['payment'];
+        //         $sectionRemain[$form->id] = $getFees['remain'];
+        //     }
+        //     $classAssign[$class->class_number] = $assignAssign;
+        //     $classTotalAssign[$class->class_number] = $assignTotal;
+        // }
         // return $sectionPayment;
         return view('finance.assigned',[
             'classes'=>$classes,
             'sections'=>$sections,
             'school'=>$school,
-            'classAssign' => $classAssign,
-            'classTotalAssign' => $classTotalAssign,
-            'studentCount' => $studentCount,
-            'sectionPayment' => $sectionPayment,
-            'sectionRemain' => $sectionRemain,
+            // 'classAssign' => $classAssign,
+            // 'classTotalAssign' => $classTotalAssign,
+            // 'studentCount' => $studentCount,
+            // 'sectionPayment' => $sectionPayment,
+            // 'sectionRemain' => $sectionRemain,
         ]);
     }
 

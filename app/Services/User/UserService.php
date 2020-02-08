@@ -201,6 +201,21 @@ class UserService {
         );
     }
 
+    public function allFees($type){
+        $feeList['Term 1'] = 'term1';
+        $feeList['Term 2'] = 'term2';
+        $feeList['Term 3'] = 'term3';
+        $feeList['Term 4'] = 'term4';
+        $feeList['Magazine'] = 'magazine';
+        $feeList['PTA'] = 'pta';
+        $feeList['School Fees'] = 'School Fees';
+        $feeList['Bazaar (Old)'] = 'Bazaar (Old)';
+        $feeList['Bazaar (New)'] = 'Bazaar (New)';
+        $feeList['bazaar'] = 'bazaar';
+        $feeList['Late Registration'] = 'late';
+        return $feeList[$type];
+    }
+
     public function getOldFees($session){
         if($session == 2017){
             $feeList['Term 1'] = 'term1';
@@ -212,45 +227,40 @@ class UserService {
         } else{
             $feeList['School Fees'] = 'School Fees';
         }
-        // if($session == 2019){
             $feeList['Bazaar (Old)'] = 'Bazaar (Old)';
             $feeList['Bazaar (New)'] = 'Bazaar (New)';
             $feeList['bazaar'] = 'bazaar';
-        // } elseif($session < 2019){
-        //     $feeList['Bazaar (Old)'] = 'bazaar';
-        //     $feeList['Bazaar (New)'] = 'bazaar';
-        //     $feeList['bazaar'] = 'bazaar';
-        // }
             $feeList['Late Registration'] = 'late';
         return $feeList;
         
     }
 
     public function getPayment($user_id, $session, $fee_id, $curr=0, $type=""){
+        $bazaars = ["Bazaar (Old)", "Bazaar (New)", "bazaar"];
         if($session > 2019){
             $payments = \App\Payment::where('user_id', $user_id)
                 ->where('session', $session)
                 ->orderby('receipt', 'desc')
                 ->get();
             $payAmount = $payments->where('fee_id', $fee_id)->sum('amount');
-        } else {
-            // return 0;
-            $feeList['Late Registration'] = 'late';
-            $feeList['Magazine'] = 'magazine';
-            $feeList['PTA'] = 'pta';
-            // if($session == 2019){
-            //     $feeList['Bazaar (Old)'] = 'bazaar';
-            //     $feeList['Bazaar (New)'] = 'bazaar';
-            // } else {
-                $feeList['Bazaar (Old)'] = 'Bazaar (Old)';
-                $feeList['Bazaar (New)'] = 'Bazaar (New)';
-                $feeList['bazaar'] = 'bazaar';
-            // }
+        } elseif(in_array($type, $bazaars)){
             $payAmount = \App\PaymentMigrate::where('tct_id', \App\User::find($user_id)->studentInfo->tct_id)
                 ->where('year', $session)
-                ->where('fee_type', $feeList[$type])
+                ->whereIn('fee_type', $bazaars)
                 ->sum('amount');
         }
+        else{
+            $payAmount = \App\PaymentMigrate::where('tct_id', \App\User::find($user_id)->studentInfo->tct_id)
+                ->where('year', $session)
+                ->where('fee_type', $this->allFees($type))
+                ->sum('amount');
+        }
+            // $feeList['Late Registration'] = 'late';
+            // $feeList['Magazine'] = 'magazine';
+            // $feeList['PTA'] = 'pta';
+            // $feeList['Bazaar (Old)'] = 'Bazaar (Old)';
+            // $feeList['Bazaar (New)'] = 'Bazaar (New)';
+            // $feeList['bazaar'] = 'bazaar';
         return ($curr)? $this->numberformat($payAmount):$payAmount;
     }
 

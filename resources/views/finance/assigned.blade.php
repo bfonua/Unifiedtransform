@@ -1,7 +1,5 @@
 @extends('layouts.app')
-
 @section('title', __('Fee Summary - Sections'))
-
 @section('content')
 <style>
     #cls-sec .panel{
@@ -16,10 +14,12 @@
         <div class="col-md-7 container" id="main-container">
             <h4>@lang('Assignments and Payments')</h4>
             <br>
-            <a href="{{url('#')}}" class="btn btn-sm btn-success disabled"><i class="material-icons">import_export</i> Export summary</a>
+            <a href="{{url('fees/exportAssign')}}" class="btn btn-sm btn-primary"><i class="material-icons">import_export</i> Export Assigned</a>
+            <a href="{{url('fees/exportPayment')}}" class="btn btn-sm btn-danger"><i class="material-icons">monetization_on</i> Export Payment</a>
+            <a href="{{url('fees/exportRemain')}}" class="btn btn-sm btn-success"><i class="material-icons">monetization_on</i> Export Remaining</a>
             {{-- @include('layouts.master.add-class-form') <!--NEW FORM BUTTON --> --}}
             <hr>
-            <table class="table">
+            <table class="table table-bordered">
                 <thead>
                     <th class="text-center">Section</th>
                     <th class="text-center">Student Count</th>
@@ -29,7 +29,6 @@
                     <th class="text-center">View Details</th>
                 </thead>
                 <tbody>
-
                 @php
                     function numberformat($amount){
                         if($amount == 0.00){
@@ -42,24 +41,25 @@
                     }
                 @endphp
                     @foreach ($sections as $section)
+                        @php
+                            $assign = $section->totalAssigned()->sum('fees.amount');
+                            $payment = $section->payment()->sum('amount');
+                            $remain = $assign - $payment;
+                        @endphp
                         <tr>
                             <td class="text-center">{{$section->class->class_number.$section->section_number}}</td>
-                            <td class="text-center">{{$studentCount[$section->id]}}</td>
-                            <td class="text-center">{{numberformat($classAssign[$section->class->class_number][$section->id])}}</td>
-                            <td class="text-center">{{numberformat($sectionPayment[$section->id])}}</td>
-                            <td class="text-center">{{numberformat($sectionRemain[$section->id])}}</td>
+                            <td class="text-center">{{$section->students()->count()}}</td>
+                            <td class="text-center">{{numberformat($assign)}}</td>
+                            <td class="text-center">{{numberformat($payment)}}</td>
+                            <td class="text-center">{{numberformat($remain)}}</td>
                             <td class="text-center">
                                 <a role="button" class="btn btn-primary btn-xs" href="{{url('/fees/section/'.$section->id)}}"><i class="material-icons">visibility</i> @lang('View')</a>
                             </td>
                         </tr>
-                        
-                    @endforeach
 
+                    @endforeach
                 </tbody>
             </table>
-
-
-
           </div>
     </div>
 </div>

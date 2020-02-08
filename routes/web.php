@@ -27,6 +27,7 @@ Route::middleware(['auth', 'master'])->group(function () {
 });
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/queryTest', 'UserController@queryTest');
 
 Route::middleware(['auth'])->group(function (){
   Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
@@ -72,9 +73,9 @@ Route::middleware(['auth','accountant'])->prefix('fees')->name('fees.')->group(f
     Route::resource('tct_paymentMigrate', 'PaymentMigrateController');
     Route::post('reassignForm', 'AssignController@showForm');
     Route::get('section/{id}', 'AssignController@sectionFeeList');
-    // Route::get('exportAssign', 'UploadController@export_tctFinanceAssignList');
-    // Route::get('exportPayment', 'UploadController@export_tctFinancePaymentList');
-    // Route::get('exportRemain', 'UploadController@export_tctFinanceRemainList');
+    Route::get('exportAssign', 'UploadController@export_tctFinanceAssignList');
+    Route::get('exportPayment', 'UploadController@export_tctFinancePaymentList');
+    Route::get('exportRemain', 'UploadController@export_tctFinanceRemainList');
 
 
     // Finance AJAX

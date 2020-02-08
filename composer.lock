@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2f175f3fe5504d7ef8d44ea5f9d3dcc7",
+    "content-hash": "8be1fee677724aea8181ca83725867f3",
     "packages": [
         {
             "name": "defuse/php-encryption",
@@ -2134,6 +2134,7 @@
                 "cron",
                 "schedule"
             ],
+            "abandoned": "dragonmantank/cron-expression",
             "time": "2017-01-23T04:29:33+00:00"
         },
         {
@@ -3108,6 +3109,47 @@
                 "stylesheet"
             ],
             "time": "2016-07-19T19:14:21+00:00"
+        },
+        {
+            "name": "staudenmeir/eloquent-has-many-deep",
+            "version": "v1.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/staudenmeir/eloquent-has-many-deep.git",
+                "reference": "aae9a3608b531cd89171dc19ccbd81fffd3dbe24"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/staudenmeir/eloquent-has-many-deep/zipball/aae9a3608b531cd89171dc19ccbd81fffd3dbe24",
+                "reference": "aae9a3608b531cd89171dc19ccbd81fffd3dbe24",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/database": "^5.5.29",
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "illuminate/pagination": "^5.5.29",
+                "phpunit/phpunit": "~6.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Staudenmeir\\EloquentHasManyDeep\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jonas Staudenmeir",
+                    "email": "mail@jonas-staudenmeir.de"
+                }
+            ],
+            "description": "Laravel Eloquent HasManyThrough relationship with unlimited levels",
+            "time": "2019-02-22T07:20:56+00:00"
         },
         {
             "name": "stripe/stripe-php",
@@ -4503,6 +4545,7 @@
                 "psr",
                 "psr-7"
             ],
+            "abandoned": "laminas/laminas-diactoros",
             "time": "2018-09-05T19:29:37+00:00"
         }
     ],
@@ -4863,6 +4906,7 @@
                 "selenium",
                 "webdriver"
             ],
+            "abandoned": "php-webdriver/webdriver",
             "time": "2018-05-16T17:37:13+00:00"
         },
         {
