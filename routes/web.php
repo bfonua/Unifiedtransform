@@ -57,9 +57,9 @@ Route::middleware(['auth','teacher'])->prefix('grades')->group(function (){
 Route::get('grades/{student_id}', 'GradeController@index')->middleware(['auth','teacher.student']);
 
 Route::middleware(['auth','accountant'])->prefix('fees')->name('fees.')->group(function (){
-  Route::get('all', 'FeeController@index');
-  Route::get('create', 'FeeController@create');
-  Route::post('create', 'FeeController@store');
+    Route::get('all', 'FeeController@index');
+    Route::get('create', 'FeeController@create');
+    Route::post('create', 'FeeController@store');
   // Created for TCT fees
     Route::resource('fee_type', 'FeeTypeController');
     Route::resource('fee_channel', 'FeeChannelController');
@@ -214,12 +214,13 @@ Route::middleware(['auth','master'])->group(function (){
 Route::middleware(['auth','admin'])->group(function (){
   Route::prefix('school')->name('school.')->group(function (){
     Route::post('add-class','MyclassController@store');
+    Route::post('add-tct-department', 'DepartmentController@store'); // ADD DEPARTMENT
     Route::put('edit-tct-class/{id}','MyclassController@tct_update'); // UPDATE CLASS
     Route::post('add-section','SectionController@store');
     Route::put('edit-tct-section/{id}','SectionController@tct_update'); // UPDATE SECTION
     Route::post('add-house', 'Housecontroller@store'); // STORE HOUSE
     Route::put('edit-tct-house/{id}', 'HouseController@update'); // UPDATE HOUSE
-    Route::post('add-department','SchoolController@addDepartment');
+    // Route::post('add-department','SchoolController@addDepartment');
     Route::get('promote-students/{section_id}','UserController@promoteSectionStudents');
     Route::post('promote-students','UserController@promoteSectionStudentsPost');
     Route::post('theme','SchoolController@changeTheme');

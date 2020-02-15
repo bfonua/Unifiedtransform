@@ -432,73 +432,61 @@
                                                                                     </div>
                                                                                     <hr>
                                                                                     @php
-                                                                                        $oldFees = $userSer->getOldFees($session);
+                                                                                        // $oldFees = $userSer->getOldFees($session);
                                                                                         // return $oldFees;
                                                                                         // print json_encode($oldFees);
+                                                                                        // print json_encode($allUserFees);
+                                                                                        // print json_encode($feeList[$session]['fee_id']);
+                                                                                        $assignFeeIDs = $feeList[$session]['fee_id'];
+                                                                                        $schoolFeesDone = 0; // Switch for when school fees has been processed
                                                                                     @endphp
-                                                                                    @foreach($oldFees as $feeType=>$fee_name)
-                                                                                        @php
-                                                                                            $bazaars = ["Bazaar (Old)", "Bazaar (New)", "bazaar"];
-                                                                                            $feeUser = \App\Assign::where('user_id', $user->id)
-                                                                                                        ->where('session', $session)
-                                                                                                        ->pluck('fee_id')->toArray();
-                                                                                            if($feeType == 'School Fees'){
-                                                                                                $assignAm = $userSer->getSchoolassigned($user->id, $session);
-                                                                                            } 
-                                                                                            // elseif(in_array($feeType, $bazaars)){
-                                                                                            //     $feeTypeID = \App\FeeType::whereIn('name', $bazaars)->pluck('id')->toArray();
-                                                                                            //     $assignAm = \App\Fee::find($feeUser)->whereIn('fee_type_id', $feeTypeID)->sum('amount');   
-                                                                                            // } 
-                                                                                            else{
-                                                                                                $feeTypeID = \App\FeeType::where('name', $feeType)->first()->id;
-                                                                                                $assignAm = \App\Fee::find($feeUser)->where('fee_type_id', $feeTypeID)->sum('amount');   
-                                                                                                echo(\App\Fee::find($feeUser)->where('fee_type_id', $feeTypeID));
-                                                                                                echo($feeType." ".$assignAm);                                                                                 
-                                                                                            }
-                                                                                            if($userSer->oldPaymentExists($user->studentinfo->tct_id, $fee_name, $session)->first()){
-                                                                                                $text = 1;
-                                                                                                $paymentAm = $userSer->oldPaymentExists($user->studentinfo->tct_id, $fee_name, $session)->sum('amount');
-                                                                                                $remainAm = $assignAm - $paymentAm;
-                                                                                            } else{ 
-                                                                                                {{Log::info('Fee type is '.$feeType);}}
-                                                                                                $text = 0;
-                                                                                                if($assignAm == 0){
-                                                                                                    break;
-                                                                                                } else {
-                                                                                                    $remainAm = $assignAm;
+                                                                                    @foreach($assignFeeIDs as $id)
+                                                                                        @php 
+                                                                                            $type = \App\Fee::find($id)->fee_type->name;
+                                                                                            // echo $type;
+                                                                                            if(in_array($session, [2018, 2019]) and in_array($type, ['Term 1', 'Term 2', 'Term 3', 'Term 4'])){
+                                                                                                if(!$schoolFeesDone){
+                                                                                                    $assignAm = $userSer->getSchoolassigned($user->id, $session);
+                                                                                                    $paymentAm = \App\PaymentMigrate::where('tct_id', $user->studentInfo->tct_id)
+                                                                                                        ->where('year', $session)
+                                                                                                        ->whereIn('fee_type', ['School Fees','term1', 'term2', 'term3', 'term4'])
+                                                                                                        ->sum('amount');
+                                                                                                    $schoolFeesDone = 1;
+                                                                                                    $type = "School Fees";
                                                                                                 }
+                                                                                            } else{
+                                                                                                $assignAm = \App\Fee::find($id)->amount;
+                                                                                                $paymentAm = $userSer->getPayment($user->id, $session, $id, 0, $type);
+                                                                                                // echo($type." ".$assignAm." ".$paymentAm);
                                                                                             }
+                                                                                            $remainAm = $assignAm - $paymentAm
                                                                                         @endphp
                                                                                         @if($remainAm > 0)
                                                                                             <div class="row form-group">
                                                                                                 <label for="type" class="col-sm-3 control-label">Fee Type</label>
                                                                                                 <div class="col-sm-4">
-                                                                                                    <input id = "type" name="typePaid" class="form-control" value="{{$feeType}}" readonly>
+                                                                                                    <input id = "type" name="typePaid" class="form-control" value="{{$type}}" readonly>
                                                                                                 </div>
                                                                                             </div>
-                                                                                            
                                                                                             <div class="row form-group">
-                                                                                                <label for="assigned" class="col-sm-3 control-label">{{($text)?'Remaining':'Assigned'}}</label>
+                                                                                                <label for="assigned" class="col-sm-3 control-label">Remaining</label>
                                                                                                 <div class="col-sm-4">
                                                                                                     <input id = "assigned" name="assigned" class="form-control" value="{{$remainAm}}" readonly>
                                                                                                 </div>
                                                                                             </div>
-                                                                                            @if($remainAm > 0)
-                                                                                                <div class="row form-group">
-                                                                                                    <label for="payment{{$id}}" class="col-sm-3 control-label">Payment</label>
-                                                                                                    <div class="col-sm-6">
-                                                                                                        <input id = "payment{{$id}}" name="payment[{{$id}}]" class="form-control" placeholder="0.00">
-                                                                                                    </div>
+                                                                                            <div class="row form-group">
+                                                                                                <label for="payment{{$id}}" class="col-sm-3 control-label">Payment</label>
+                                                                                                <div class="col-sm-6">
+                                                                                                    <input id = "payment{{$id}}" name="payment[{{$id}}]" class="form-control">
                                                                                                 </div>
-                                                                                                <div class="row form-group">
-                                                                                                    <label for="notes{{$id}}" class="col-sm-3 control-label">Notes</label>
-                                                                                                    <div class="col-sm-6">
-                                                                                                        <textarea id = "notes{{$id}}" name="notes[{{$id}}]" class="form-control"></textarea>
-                                                                                                    </div>
+                                                                                            </div>
+                                                                                            <div class="row form-group">
+                                                                                                <label for="notes{{$id}}" class="col-sm-3 control-label">Notes</label>
+                                                                                                <div class="col-sm-6">
+                                                                                                    <textarea id = "notes{{$id}}" name="notes[{{$id}}]" class="form-control"></textarea>
                                                                                                 </div>
-                                                                                            @endif
-                                                                                        @endif
-                                                                                        <hr>
+                                                                                            </div>
+                                                                                        @endif        
                                                                                     @endforeach
                                                                                 @endslot
                                                                             @endcomponent

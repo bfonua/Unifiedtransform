@@ -30,6 +30,8 @@ class SectionController extends Controller
                     ->where('active', 1)
                     ->groupBy('class_id')
                     ->get();
+
+        $departments = \App\Department::all();
         // $departments = Department::bySchool(\Auth::user()->school_id)->get();
         // $teachers = User::select('departments.*', 'users.*')
         //     ->join('departments', 'departments.id', '=', 'users.department_id')
@@ -43,7 +45,7 @@ class SectionController extends Controller
             'sections'=>$sections,
             'exams'=>$exams,
             'school'=>$school,
-            // 'departments'=>$departments,
+            'departments'=>$departments,
             // 'teachers'=>$tecahers,
 
         ]);

@@ -1,4 +1,4 @@
-<a role="button" class="btn btn-danger btn-xs" href="" data-toggle="modal" data-target="#editFormModal{{$class->id}}"><i class="material-icons">edit</i> @lang('Edit Class')</a>
+<a role="button" class="btn btn-primary btn-xs" href="" data-toggle="modal" data-target="#editFormModal{{$class->id}}"><i class="material-icons">edit</i></a>
 <!-- MODAL -->
 <div class="modal fade" id="editFormModal{{$class->id}}" tabindex="-1" role="dialog" aria-labelledby="editFormModal{{$class->id}}Label">
     <div class="modal-dialog" role="document">
