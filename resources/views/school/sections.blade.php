@@ -25,6 +25,7 @@
             <h4>@lang('Active Departments & Classes')</h4>
             {{-- <br> --}}
             <a href="{{url('students/export/tct')}}" class="btn btn-sm btn-success"><i class="material-icons">import_export</i> Export all classes</a>
+            <a href="{{url('students/all_reg')}}" class="btn btn-sm btn-primary"><i class="material-icons">import_export</i> Export Reg Info</a>
             @include('layouts.master.add-class-form') <!--NEW FORM BUTTON -->
             @include('layouts.master.add-department-form')
             <hr>
@@ -195,7 +196,7 @@
                                             <a class="panel-title collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{$department->id}}" aria-expanded="false" aria-controls="collapse{{$department->id}}"><small><b>@lang('Click to view') <i class="material-icons">keyboard_arrow_down</i></b></small></a>
                                         </div>
                                         <div class="col-md-2 text-center">                    
-                                            @include('layouts.master.edit-department-form')
+                                            {{-- @include('layouts.master.edit-department-form') --}}
                                         </div>
                                     </div>
                             </div>

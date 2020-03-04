@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Imports\StudentsImport;
 use App\Imports\TeachersImport;
 use App\Exports\StudentsExport;
+use App\Exports\allRegStudentsExport;
 use App\Exports\TeachersExport;
 use App\Exports\allformsListExport;
 use App\Exports\allHouseListExport;
@@ -157,5 +158,9 @@ class UploadController extends Controller {
 
     public function export_tctFinanceRemainList(){
         return Excel::download(new allFinanceRemainListExport, 'Remaining List '.date("Y").'.xlsx');
+    }
+
+    public function export_allRegList(){
+        return Excel::download(new allRegStudentsExport(now()->year), date('Y').'-students.xlsx');
     }
 }
