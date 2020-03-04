@@ -116,8 +116,6 @@ Route::middleware(['auth'])->group(function (){
   Route::get('house/tct_students/{house_id}', 'UserController@houseTCTStudents');
   Route::get('prefects/tct_students', 'UserController@prefectTCTStudents');
 
-
-  
   Route::get('courses/{teacher_id}/{section_id}', 'CourseController@index');
 });
 
@@ -277,6 +275,8 @@ Route::middleware(['auth','master.admin'])->group(function (){
   Route::get('users/export/students-xlsx', 'UploadController@export');
   Route::get('students/export/tct', 'UploadController@export_tctFormsList');
   Route::get('students/export/house', 'UploadController@export_tctHouseList');
+  Route::get('students/all_reg', 'UploadController@export_allRegList');
+
   // TCT all forms export
 });
 Route::middleware(['auth','teacher'])->group(function (){
