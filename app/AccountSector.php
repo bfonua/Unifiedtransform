@@ -2,8 +2,6 @@
 
 namespace App;
 
-use App\Model;
-
 class AccountSector extends Model
 {
     protected $table = 'account_sectors';

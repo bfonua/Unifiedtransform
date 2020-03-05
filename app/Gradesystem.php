@@ -2,8 +2,6 @@
 
 namespace App;
 
-use App\Model;
-
 class Gradesystem extends Model
 {
     protected $table = 'grade_systems';

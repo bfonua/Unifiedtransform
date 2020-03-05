@@ -9,7 +9,7 @@ class Regrecord extends Model
     protected $fillable = [
         'user_id',
     ];
-        
+
     public function user()
     {
         return $this->belongsTo('App\User');
@@ -25,10 +25,8 @@ class Regrecord extends Model
         return $this->belongsTo('App\House');
     }
 
-
     public function channel()
     {
         return $this->belongsTo('App\FeeChannel', 'fee_id');
     }
-
 }

@@ -9,7 +9,8 @@ class UserResource extends Resource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return array
      */
     public function toArray($request)
@@ -21,10 +22,10 @@ class UserResource extends Resource
             'email' => $this->email,
             'address' => $this->address,
             'about' => $this->about,
-            'pic_path' => (!empty($this->pic_path))?$this->pic_path:null,
+            'pic_path' => (! empty($this->pic_path)) ? $this->pic_path : null,
             'phone_number' => $this->phone_number,
             'school_code' => $this->code,
-            'school' => new SchoolResource(\App\School::where('code',$this->code)->first()),
+            'school' => new SchoolResource(\App\School::where('code', $this->code)->first()),
             'student_code' => $this->student_code,
             'section' => new SectionResource($this->section),
             'father_name' => $this->father_name,

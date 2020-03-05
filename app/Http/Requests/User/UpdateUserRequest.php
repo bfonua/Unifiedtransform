@@ -2,12 +2,11 @@
 
 namespace App\Http\Requests\User;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Class UpdateUserRequest
- * @package App\Http\Requests\User
+ * Class UpdateUserRequest.
  */
 class UpdateUserRequest extends FormRequest
 {
@@ -30,12 +29,12 @@ class UpdateUserRequest extends FormRequest
     {
         $rules = [
             'user_id' => 'required|numeric',
-            'email' => 'required|email|max:255|' . Rule::unique('users')->ignore($this->get('user_id')),
+            'email' => 'required|email|max:255|'.Rule::unique('users')->ignore($this->get('user_id')),
             'name' => 'required|string|max:255',
-            'phone_number' => 'required|string|' . Rule::unique('users')->ignore($this->get('user_id')),
+            'phone_number' => 'required|string|'.Rule::unique('users')->ignore($this->get('user_id')),
         ];
 
-        if ($this->get('user_role') == 'teacher') {
+        if ('teacher' == $this->get('user_role')) {
             $rules['department_id'] = 'required|numeric';
         }
 

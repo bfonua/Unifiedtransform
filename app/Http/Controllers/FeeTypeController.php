@@ -15,9 +15,10 @@ class FeeTypeController extends Controller
     public function index()
     {
         $fee_types = FeeType::all();
+
         return view('finance.fee_type',
         [
-            'fee_types'=>$fee_types,
+            'fee_types' => $fee_types,
         ]);
     }
 
@@ -28,13 +29,13 @@ class FeeTypeController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -42,10 +43,10 @@ class FeeTypeController extends Controller
         $request->validate([
             'name' => 'required',
           ]);
-        $tb = new FeeType;
+        $tb = new FeeType();
         $tb->name = $request->name;
         $tb->active = $request->active;
-        $tb->notes = ($request->notes)? $request->notes : '';
+        $tb->notes = ($request->notes) ? $request->notes : '';
         $tb->save();
 
         return redirect('/fees/fee_type');
@@ -54,30 +55,31 @@ class FeeTypeController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\FeeType  $feeType
+     * @param \App\FeeType $feeType
+     *
      * @return \Illuminate\Http\Response
      */
     public function show(FeeType $feeType)
     {
-        //
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\FeeType  $feeType
+     * @param \App\FeeType $feeType
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(FeeType $feeType)
     {
-        //
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\FeeType  $feeType
+     * @param \Illuminate\Http\Request $request
+     * @param \App\FeeType             $feeType
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, FeeType $feeType)
@@ -88,7 +90,7 @@ class FeeTypeController extends Controller
 
         $feeType->name = $request->name;
         $feeType->active = $request->active;
-        $feeType->notes = ($request->notes)? $request->notes : '';
+        $feeType->notes = ($request->notes) ? $request->notes : '';
         $feeType->save();
 
         return redirect('/fees/fee_type');
@@ -97,11 +99,11 @@ class FeeTypeController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\FeeType  $feeType
+     * @param \App\FeeType $feeType
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(FeeType $feeType)
     {
-        //
     }
 }

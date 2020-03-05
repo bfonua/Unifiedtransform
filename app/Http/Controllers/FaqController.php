@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Faq as Faq;
-use App\Http\Resources\FaqResource;
 use Illuminate\Http\Request;
+use App\Http\Resources\FaqResource;
 
 class FaqController extends Controller
 {
@@ -25,32 +25,33 @@ class FaqController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-      $tb = new Faq;
-      $tb->question = $request->question;
-      $tb->answer = $request->answer;
+        $tb = new Faq();
+        $tb->question = $request->question;
+        $tb->answer = $request->answer;
 
-      return($tb->save())?response()->json([
-        'status' => 'success'
-        ]):response()->json([
-          'status' => 'error'
+        return($tb->save()) ? response()->json([
+        'status' => 'success',
+        ]) : response()->json([
+          'status' => 'error',
         ]);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -61,45 +62,48 @@ class FaqController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        //
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int                      $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-      $tb = Faq::find($id);
-      $tb->question = $request->question;
-      $tb->answer = $request->answer;
-      return ($tb->save())?response()->json([
-        'status' => 'success'
-      ]):response()->json([
-        'status' => 'error'
+        $tb = Faq::find($id);
+        $tb->question = $request->question;
+        $tb->answer = $request->answer;
+
+        return ($tb->save()) ? response()->json([
+        'status' => 'success',
+      ]) : response()->json([
+        'status' => 'error',
       ]);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-      return (Faq::destroy($id))?response()->json([
-        'status' => 'success'
-      ]):response()->json([
-        'status' => 'error'
+        return (Faq::destroy($id)) ? response()->json([
+        'status' => 'success',
+      ]) : response()->json([
+        'status' => 'error',
       ]);
     }
 }

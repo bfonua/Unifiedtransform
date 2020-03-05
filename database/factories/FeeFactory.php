@@ -7,16 +7,20 @@ use Faker\Generator as Faker;
 
 $factory->define(Fee::class, function (Faker $faker) {
     return [
-        'fee_name'  => $faker->name,
-        'school_id' => function() use ($faker) {
-            if (School::count())
+        'fee_name' => $faker->name,
+        'school_id' => function () use ($faker) {
+            if (School::count()) {
                 return $faker->randomElement(School::pluck('id')->toArray());
-            else return factory(School::class)->create()->id;
+            } else {
+                return factory(School::class)->create()->id;
+            }
         },
-        'user_id'   => function() use ($faker) {
-            if (User::count())
+        'user_id' => function () use ($faker) {
+            if (User::count()) {
                 return $faker->randomElement(User::pluck('id')->toArray());
-            else return factory(User::class)->create()->id;
+            } else {
+                return factory(User::class)->create()->id;
+            }
         },
     ];
 });

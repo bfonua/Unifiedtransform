@@ -22,7 +22,7 @@ class EventServiceProvider extends ServiceProvider
         // Added event for TCT Registration
         'App\Events\TCTStudentInfoUpdateRequested' => [
             'App\Listeners\UpdateTCTStudentInfo',
-        ]
+        ],
     ];
 
     /**
@@ -33,7 +33,5 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
-
-        //
     }
 }

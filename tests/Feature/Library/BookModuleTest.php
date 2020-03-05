@@ -4,7 +4,6 @@ namespace Tests\Feature\Library;
 
 use App\Book;
 use App\User;
-use App\Myclass;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -14,14 +13,16 @@ class BookModuleTest extends TestCase
 
     protected $librarian;
 
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
         $this->librarian = factory(User::class)->states('librarian')->create();
         $this->actingAs($this->librarian);
     }
 
     /** @test */
-    public function it_shows_the_books_list() {
+    public function it_shows_the_books_list()
+    {
         $book = create(Book::class, [], 2);
 
         $this->get(route('library.books.index'))
@@ -30,7 +31,8 @@ class BookModuleTest extends TestCase
     }
 
     /** @test */
-    public function it_displays_the_books_details() {
+    public function it_displays_the_books_details()
+    {
         $book = create(Book::class);
 
         $this->get(route('library.books.show', $book->id))
@@ -39,13 +41,15 @@ class BookModuleTest extends TestCase
     }
 
     /** @test */
-    public function it_loads_the_new_book_page() {
+    public function it_loads_the_new_book_page()
+    {
         $this->get(route('library.books.create'))
             ->assertStatus(200);
     }
 
     /** @test */
-    public function it_creates_a_new_book() {
+    public function it_creates_a_new_book()
+    {
         $book = make(Book::class);
 
         $this->post(route('library.books.store'), $book->toArray())
@@ -56,51 +60,53 @@ class BookModuleTest extends TestCase
     }
 
     /** @test */
-    public function the_book_attributes_must_be_required() {
+    public function the_book_attributes_must_be_required()
+    {
         $this->from(route('library.books.create'))
             ->post(route('library.books.store'), [
-                'title'     => '',
+                'title' => '',
                 'book_code' => '',
-                'author'    => '',
-                'quantity'  => null,
-                'rackNo'    => '',
-                'rowNo'     => '',
-                'type'      => '',
-                'about'     => '',
-                'price'     => null,
-                'img_path'  => '',
-                'class_id'  => null,
+                'author' => '',
+                'quantity' => null,
+                'rackNo' => '',
+                'rowNo' => '',
+                'type' => '',
+                'about' => '',
+                'price' => null,
+                'img_path' => '',
+                'class_id' => null,
                 'school_id' => $this->librarian->school_id,
-                'user_id'   => $this->librarian->id
+                'user_id' => $this->librarian->id,
             ])
             ->assertRedirect(route('library.books.create'))
             ->assertSessionHasErrors([
                 'title', 'book_code', 'author', 'quantity', 'rackNo', 'rowNo',
-                'type', 'about', 'price', 'img_path', 'class_id'
+                'type', 'about', 'price', 'img_path', 'class_id',
             ]);
 
         $this->assertEquals(0, Book::count());
     }
 
     /** @test */
-    public function the_book_code_must_be_unique() {
+    public function the_book_code_must_be_unique()
+    {
         $existent_book = create(Book::class, ['book_code' => 'code_1']);
 
         $this->from(route('library.books.create'))
             ->post(route('library.books.store'), [
-                'title'     => 'title',
+                'title' => 'title',
                 'book_code' => 'code_1',
-                'author'    => 'author',
-                'quantity'  => 10,
-                'rackNo'    => '1',
-                'rowNo'     => '2',
-                'type'      => 'Dev',
-                'about'     => 'about',
-                'price'     => 10,
-                'img_path'  => 'https://lorempixel.com/150/150/cats/?88202',
-                'class_id'  => $existent_book->class_id,
+                'author' => 'author',
+                'quantity' => 10,
+                'rackNo' => '1',
+                'rowNo' => '2',
+                'type' => 'Dev',
+                'about' => 'about',
+                'price' => 10,
+                'img_path' => 'https://lorempixel.com/150/150/cats/?88202',
+                'class_id' => $existent_book->class_id,
                 'school_id' => $this->librarian->school_id,
-                'user_id'   => $this->librarian->id
+                'user_id' => $this->librarian->id,
             ])
             ->assertRedirect(route('library.books.create'))
             ->assertSessionHasErrors(['book_code']);
@@ -109,7 +115,8 @@ class BookModuleTest extends TestCase
     }
 
     /** @test */
-    public function it_loads_the_edit_book_page() {
+    public function it_loads_the_edit_book_page()
+    {
         $book = create(Book::class);
 
         $this->get(route('library.books.edit', $book))

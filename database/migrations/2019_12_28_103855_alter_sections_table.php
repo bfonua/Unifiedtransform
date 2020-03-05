@@ -15,7 +15,6 @@ class AlterSectionsTable extends Migration
     {
         Schema::table('sections', function (Blueprint $table) {
             $table->boolean('active')->default(1);
-            
         });
     }
 

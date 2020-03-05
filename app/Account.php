@@ -2,8 +2,6 @@
 
 namespace App;
 
-use App\Model;
-
 class Account extends Model
 {
     public function school()

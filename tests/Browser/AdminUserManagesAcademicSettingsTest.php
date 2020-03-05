@@ -12,16 +12,18 @@ class AdminUserManagesAcademicSettingsTest extends DuskTestCase
 {
     use DatabaseMigrations;
 
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
         $this->admin = factory(User::class)->states('admin')->create();
     }
 
     /** @test */
-    public function admin_user_can_see_academic_settings() {
+    public function admin_user_can_see_academic_settings()
+    {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->admin)
-                ->visit(new SettingPage);
+                ->visit(new SettingPage());
         });
     }
 }

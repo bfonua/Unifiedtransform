@@ -12,8 +12,9 @@ class NoticeTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function the_notices_are_filter_by_school() {
-        $school  = create(School::class);
+    public function the_notices_are_filter_by_school()
+    {
+        $school = create(School::class);
         $notices = create(Notice::class, ['school_id' => $school->id], 2);
 
         $other_school = create(School::class);

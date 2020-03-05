@@ -5,8 +5,7 @@ namespace App\Http\Requests\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Class ChangePasswordRequest
- * @package App\Http\Requests\User
+ * Class ChangePasswordRequest.
  */
 class ChangePasswordRequest extends FormRequest
 {

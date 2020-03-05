@@ -15,9 +15,10 @@ class PaymentController extends Controller
     public function index()
     {
         $receipts = Payment::where('custormer_id', auth()->user()->id)->get();
-        return view('stripe.receipts',compact('receipts'));
+
+        return view('stripe.receipts', compact('receipts'));
     }
-    
+
     /**
      * Show the form for creating a new resource.
      *
@@ -25,13 +26,13 @@ class PaymentController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -42,11 +43,10 @@ class PaymentController extends Controller
             'payment_date' => 'required',
         ]);
 
-        
-        if(count($request->payment)){
-            foreach($request->payment as $fee_id => $amount){
-                if($amount>0){
-                    $tb = new Payment;
+        if (count($request->payment)) {
+            foreach ($request->payment as $fee_id => $amount) {
+                if ($amount > 0) {
+                    $tb = new Payment();
                     $tb->fee_id = $fee_id;
                     $tb->amount = $amount;
                     $tb->user_id = $request->user_id;
@@ -56,42 +56,42 @@ class PaymentController extends Controller
                     $tb->pay_date = $request->payment_date;
                     $tb->save();
                 }
-                
+
                 // return $tb;
             }
         }
-        
-        return redirect('/user/'.\App\User::find($request->user_id)->student_code);
 
+        return redirect('/user/'.\App\User::find($request->user_id)->student_code);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Payment  $payment
+     * @param \App\Payment $payment
+     *
      * @return \Illuminate\Http\Response
      */
     public function show(Payment $payment)
     {
-        //
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Payment  $payment
+     * @param \App\Payment $payment
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(Payment $payment)
     {
-        //
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Payment  $payment
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Payment             $payment
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -103,13 +103,12 @@ class PaymentController extends Controller
             'session' => 'required',
             'amount' => 'required',
           ]);
-        
+
         $fee = \App\Fee::where([
             'session' => $request->session,
             'fee_type_id' => $request->type,
             'fee_channel_id' => $request->channel_id,
         ])->first();
-
 
         $tb = \App\Payment::find($id);
         $tb->receipt = $request->receipt;
@@ -121,20 +120,17 @@ class PaymentController extends Controller
 
         // return $tb;
 
-          return redirect('/user/'.\App\User::find($request->user_id)->student_code)->with('finance_tab', true);
-
-
-
+        return redirect('/user/'.\App\User::find($request->user_id)->student_code)->with('finance_tab', true);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Payment  $payment
+     * @param \App\Payment $payment
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(Payment $payment)
     {
-        //
     }
 }

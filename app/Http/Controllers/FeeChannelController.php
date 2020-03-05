@@ -14,9 +14,10 @@ class FeeChannelController extends Controller
      */
     public function index()
     {
-        $fee_channel = FeeChannel::orderBy('session','desc')
-            ->orderBy('name','asc')
+        $fee_channel = FeeChannel::orderBy('session', 'desc')
+            ->orderBy('name', 'asc')
             ->get();
+
         return view('finance.fee_channel',
         [
             'fee_channels' => $fee_channel,
@@ -30,13 +31,13 @@ class FeeChannelController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -45,10 +46,10 @@ class FeeChannelController extends Controller
             'name' => 'required',
             'session' => 'required',
           ]);
-        $tb = new FeeChannel;
+        $tb = new FeeChannel();
         $tb->name = $request->name;
         $tb->active = $request->active;
-        $tb->notes = ($request->notes)? $request->notes : '';
+        $tb->notes = ($request->notes) ? $request->notes : '';
         $tb->session = $request->session;
         $tb->save();
 
@@ -58,30 +59,31 @@ class FeeChannelController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\FeeChannel  $feeChannel
+     * @param \App\FeeChannel $feeChannel
+     *
      * @return \Illuminate\Http\Response
      */
     public function show(FeeChannel $feeChannel)
     {
-        //
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\FeeChannel  $feeChannel
+     * @param \App\FeeChannel $feeChannel
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(FeeChannel $feeChannel)
     {
-        //
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\FeeChannel  $feeChannel
+     * @param \Illuminate\Http\Request $request
+     * @param \App\FeeChannel          $feeChannel
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, FeeChannel $feeChannel)
@@ -93,22 +95,21 @@ class FeeChannelController extends Controller
 
         $feeChannel->name = $request->name;
         $feeChannel->active = $request->active;
-        $feeChannel->notes = ($request->notes)? $request->notes : '';
+        $feeChannel->notes = ($request->notes) ? $request->notes : '';
         $feeChannel->session = $request->session;
         $feeChannel->save();
 
         return back()->with('status', __('Updated'));
-
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\FeeChannel  $feeChannel
+     * @param \App\FeeChannel $feeChannel
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(FeeChannel $feeChannel)
     {
-        //
     }
 }

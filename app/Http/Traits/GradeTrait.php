@@ -1,37 +1,40 @@
 <?php
+
 namespace App\Http\Traits;
 
 use App\Grade as Grade;
 
-trait GradeTrait {
-    public function addStudentsToCourse($teacher_id,$course_id,$exam_id,$section_id) {
+trait GradeTrait
+{
+    public function addStudentsToCourse($teacher_id, $course_id, $exam_id, $section_id)
+    {
         // Check whether desired Course for a certain Examination are added in order to give marks or not
         $countGradeIds = Grade::where('course_id', $course_id)
                                 ->where('exam_id', $exam_id)
                                 ->count();
-        if($countGradeIds < 1){// Not added
+        if ($countGradeIds < 1) {// Not added
             // Get student ids of that section
-            $students = \App\User::where('section_id',$section_id)
-                                    ->where('role','student')
-                                    ->where('active',1)
+            $students = \App\User::where('section_id', $section_id)
+                                    ->where('role', 'student')
+                                    ->where('active', 1)
                                     ->pluck('id')
                                     ->toArray();
-            $grades = Grade::whereIn('student_id',$students)
-                            ->where('course_id',$course_id)
-                            ->where('exam_id',$exam_id)
+            $grades = Grade::whereIn('student_id', $students)
+                            ->where('course_id', $course_id)
+                            ->where('exam_id', $exam_id)
                             ->pluck('student_id')
                             ->toArray();
 
-            $grade_student_ids = array();
+            $grade_student_ids = [];
 
-            foreach($grades as $grade){
+            foreach ($grades as $grade) {
                 array_push($grade_student_ids, $grade->student_id);
             }
 
-            foreach($students as $student_id){
-                if(!in_array($student_id,$grade_student_ids)){
+            foreach ($students as $student_id) {
+                if (! in_array($student_id, $grade_student_ids)) {
                     // Put default values
-                    $tb = new Grade;
+                    $tb = new Grade();
                     $tb->gpa = 0;
                     $tb->marks = 0;
                     $tb->attendance = 0;
@@ -61,12 +64,14 @@ trait GradeTrait {
                     $tbc[] = $tb->attributesToArray();
                 }
             }
-            try{
-                if(count($tbc) > 0)
+            try {
+                if (count($tbc) > 0) {
                     // Insert students of that section to give marks later for this course and Examination
                     Grade::insert($tbc);
-                    return;
-            }catch(\Exception $e){
+                }
+
+                return;
+            } catch (\Exception $e) {
                 return false;
             }
         } else {// Added desired course for desired exam

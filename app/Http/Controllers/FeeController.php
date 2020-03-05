@@ -13,14 +13,16 @@ class FeeController extends Controller
      */
     public function index()
     {
-      $fees = \App\Fee::bySchool(\Auth::user()->school_id)->get();
-      return view('fees.all',['fees'=>$fees]);
+        $fees = \App\Fee::bySchool(\Auth::user()->school_id)->get();
+
+        return view('fees.all', ['fees' => $fees]);
     }
 
     public function tct_index()
     {
-      $fees = \App\Fee::where('session', now()->year)->simplepaginate(50);
-      return view('fees.tct_all',['fees'=>$fees]);
+        $fees = \App\Fee::where('session', now()->year)->simplepaginate(50);
+
+        return view('fees.tct_all', ['fees' => $fees]);
     }
 
     /**
@@ -36,7 +38,8 @@ class FeeController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -44,27 +47,27 @@ class FeeController extends Controller
         $request->validate([
             'fee_name' => 'required|string|max:255',
         ]);
-        $fee = new \App\Fee;
+        $fee = new \App\Fee();
         $fee->fee_name = $request->fee_name;
         $fee->school_id = \Auth::user()->school_id;
         $fee->user_id = \Auth::user()->id;
         $fee->save();
+
         return back()->with('status', __('Saved'));
     }
 
     public function tct_store(Request $request)
     {
-        
         $request->validate([
             'name' => 'required',
             'session' => 'required',
           ]);
-        $fee =  \App\Fee::firstOrNew(
+        $fee = \App\Fee::firstOrNew(
             [
                 'school_id' => \Auth::user()->school_id,
                 'fee_channel_id' => $request->channel,
                 'fee_type_id' => $request->type,
-                'session' => $request->session,  
+                'session' => $request->session,
             ]);
         $fee->fee_name = $request->name;
         // $fee->school_id = \Auth::user()->school_id;
@@ -75,36 +78,38 @@ class FeeController extends Controller
         // $fee->amount = $request->session;
         $fee->active = $request->active;
         $fee->save();
+
         return back()->with('status', __('Saved'));
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        //
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        //
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int                      $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -113,7 +118,7 @@ class FeeController extends Controller
             'school_id' => \Auth::user()->school_id,
             'fee_channel_id' => $request->channel,
             'fee_type_id' => $request->type,
-            'session' => $request->session,  
+            'session' => $request->session,
             'amount' => $request->amount,
             'active' => $request->active,
         ];
@@ -135,17 +140,18 @@ class FeeController extends Controller
 
         // print($fee);
         $fee->save();
+
         return back()->with('status', __('Updated'));
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        //
     }
 }

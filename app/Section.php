@@ -2,13 +2,10 @@
 
 namespace App;
 
-use App\Model;
-
-
 class Section extends Model
 {
     use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -17,9 +14,10 @@ class Section extends Model
     protected $fillable = [
         'section_number', 'room_number', 'class_id', 'user_id',
     ];
+
     /**
      * Get the class record associated with the user.
-    */
+     */
     public function class()
     {
         return $this->belongsTo('App\Myclass');
@@ -41,11 +39,11 @@ class Section extends Model
             'App\User', ['App\StudentInfo'],
             [
                 'form_id',
-                'id'
+                'id',
             ],
             [
-                'id', 
-                'student_id'
+                'id',
+                'student_id',
             ]
         )->where('session', now()->year);
     }
@@ -83,12 +81,13 @@ class Section extends Model
                 'id', // LK on Section
                 'student_id', // LK on StudentInfo
                 'id', // LK on User
-                'fee_id' // LK on Assign
+                'fee_id', // LK on Assign
             ]
         )->where('assigns.session', now()->year);
     }
 
-    public function payment(){
+    public function payment()
+    {
         return $this->hasManyDeep(
             'App\Payment',
             ['App\StudentInfo', 'App\User'],
@@ -104,6 +103,4 @@ class Section extends Model
             ]
         )->where('payments.session', now()->year);
     }
-
-
 }

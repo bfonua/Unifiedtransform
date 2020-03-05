@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Password Reset Language Lines
@@ -17,6 +16,5 @@ return [
     'reset' => 'Su contraseña ha sido reestablecida!',
     'sent' => 'Le hemos enviado un correo con una liga para reestablecer su contraseña!',
     'token' => 'El token de reseteo de contraseña es invalido.',
-    'user' => "No pudimos encontrar un usuario con esa dirección de correo.",
-
+    'user' => 'No pudimos encontrar un usuario con esa dirección de correo.',
 ];

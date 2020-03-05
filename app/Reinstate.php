@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+
 // use App\Inactive;
 // use App\Users;
 
@@ -17,5 +18,4 @@ class Reinstate extends Model
     {
         return $this->belongsTo('App\Inactive', 'inactive_id');
     }
-
 }
