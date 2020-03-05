@@ -5,7 +5,6 @@ namespace Tests\Unit\App;
 use App\User;
 use App\School;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class UsersTest extends TestCase
@@ -14,39 +13,45 @@ class UsersTest extends TestCase
 
     protected $user;
 
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
         $this->user = create(User::class);
     }
 
     /** @test */
-    public function an_user_is_an_instance_of_User() {
-        $this->assertInstanceOf('App\User', $this->user);
+    public function an_user_is_an_instance_of_User()
+    {
+        $this->assertInstanceOf(\App\User::class, $this->user);
     }
 
     /** @test */
-    public function an_user_belongs_to_section() {
-        $this->assertInstanceOf('App\Section', $this->user->section);
+    public function an_user_belongs_to_section()
+    {
+        $this->assertInstanceOf(\App\Section::class, $this->user->section);
     }
 
     /** @test */
-    public function an_user_belongs_to_school() {
-        $this->assertInstanceOf('App\School', $this->user->school);
+    public function an_user_belongs_to_school()
+    {
+        $this->assertInstanceOf(\App\School::class, $this->user->school);
     }
 
     /** @test */
-    public function an_user_belongs_to_department() {
-        $this->assertInstanceOf('App\Department', $this->user->department);
+    public function an_user_belongs_to_department()
+    {
+        $this->assertInstanceOf(\App\Department::class, $this->user->department);
     }
 
     /** @test */
-    public function an_user_has_role() {
+    public function an_user_has_role()
+    {
         $accountant = factory(User::class)->states('accountant')->create();
-        $admin      = factory(User::class)->states('admin')->create();
-        $librarian  = factory(User::class)->states('librarian')->create();
-        $master     = factory(User::class)->states('master')->create();
-        $student    = factory(User::class)->states('student')->create();
-        $teacher    = factory(User::class)->states('teacher')->create();
+        $admin = factory(User::class)->states('admin')->create();
+        $librarian = factory(User::class)->states('librarian')->create();
+        $master = factory(User::class)->states('master')->create();
+        $student = factory(User::class)->states('student')->create();
+        $teacher = factory(User::class)->states('teacher')->create();
 
         $this->assertTrue($accountant->hasRole('accountant'));
         $this->assertTrue($admin->hasRole('admin'));
@@ -57,12 +62,13 @@ class UsersTest extends TestCase
     }
 
     /** @test */
-    public function the_users_are_filter_by_school() {
+    public function the_users_are_filter_by_school()
+    {
         $school = create(School::class);
-        $users  = create(User::class, ['school_id' => $school->id], 2);
+        $users = create(User::class, ['school_id' => $school->id], 2);
 
         $other_school = create(School::class);
-        $other_users  = create(User::class, ['school_id' => $other_school->id], 4);
+        $other_users = create(User::class, ['school_id' => $other_school->id], 4);
 
         $this->assertEquals(User::bySchool($school->id)->count(), $users->count());
     }

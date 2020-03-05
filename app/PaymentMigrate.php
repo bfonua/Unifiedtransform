@@ -10,6 +10,4 @@ class PaymentMigrate extends Model
     // protected $fillable = array('student_id');
     protected $primaryKey = 'pay_id';
     public $timestamps = false;
-
-
 }

@@ -19,10 +19,11 @@ class SearchDatacontroller extends Controller
     public function autocomplete(Request $request)
     {
         $data = \App\User::select('name')
-            ->where("name", "LIKE", "%{$request->input('query')}%")
-            ->orwhere("lst_name", "%{$request->input('query')}%")
-            ->orWhere("given_name", "%{$request->input('query')}%")
+            ->where('name', 'LIKE', "%{$request->input('query')}%")
+            ->orwhere('lst_name', "%{$request->input('query')}%")
+            ->orWhere('given_name', "%{$request->input('query')}%")
             ->get();
+
         return response()->json($data);
     }
 
@@ -35,7 +36,7 @@ class SearchDatacontroller extends Controller
             ->where('role', 'student')
             ->orderBy('student_code', 'desc')
             ->get();
-        
+
         // search($request->get('q'), null, true)->get();
     }
 
@@ -46,62 +47,61 @@ class SearchDatacontroller extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        //
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        //
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        //
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int                      $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-        //
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        //
     }
 }

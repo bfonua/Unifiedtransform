@@ -5,8 +5,7 @@ namespace App\Http\Requests\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Class CreateAccountantRequest
- * @package App\Http\Requests\User
+ * Class CreateAccountantRequest.
  */
 class CreateAccountantRequest extends FormRequest
 {

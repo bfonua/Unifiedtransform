@@ -14,7 +14,6 @@ class PaymentMigrateController extends Controller
      */
     public function index()
     {
-        //
     }
 
     /**
@@ -24,13 +23,13 @@ class PaymentMigrateController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -40,51 +39,52 @@ class PaymentMigrateController extends Controller
             'receipt' => 'required',
             'payment_date' => 'required',
         ]);
-        if(count($request->payment)){
-            foreach($request->payment as $fee_id => $amount){
-                $tb = new PaymentMigrate;
+        if (count($request->payment)) {
+            foreach ($request->payment as $fee_id => $amount) {
+                $tb = new PaymentMigrate();
                 $tb->tct_id = $request->user_id;
                 $tb->amount = $amount;
                 $tb->receipt_num = $request->receipt;
                 $tb->year = $request->session;
-                $tb->pay_notes = ($request->notes[$fee_id])?$request->notes[$fee_id]:'';
+                $tb->pay_notes = ($request->notes[$fee_id]) ? $request->notes[$fee_id] : '';
                 $tb->pay_date = $request->payment_date;
                 $tb->fee_type = $request->typePaid;
                 $tb->save();
                 // return $tb;
             }
         }
-        
+
         return redirect('/user/'.$request->user_id);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\PaymentMigrate  $paymentMigrate
+     * @param \App\PaymentMigrate $paymentMigrate
+     *
      * @return \Illuminate\Http\Response
      */
     public function show(PaymentMigrate $paymentMigrate)
     {
-        //
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\PaymentMigrate  $paymentMigrate
+     * @param \App\PaymentMigrate $paymentMigrate
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(PaymentMigrate $paymentMigrate)
     {
-        //
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\PaymentMigrate  $paymentMigrate
+     * @param \Illuminate\Http\Request $request
+     * @param \App\PaymentMigrate      $paymentMigrate
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -106,18 +106,18 @@ class PaymentMigrateController extends Controller
         $tb->amount = $request->amount;
         // return $tb;
         $tb->save();
-        return redirect('/user/'.$request->user_id);
 
+        return redirect('/user/'.$request->user_id);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\PaymentMigrate  $paymentMigrate
+     * @param \App\PaymentMigrate $paymentMigrate
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(PaymentMigrate $paymentMigrate)
     {
-        //
     }
 }

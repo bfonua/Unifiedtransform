@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Syllabus as Syllabus;
-use App\Http\Resources\SyllabusResource;
 use Illuminate\Http\Request;
+use App\Syllabus as Syllabus;
 use Illuminate\Support\Facades\Schema;
+use App\Http\Resources\SyllabusResource;
 
 class SyllabusController extends Controller
 {
@@ -14,14 +14,15 @@ class SyllabusController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-     public function index()
-     {
+    public function index()
+    {
         $files = Syllabus::with('myclass')
                           ->bySchool(\Auth::user()->school_id)
-                          ->where('active',1)
+                          ->where('active', 1)
                           ->get();
-        return view('syllabus.course-syllabus',['files'=>$files,'class_id' => 0]);
-     }
+
+        return view('syllabus.course-syllabus', ['files' => $files, 'class_id' => 0]);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -30,45 +31,48 @@ class SyllabusController extends Controller
      */
     public function create(int $class_id)
     {
-      try{
-        if(Schema::hasColumn('syllabuses','class_id')){
-          $files = Syllabus::with('myclass')
+        try {
+            if (Schema::hasColumn('syllabuses', 'class_id')) {
+                $files = Syllabus::with('myclass')
                           ->bySchool(\Auth::user()->school_id)
                           ->where('class_id', $class_id)
-                          ->where('active',1)
+                          ->where('active', 1)
                           ->get();
-        } else {
-          return '<code>class_id</code> column missing. Run <code>php artisan migrate</code>';
+            } else {
+                return '<code>class_id</code> column missing. Run <code>php artisan migrate</code>';
+            }
+        } catch (Exception $ex) {
+            return 'Something went wrong!!';
         }
-      } catch(Exception $ex){
-        return 'Something went wrong!!';
-      }
 
-      return view('syllabus.course-syllabus',['files'=>$files,'class_id'=>$class_id]);
+        return view('syllabus.course-syllabus', ['files' => $files, 'class_id' => $class_id]);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-      $tb = new Syllabus;
-      $tb->file_path = $request->file_path;
-      $tb->title = $request->title;
-      $tb->active = 1;
-      $tb->school_id = \Auth::user()->school_id;
-      $tb->user_id = \Auth::user()->id;
-      $tb->save();
-      return back()->with('status', __('Uploaded'));
+        $tb = new Syllabus();
+        $tb->file_path = $request->file_path;
+        $tb->title = $request->title;
+        $tb->active = 1;
+        $tb->school_id = \Auth::user()->school_id;
+        $tb->user_id = \Auth::user()->id;
+        $tb->save();
+
+        return back()->with('status', __('Uploaded'));
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -79,41 +83,44 @@ class SyllabusController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        //
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int                      $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update($id)
     {
-      $tb = Syllabus::find($id);
-      $tb->active = 0;
-      $tb->save();
-      return back()->with('status',__('File removed'));
+        $tb = Syllabus::find($id);
+        $tb->active = 0;
+        $tb->save();
+
+        return back()->with('status', __('File removed'));
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-      return (Syllabus::destroy($id))?response()->json([
-        'status' => 'success'
-      ]):response()->json([
-        'status' => 'error'
+        return (Syllabus::destroy($id)) ? response()->json([
+        'status' => 'success',
+      ]) : response()->json([
+        'status' => 'error',
       ]);
     }
 }

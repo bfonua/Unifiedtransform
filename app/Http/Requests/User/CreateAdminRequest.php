@@ -5,8 +5,7 @@ namespace App\Http\Requests\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Class CreateAdminRequest
- * @package App\Http\Requests\User
+ * Class CreateAdminRequest.
  */
 class CreateAdminRequest extends FormRequest
 {

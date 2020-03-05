@@ -5,14 +5,14 @@ namespace Tests\Feature\Manage;
 use App\User;
 use App\Myclass;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ClassModuleTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
         $admin = factory(User::class)->states('admin')->create();
         $this->actingAs($admin);
@@ -20,20 +20,23 @@ class ClassModuleTest extends TestCase
     }
 
     /** @test */
-    public function view_is(){
-         $this->get('school/sections')
+    public function view_is()
+    {
+        $this->get('school/sections')
             ->assertViewIs('school.sections');
     }
 
     /** @test */
-    public function it_shows_the_class_list() {
+    public function it_shows_the_class_list()
+    {
         $this->get('school/sections')
             ->assertStatus(200)
             ->assertViewHas('classes');
     }
 
     /** @test */
-    public function admin_can_create_class() {
+    public function admin_can_create_class()
+    {
         $class = factory(Myclass::class)->make();
         $this->followingRedirects()
             ->post('school/add-class', $class->toArray())

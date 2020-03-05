@@ -10,12 +10,14 @@ class UsersExcelExportTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
         $admin = factory(User::class)->states('admin')->create();
         $this->actingAs($admin);
         $this->withoutExceptionHandling();
     }
+
     /**
      * @test
      *
@@ -25,9 +27,10 @@ class UsersExcelExportTest extends TestCase
     {
         $year = now()->year;
 
-        $this->get('users/export/students-xlsx',['year'=>$year,'type'=>'student'])
+        $this->get('users/export/students-xlsx', ['year' => $year, 'type' => 'student'])
             ->assertStatus(200);
     }
+
     /**
      * @test
      *
@@ -37,14 +40,15 @@ class UsersExcelExportTest extends TestCase
     {
         $year = now()->year;
 
-        $this->get('users/export/students-xlsx',['year'=>$year,'type'=>'teacher'])
+        $this->get('users/export/students-xlsx', ['year' => $year, 'type' => 'teacher'])
             ->assertStatus(200);
     }
 
     /**
      * @test
      */
-    public function non_admin_users_can_not_see_export_users_forms(){
+    public function non_admin_users_can_not_see_export_users_forms()
+    {
         $librarian = factory(User::class)->states('librarian')->create();
         $this->actingAs($librarian);
 

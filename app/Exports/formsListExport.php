@@ -1,15 +1,12 @@
-<?php 
+<?php
 
 namespace App\Exports;
 
-use App\Users;
 use App\Section;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Sheet;
 use Maatwebsite\Excel\Events\AfterSheet;
-use \Maatwebsite\Excel\Sheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithEvents;
 
 class formsListExport implements WithEvents, WithTitle
 {
@@ -20,24 +17,27 @@ class formsListExport implements WithEvents, WithTitle
         $this->section_id = $section_id;
     }
 
-    public function split_name($name) {
+    public function split_name($name)
+    {
         $parts = explode(' ', $name); // $meta->post_title
         $name_first = array_shift($parts);
         $name_last = array_pop($parts);
         $name_middle = trim(implode(' ', $parts));
-        return array($name_first, $name_last, $name_middle);
+
+        return [$name_first, $name_last, $name_middle];
     }
 
     public function title(): string
     {
         $formRec = Section::find($this->section_id);
+
         return $formRec->class->class_number.$formRec->section_number;
     }
 
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event){
+            AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet;
                 $sheet->getPageSetup()
                     ->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
@@ -45,35 +45,35 @@ class formsListExport implements WithEvents, WithTitle
                 // == SHEET TITLE
                 $sheet->mergeCells('A1:D1');
                 $sheet->setCellValue('A1', $formRec->class->class_number.$formRec->section_number);
-                $title_style = array(
-                    'font' => array(
+                $title_style = [
+                    'font' => [
                         'bold' => true,
                         'size' => 14,
-                    ),
-                    'alignment' => array(
+                    ],
+                    'alignment' => [
                         'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                    ),
-                );
-                $heading_style = array(
-                    'font' => array(
+                    ],
+                ];
+                $heading_style = [
+                    'font' => [
                         'bold' => true,
-                    ),
-                    'alignment' => array(
-                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
-                    ),
-                    'fill' => array(
+                    ],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    ],
+                    'fill' => [
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'color' => array('argb' => 'c6e0b4'),
-                    ),
-                );
-                $inactiveStyle = array(
-                    'fill' => array(
+                        'color' => ['argb' => 'c6e0b4'],
+                    ],
+                ];
+                $inactiveStyle = [
+                    'fill' => [
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'color' => array('argb' => '909090')
-                    ),
-                );
+                        'color' => ['argb' => '909090'],
+                    ],
+                ];
                 $sheet->getStyle('A1')->applyFromArray($title_style);
-                $event->sheet->setCellValue('A2', "TCT ID")
+                $event->sheet->setCellValue('A2', 'TCT ID')
                     ->setCellValue('B2', '#')
                     ->setCellValue('C2', 'Name')
                     ->setCellValue('D2', 'House');
@@ -81,67 +81,61 @@ class formsListExport implements WithEvents, WithTitle
                 $reslist = \App\StudentInfo::where('form_id', $this->section_id)
                     ->where('session', now()->year)
                     ->orderBy('form_num', 'asc')->get();
-                $formList = array();
+                $formList = [];
                 $row = 3;
                 $count = 1;
-                foreach($reslist as $res){
+                foreach ($reslist as $res) {
                     $class_num = $res->form_num;
-                    while($count < $class_num){
+                    while ($count < $class_num) {
                         $sheet->setCellValue('B'.$row, $count);
-                        $count++;
-                        $row++;
+                        ++$count;
+                        ++$row;
                     }
-                    $name = $this->split_name($res->student->given_name)[0]." ". $this->split_name($res->student->given_name)[1]." ".$res->student->lst_name;
-                    if($res->group == "Head Prefect"){
+                    $name = $this->split_name($res->student->given_name)[0].' '.$this->split_name($res->student->given_name)[1].' '.$res->student->lst_name;
+                    if ('Head Prefect' == $res->group) {
                         $name .= ' (HP)';
-                    } elseif(ucfirst($res->group) == "Prefect"){
-                        $name .= " (P)";
+                    } elseif ('Prefect' == ucfirst($res->group)) {
+                        $name .= ' (P)';
                     }
                     $sheet->setCellValue('A'.$row, $res->tct_id)
                         ->setCellValue('B'.$row, $res->form_num)
                         ->setCellValue('C'.$row, $name)
                         ->setCellValue('D'.$row, $res->house->house_abbrv);
-                        if($res->student->active == '0'){
-                            $sheet->getStyle("A".$row.":D".$row)->applyFromArray($inactiveStyle);
-                        }
-                        $row++;
-                        $count++;
+                    if ('0' == $res->student->active) {
+                        $sheet->getStyle('A'.$row.':D'.$row)->applyFromArray($inactiveStyle);
+                    }
+                    ++$row;
+                    ++$count;
                 }
                 $last_row = $row - 1;
                 $last_border = $last_row + 5;
 
-                $center = array(
-                    'alignment' => array(
-                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
-                    )
-                );
+                $center = [
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    ],
+                ];
                 $sheet->getStyle("B3:B{$last_border}")->applyFromArray($center);
                 $sheet->getStyle("D3:D{$last_border}")->applyFromArray($center);
-                $borderArray = array(
-                    'borders' => array(
-                        'allBorders' => array(
+                $borderArray = [
+                    'borders' => [
+                        'allBorders' => [
                             'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                        ),
-                    ),
-                );
+                        ],
+                    ],
+                ];
                 $sheet->getStyle("A1:L{$last_border}")->applyFromArray($borderArray);
-                $sheet -> getHeaderFooter()->setDifferentOddEven(false)
-							->setOddHeader('&RForm List  - &D');
+                $sheet->getHeaderFooter()->setDifferentOddEven(false)
+                            ->setOddHeader('&RForm List  - &D');
                 // WIDTHS
                 $sheet->getColumnDimension('A')->setWidth(7);
                 $sheet->getColumnDimension('B')->setWidth(5);
                 $sheet->getColumnDimension('C')->setWidth(35);
                 $sheet->getColumnDimension('D')->setWidth(7);
-                foreach(range('E','M') as $columnID){
+                foreach (range('E', 'M') as $columnID) {
                     $sheet->getColumnDimension($columnID)->setWidth(4);
                 }
-
-
-            }
+            },
         ];
     }
 }
-
-
-
-?>

@@ -3,25 +3,27 @@
 namespace Tests\Feature;
 
 use App\User;
-use Stripe\Stripe;
 use Stripe\Token;
+use Stripe\Stripe;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class PaymentModuleTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
         $student = factory(User::class)->states('student')->create();
         $this->actingAs($student);
         $this->withoutExceptionHandling();
         Stripe::setApiKey(env('STRIPE_KEY'));
     }
+
     /**
-     * @test 
+     * @test
+     *
      * @return void
      */
     public function student_can_view_payment_page()
@@ -31,8 +33,10 @@ class PaymentModuleTest extends TestCase
             ->assertViewIs('stripe.payment')
             ->assertViewHas('fees_fields');
     }
+
     /**
-     * @test 
+     * @test
+     *
      * @return void
      */
     // Uncomment after setting Stripe key in .env file
@@ -57,11 +61,14 @@ class PaymentModuleTest extends TestCase
     //         'amount' => $amount,
     //     ]);
     // }
+
     /**
-     * @test 
+     * @test
+     *
      * @return void
      */
-    public function student_can_view_receipts_page(){
+    public function student_can_view_receipts_page()
+    {
         $this->get('stripe/receipts')
             ->assertStatus(200)
             ->assertViewIs('stripe.receipts')

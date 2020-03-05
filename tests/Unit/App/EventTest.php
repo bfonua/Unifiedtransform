@@ -12,7 +12,8 @@ class EventTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function the_events_are_filter_by_school() {
+    public function the_events_are_filter_by_school()
+    {
         $school = create(School::class);
         $events = create(Event::class, ['school_id' => $school->id], 2);
 

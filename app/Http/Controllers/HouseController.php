@@ -16,10 +16,11 @@ class HouseController extends Controller
     {
         $school = \Auth::user()->school;
         $houses = House::all();
+
         return view('school.house',
             [
-                'houses'=>$houses,
-                'school'=>$school,
+                'houses' => $houses,
+                'school' => $school,
             ]);
     }
 
@@ -30,13 +31,13 @@ class HouseController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -45,42 +46,44 @@ class HouseController extends Controller
             'house_name' => 'required',
             'house_code' => 'required',
           ]);
-          $tb = new House;
-          $tb->house_name = $request->house_name;
-          $tb->house_name_ton = ($request->house_name_ton) ? $request->house_name_ton : '';
-          $tb->house_abbrv = $request->house_code;
-          $tb->active = 1;
-          $tb->save();
-          return redirect('/school/houses');
+        $tb = new House();
+        $tb->house_name = $request->house_name;
+        $tb->house_name_ton = ($request->house_name_ton) ? $request->house_name_ton : '';
+        $tb->house_abbrv = $request->house_code;
+        $tb->active = 1;
+        $tb->save();
+
+        return redirect('/school/houses');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\House  $house
+     * @param \App\House $house
+     *
      * @return \Illuminate\Http\Response
      */
     public function show(House $house)
     {
-        //
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\House  $house
+     * @param \App\House $house
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(House $house)
     {
-        //
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\House  $house
+     * @param \Illuminate\Http\Request $request
+     * @param \App\House               $house
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -92,17 +95,18 @@ class HouseController extends Controller
         $tb->active = $request->house_active;
         // echo($tb);
         $tb->save();
+
         return redirect('/school/houses');
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\House  $house
+     * @param \App\House $house
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(House $house)
     {
-        //
     }
 }

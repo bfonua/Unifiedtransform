@@ -9,7 +9,7 @@ class TeachersImport implements WithMultipleSheets
     public function sheets(): array
     {
         return [
-            new FirstTeacherSheetImport()
+            new FirstTeacherSheetImport(),
         ];
     }
 }

@@ -15,8 +15,8 @@ class CreateGradesTable extends Migration
     {
         Schema::create('grades', function (Blueprint $table) {
             $table->increments('id');
-            $table->float('marks', 8, 2);//final exam
-            $table->float('gpa', 8, 2);//final exam
+            $table->float('marks', 8, 2); //final exam
+            $table->float('gpa', 8, 2); //final exam
             $table->float('attendance', 8, 2);
             $table->float('quiz1', 8, 2);
             $table->float('quiz2', 8, 2);

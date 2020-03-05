@@ -2,11 +2,9 @@
 
 namespace App;
 
-use App\Model;
-
 class School extends Model
 {
-  /**
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
@@ -15,18 +13,18 @@ class School extends Model
         'name', 'about', 'medium', 'code', 'theme',
     ];
 
-  public function users()
-  {
-    return $this->hasMany('App\User');
-  }
+    public function users()
+    {
+        return $this->hasMany(\App\User::class);
+    }
 
-  public function departments()
-  {
-    return $this->hasMany('App\Department');
-  }
+    public function departments()
+    {
+        return $this->hasMany(\App\Department::class);
+    }
 
-  public function gradesystems()
-  {
-    return $this->hasMany('App\Gradesystem');
-  }
+    public function gradesystems()
+    {
+        return $this->hasMany(\App\Gradesystem::class);
+    }
 }

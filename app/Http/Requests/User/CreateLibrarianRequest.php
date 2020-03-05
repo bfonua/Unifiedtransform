@@ -5,8 +5,7 @@ namespace App\Http\Requests\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Class CreateLibrarianRequest
- * @package App\Http\Requests\User
+ * Class CreateLibrarianRequest.
  */
 class CreateLibrarianRequest extends FormRequest
 {

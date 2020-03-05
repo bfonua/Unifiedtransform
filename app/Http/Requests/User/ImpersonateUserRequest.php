@@ -5,8 +5,7 @@ namespace App\Http\Requests\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Class ImpersonateUserRequest
- * @package App\Http\Requests\User
+ * Class ImpersonateUserRequest.
  */
 class ImpersonateUserRequest extends FormRequest
 {
@@ -28,7 +27,7 @@ class ImpersonateUserRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => 'required|numeric|exists:users,id'
+            'id' => 'required|numeric|exists:users,id',
         ];
     }
 }

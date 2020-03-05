@@ -2,11 +2,9 @@
 
 namespace App;
 
-use App\Model;
-
 class Myclass extends Model
 {
-    protected $table = "classes";
+    protected $table = 'classes';
     /**
      * The attributes that are mass assignable.
      *
@@ -15,22 +13,23 @@ class Myclass extends Model
     protected $fillable = [
         'class_number', 'group', 'school_id',
     ];
+
     /**
      * Get the school record associated with the user.
-    */
+     */
     public function school()
     {
-        return $this->belongsTo('App\School');
+        return $this->belongsTo(\App\School::class);
     }
 
-	public function sections()
+    public function sections()
     {
-        return $this->hasMany('App\Section','class_id')->orderBy('section_number');
+        return $this->hasMany(\App\Section::class, 'class_id')->orderBy('section_number');
     }
 
     public function active_sections()
     {
-        return $this->hasMany('App\Section','class_id')->where('active', 1)->orderBy('section_number');
+        return $this->hasMany(\App\Section::class, 'class_id')->where('active', 1)->orderBy('section_number');
     }
 
     // public function exam()
@@ -38,8 +37,8 @@ class Myclass extends Model
     //     return $this->belongsTo('App\ExamForClass');
     // }
 
-	public function books()
+    public function books()
     {
-        return $this->hasMany('App\Book','class_id');
+        return $this->hasMany(\App\Book::class, 'class_id');
     }
 }

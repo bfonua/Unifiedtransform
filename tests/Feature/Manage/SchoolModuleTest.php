@@ -4,18 +4,15 @@ namespace Tests\Feature\Manage;
 
 use App\User;
 use App\School;
-use App\Myclass;
-use App\Section;
-use App\Department;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class SchoolModuleTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
         $master = factory(User::class)->states('master')->create();
         $this->actingAs($master);
@@ -23,14 +20,16 @@ class SchoolModuleTest extends TestCase
     }
 
     /** @test */
-    public function it_shows_schools_list() {
+    public function it_shows_schools_list()
+    {
         $this->get(route('schools.index'))
            ->assertStatus(200)
             ->assertViewIs('schools.index');
     }
 
     /** @test */
-    public function it_creates_a_new_school() {
+    public function it_creates_a_new_school()
+    {
         $school = make(School::class);
 
         $this->post(route('schools.store'), $school->toArray())
@@ -38,7 +37,8 @@ class SchoolModuleTest extends TestCase
     }
 
     /** @test */
-    public function it_shows_edit_school() {
+    public function it_shows_edit_school()
+    {
         $school = create(School::class);
 
         $this->get(route('schools.edit', $school))
@@ -47,7 +47,8 @@ class SchoolModuleTest extends TestCase
     }
 
     /** @test */
-    public function a_school_can_being_edited() {
+    public function a_school_can_being_edited()
+    {
         $school = create(School::class, ['name' => 'Benito Juárez']);
 
         $school->name = 'New name';
@@ -56,5 +57,4 @@ class SchoolModuleTest extends TestCase
             ->put(route('schools.update', $school->id), $school->toArray())
             ->assertRedirect(route('schools.index'));
     }
-
 }

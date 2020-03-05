@@ -8,10 +8,10 @@ use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class TeachersExport implements FromQuery,ShouldAutoSize,WithHeadings
+class TeachersExport implements FromQuery, ShouldAutoSize, WithHeadings
 {
     private $headings = [
-        'Name', 
+        'Name',
         'Email',
         'Gender',
         'Teacher Code',
@@ -21,7 +21,7 @@ class TeachersExport implements FromQuery,ShouldAutoSize,WithHeadings
     ];
 
     private $headingsES = [
-        'Nombre', 
+        'Nombre',
         'Correo',
         'Genero',
         'Codigo del Maestro',
@@ -30,25 +30,27 @@ class TeachersExport implements FromQuery,ShouldAutoSize,WithHeadings
         'Dirección',
     ];
 
-    public function __construct(int $year){
+    public function __construct(int $year)
+    {
         $this->year = $year;
     }
 
-    public function headings() : array
+    public function headings(): array
     {
-		$myLocale = App::getLocale(); 
-		if ($myLocale == "es-MX") {
-			return $this->headingsES; //spanish
-		} else {
-			return $this->headings;	//english
-		}
+        $myLocale = App::getLocale();
+        if ('es-MX' == $myLocale) {
+            return $this->headingsES; //spanish
+        } else {
+            return $this->headings;	//english
+        }
     }
 
-    public function query(){
+    public function query()
+    {
         return User::query()
-                    ->select('name','email','gender','student_code','blood_group','phone_number','address')
+                    ->select('name', 'email', 'gender', 'student_code', 'blood_group', 'phone_number', 'address')
                     ->bySchool(auth()->user()->school_id)
-                    ->where('role','teacher')
+                    ->where('role', 'teacher')
                     ->orderBy('name');
     }
 }

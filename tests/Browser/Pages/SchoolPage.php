@@ -19,7 +19,8 @@ class SchoolPage extends Page
     /**
      * Assert that the browser is on the page.
      *
-     * @param  Browser  $browser
+     * @param Browser $browser
+     *
      * @return void
      */
     public function assert(Browser $browser)
@@ -31,8 +32,9 @@ class SchoolPage extends Page
     /**
      * Create a new school.
      *
-     * @param  \Laravel\Dusk\Browser  $browser
-     * @param  string  $name
+     * @param \Laravel\Dusk\Browser $browser
+     * @param string                $name
+     *
      * @return void
      */
     public function createSchool(Browser $browser, $name)
@@ -49,9 +51,10 @@ class SchoolPage extends Page
     /**
      * Update a school.
      *
-     * @param  \Laravel\Dusk\Browser  $browser
-     * @param  int  $id
-     * @param  string  $name
+     * @param \Laravel\Dusk\Browser $browser
+     * @param int                   $id
+     * @param string                $name
+     *
      * @return void
      */
     public function updateSchool(Browser $browser, $id, $name)

@@ -2,12 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\User;
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Book;
+use App\User;
 use App\Issuedbook;
+use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class LibrarianTest extends TestCase
 {
@@ -15,7 +14,8 @@ class LibrarianTest extends TestCase
 
     protected $librarian;
 
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
         $this->librarian = factory(User::class)->states('librarian')->create();
         $this->actingAs($this->librarian);
@@ -25,7 +25,8 @@ class LibrarianTest extends TestCase
     /**
      * @test
      */
-    public function can_see_dashboard_as_a_home_page_after_login(){
+    public function can_see_dashboard_as_a_home_page_after_login()
+    {
         $response = $this->get('/home');
 
         $response->assertStatus(200)
@@ -36,8 +37,8 @@ class LibrarianTest extends TestCase
     /**
      * @test
      */
-    public function can_see_list_of_students(){
-
+    public function can_see_list_of_students()
+    {
         $student = factory(User::class)->states('student')->create();
         $response = $this->get(url('/users', [$this->librarian->school_id, '1/0']));
 
@@ -49,9 +50,10 @@ class LibrarianTest extends TestCase
     /**
      * @test
      */
-    public function can_see_some_personal_student_information(){
+    public function can_see_some_personal_student_information()
+    {
         $student = factory(User::class)->states('student')->create();
-        $response  = $this->get(url('/user', [$student->student_code]));
+        $response = $this->get(url('/user', [$student->student_code]));
 
         $response->assertStatus(200)
                 ->assertSeeText(e($student->name))
@@ -62,10 +64,11 @@ class LibrarianTest extends TestCase
     /**
      * @test
      */
-    public function can_see_list_of_teachers(){
+    public function can_see_list_of_teachers()
+    {
         $teacher = factory(User::class)->states('teacher')->create();
         $response = $this->get(url('/users', [$this->librarian->school_id, '0/1']));
-        
+
         $response->assertStatus(200)
                 ->assertViewHas('users')
                 ->assertSeeText(e($teacher->name));
@@ -74,10 +77,11 @@ class LibrarianTest extends TestCase
     /**
      * @test
      */
-    public function can_see_some_personal_teacher_information(){
+    public function can_see_some_personal_teacher_information()
+    {
         $teacher = factory(User::class)->states('teacher')->create();
         $response = $this->get(url('/user', [$teacher->student_code]));
-        
+
         $response->assertStatus(200)
                 ->assertSeeText(e($teacher->name))
                 ->assertSeeText(e($teacher->nationality))
@@ -87,7 +91,8 @@ class LibrarianTest extends TestCase
     /**
      * @test
      */
-    public function can_see_list_of_librarians(){
+    public function can_see_list_of_librarians()
+    {
         $librarian1 = factory(User::class)->states('librarian')->create();
         $librarian2 = factory(User::class)->states('librarian')->create();
         $response = $this->get(url('/users', [$this->librarian->school_id, 'librarian']));
@@ -101,10 +106,11 @@ class LibrarianTest extends TestCase
     /**
      * @test
      */
-    public function can_see_some_personal_librarian_information(){
+    public function can_see_some_personal_librarian_information()
+    {
         $librarian1 = factory(User::class)->states('librarian')->create();
         $response = $this->get(url('/user', [$librarian1->student_code]));
-        
+
         $response->assertStatus(200)
                 ->assertSeeText(e($librarian1->name))
                 ->assertSeeText(e($librarian1->nationality))
@@ -114,14 +120,15 @@ class LibrarianTest extends TestCase
     /**
      * @test
      */
-    public function can_see_all_books(){
+    public function can_see_all_books()
+    {
         $books = factory(Book::class, 4)->create();
         $response = $this->get(route('library.books.index'));
 
         $response->assertStatus(200)
                 ->assertViewHas('books');
 
-        $books->each(function($book) use ($response){
+        $books->each(function ($book) use ($response) {
             $response->assertSeeText(e($book->title));
         });
     }
@@ -129,7 +136,8 @@ class LibrarianTest extends TestCase
     /**
      * @test
      */
-    public function can_see_book_details(){
+    public function can_see_book_details()
+    {
         $book = factory(Book::class)->create();
 
         $this->get(route('library.books.show', $book))
@@ -140,7 +148,8 @@ class LibrarianTest extends TestCase
     /**
      * @test
      */
-    public function can_edit_book_details(){
+    public function can_edit_book_details()
+    {
         $book = factory(Book::class)->create(['title' => 'Foo Bar']);
 
         $this->get(route('library.books.edit', $book))
@@ -151,7 +160,8 @@ class LibrarianTest extends TestCase
     /**
      * @test
      */
-    public function can_see_issued_books(){
+    public function can_see_issued_books()
+    {
         $issuedBook = factory(Issuedbook::class)->create();
 
         $response = $this->get(route('library.issued-books.index'))
@@ -162,7 +172,8 @@ class LibrarianTest extends TestCase
     /**
      * @test
      */
-    public function can_add_a_new_book(){
+    public function can_add_a_new_book()
+    {
         $this->get(route('library.books.create'))
             ->assertStatus(200)
             ->assertSeeText('Save');

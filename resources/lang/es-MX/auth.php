@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Authentication Language Lines
@@ -15,5 +14,4 @@ return [
 
     'failed' => 'Credenciales invalidas. Verifique e intente nuevamente.',
     'throttle' => 'Demasiados intentos fallidos. Vuelva a intentar en :seconds segundos.',
-
 ];

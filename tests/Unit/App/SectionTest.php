@@ -4,7 +4,6 @@ namespace Tests\Unit\App;
 
 use App\Section;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class SectionTest extends TestCase
@@ -13,18 +12,21 @@ class SectionTest extends TestCase
 
     protected $section;
 
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
         $this->section = create(Section::class);
     }
 
     /** @test */
-    public function a_section_is_an_instance_of_Section() {
-        $this->assertInstanceOf('App\Section', $this->section);
+    public function a_section_is_an_instance_of_Section()
+    {
+        $this->assertInstanceOf(\App\Section::class, $this->section);
     }
 
     /** @test */
-    public function a_section_belongs_to_class() {
-        $this->assertInstanceOf('App\Myclass', $this->section->class);
+    public function a_section_belongs_to_class()
+    {
+        $this->assertInstanceOf(\App\Myclass::class, $this->section->class);
     }
 }

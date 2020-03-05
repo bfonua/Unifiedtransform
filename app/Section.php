@@ -2,13 +2,10 @@
 
 namespace App;
 
-use App\Model;
-
-
 class Section extends Model
 {
     use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -17,17 +14,18 @@ class Section extends Model
     protected $fillable = [
         'section_number', 'room_number', 'class_id', 'user_id',
     ];
+
     /**
      * Get the class record associated with the user.
-    */
+     */
     public function class()
     {
-        return $this->belongsTo('App\Myclass');
+        return $this->belongsTo(\App\Myclass::class);
     }
 
     public function users()
     {
-        return $this->hasMany('App\User', 'section_id');
+        return $this->hasMany(\App\User::class, 'section_id');
     }
 
     // public function students()
@@ -38,14 +36,14 @@ class Section extends Model
     public function students()
     {
         return $this->hasManyDeep(
-            'App\User', ['App\StudentInfo'],
+            \App\User::class, [\App\StudentInfo::class],
             [
                 'form_id',
-                'id'
+                'id',
             ],
             [
-                'id', 
-                'student_id'
+                'id',
+                'student_id',
             ]
         )->where('session', now()->year);
     }
@@ -53,8 +51,8 @@ class Section extends Model
     public function assigned()
     {
         return $this->hasManyDeep(
-            'App\Assign',
-            ['App\StudentInfo', 'App\User'],
+            \App\Assign::class,
+            [\App\StudentInfo::class, \App\User::class],
             [
                 'form_id', // FM on StudentInfo
                 'id', // FK on User
@@ -71,8 +69,8 @@ class Section extends Model
     public function totalAssigned()
     {
         return $this->hasManyDeep(
-            'App\Fee',
-            ['App\StudentInfo', 'App\User', 'App\Assign'],
+            \App\Fee::class,
+            [\App\StudentInfo::class, \App\User::class, \App\Assign::class],
             [
                 'form_id', // FM on StudentInfo
                 'id', // FK on User
@@ -83,15 +81,16 @@ class Section extends Model
                 'id', // LK on Section
                 'student_id', // LK on StudentInfo
                 'id', // LK on User
-                'fee_id' // LK on Assign
+                'fee_id', // LK on Assign
             ]
         )->where('assigns.session', now()->year);
     }
 
-    public function payment(){
+    public function payment()
+    {
         return $this->hasManyDeep(
-            'App\Payment',
-            ['App\StudentInfo', 'App\User'],
+            \App\Payment::class,
+            [\App\StudentInfo::class, \App\User::class],
             [
                 'form_id', // FM on StudentInfo
                 'id', // FK on User
@@ -104,6 +103,4 @@ class Section extends Model
             ]
         )->where('payments.session', now()->year);
     }
-
-
 }

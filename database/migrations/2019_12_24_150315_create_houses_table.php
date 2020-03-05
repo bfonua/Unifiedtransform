@@ -20,7 +20,6 @@ class CreateHousesTable extends Migration
             $table->string('house_abbrv');
             $table->boolean('active')->default(1);
             $table->timestamps();
-
         });
 
         // DB::table('houses')->insert(
@@ -99,7 +98,6 @@ class CreateHousesTable extends Migration
         //         ],
         //     ]
         // );
-
     }
 
     /**

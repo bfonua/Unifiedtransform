@@ -18,7 +18,7 @@ class CreateSchoolsTable extends Migration
             $table->string('name');
             $table->string('established')->default('');
             $table->text('about');
-            $table->string('medium');//bn,en
+            $table->string('medium'); //bn,en
             $table->integer('code')->unique();
             $table->string('theme');
             $table->timestamps();
