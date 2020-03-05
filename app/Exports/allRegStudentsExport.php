@@ -5,6 +5,7 @@ namespace App\Exports;
 use App;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
+
 // use Maatwebsite\Excel\Concerns\WithHeadings;
 
 ini_set('memory_limit', '-1');
