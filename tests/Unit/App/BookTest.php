@@ -22,25 +22,25 @@ class BookTest extends TestCase
     /** @test */
     public function a_class_is_an_instance_of_Book()
     {
-        $this->assertInstanceOf('App\Book', $this->book);
+        $this->assertInstanceOf(\App\Book::class, $this->book);
     }
 
     /** @test */
     public function a_book_belongs_to_school()
     {
-        $this->assertInstanceOf('App\School', $this->book->school);
+        $this->assertInstanceOf(\App\School::class, $this->book->school);
     }
 
     /** @test */
     public function a_book_belongs_to_class()
     {
-        $this->assertInstanceOf('App\Myclass', $this->book->class);
+        $this->assertInstanceOf(\App\Myclass::class, $this->book->class);
     }
 
     /** @test */
     public function a_book_belongs_to_user()
     {
-        $this->assertInstanceOf('App\User', $this->book->user);
+        $this->assertInstanceOf(\App\User::class, $this->book->user);
     }
 
     /** @test */

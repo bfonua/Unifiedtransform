@@ -9,7 +9,7 @@ class Grade extends Model
      */
     public function course()
     {
-        return $this->belongsTo('App\Course');
+        return $this->belongsTo(\App\Course::class);
     }
 
     /**
@@ -17,7 +17,7 @@ class Grade extends Model
      */
     public function student()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 
     /**
@@ -25,7 +25,7 @@ class Grade extends Model
      */
     public function teacher()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 
     /**
@@ -33,6 +33,6 @@ class Grade extends Model
      */
     public function exam()
     {
-        return $this->belongsTo('App\Exam');
+        return $this->belongsTo(\App\Exam::class);
     }
 }

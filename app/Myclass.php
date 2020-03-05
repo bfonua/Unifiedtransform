@@ -19,17 +19,17 @@ class Myclass extends Model
      */
     public function school()
     {
-        return $this->belongsTo('App\School');
+        return $this->belongsTo(\App\School::class);
     }
 
     public function sections()
     {
-        return $this->hasMany('App\Section', 'class_id')->orderBy('section_number');
+        return $this->hasMany(\App\Section::class, 'class_id')->orderBy('section_number');
     }
 
     public function active_sections()
     {
-        return $this->hasMany('App\Section', 'class_id')->where('active', 1)->orderBy('section_number');
+        return $this->hasMany(\App\Section::class, 'class_id')->where('active', 1)->orderBy('section_number');
     }
 
     // public function exam()
@@ -39,6 +39,6 @@ class Myclass extends Model
 
     public function books()
     {
-        return $this->hasMany('App\Book', 'class_id');
+        return $this->hasMany(\App\Book::class, 'class_id');
     }
 }

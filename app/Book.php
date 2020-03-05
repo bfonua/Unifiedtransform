@@ -11,21 +11,21 @@ class Book extends Model
 
     public function school()
     {
-        return $this->belongsTo('App\School');
+        return $this->belongsTo(\App\School::class);
     }
 
     public function class()
     {
-        return $this->belongsTo('App\Myclass');
+        return $this->belongsTo(\App\Myclass::class);
     }
 
     public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 
     public function issuedbook()
     {
-        return $this->hasMany('App\Issuedbook', 'book_id');
+        return $this->hasMany(\App\Issuedbook::class, 'book_id');
     }
 }

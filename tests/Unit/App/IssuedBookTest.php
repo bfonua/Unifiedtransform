@@ -22,13 +22,13 @@ class IssuedBookTest extends TestCase
     /** @test */
     public function an_Issuedbook_is_an_instance_of_Issuedbook()
     {
-        $this->assertInstanceOf('App\Issuedbook', $this->issuedbook);
+        $this->assertInstanceOf(\App\Issuedbook::class, $this->issuedbook);
     }
 
     /** @test */
     public function an_issuedbook_belongs_to_book()
     {
-        $this->assertInstanceOf('App\Book', $this->issuedbook->book);
+        $this->assertInstanceOf(\App\Book::class, $this->issuedbook->book);
     }
 
     /** @test */

@@ -21,30 +21,30 @@ class GradeTest extends TestCase
     /** @test */
     public function a_grade_is_an_instance_of_Grade()
     {
-        $this->assertInstanceOf('App\Grade', $this->grade);
+        $this->assertInstanceOf(\App\Grade::class, $this->grade);
     }
 
     /** @test */
     public function a_grade_belongs_to_course()
     {
-        $this->assertInstanceOf('App\Course', $this->grade->course);
+        $this->assertInstanceOf(\App\Course::class, $this->grade->course);
     }
 
     /** @test */
     public function a_grade_belongs_to_student()
     {
-        $this->assertInstanceOf('App\User', $this->grade->student);
+        $this->assertInstanceOf(\App\User::class, $this->grade->student);
     }
 
     /** @test */
     public function a_grade_belongs_to_teacher()
     {
-        $this->assertInstanceOf('App\User', $this->grade->teacher);
+        $this->assertInstanceOf(\App\User::class, $this->grade->teacher);
     }
 
     /** @test */
     public function a_grade_belongs_to_exam()
     {
-        $this->assertInstanceOf('App\Exam', $this->grade->exam);
+        $this->assertInstanceOf(\App\Exam::class, $this->grade->exam);
     }
 }

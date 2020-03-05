@@ -48,57 +48,57 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
     public function section()
     {
-        return $this->belongsTo('App\Section');
+        return $this->belongsTo(\App\Section::class);
     }
 
     public function school()
     {
-        return $this->belongsTo('App\School');
+        return $this->belongsTo(\App\School::class);
     }
 
     public function department()
     {
-        return $this->belongsTo('App\Department', 'department_id', 'id');
+        return $this->belongsTo(\App\Department::class, 'department_id', 'id');
     }
 
     public function studentInfo()
     {
-        return $this->hasOne('App\StudentInfo', 'student_id');
+        return $this->hasOne(\App\StudentInfo::class, 'student_id');
     }
 
     public function inactive()
     {
-        return $this->hasMany('App\Inactive', 'user_id');
+        return $this->hasMany(\App\Inactive::class, 'user_id');
     }
 
     public function inactiveNow($session)
     {
-        return $this->hasMany('App\Inactive', 'user_id')->where('session', $session);
+        return $this->hasMany(\App\Inactive::class, 'user_id')->where('session', $session);
     }
 
     public function reinstate()
     {
-        return $this->hasMany('App\Reinstate', 'user_id');
+        return $this->hasMany(\App\Reinstate::class, 'user_id');
     }
 
     public function regrecord()
     {
-        return $this->hasMany('App\Regrecord', 'user_id');
+        return $this->hasMany(\App\Regrecord::class, 'user_id');
     }
 
     public function studentBoardExam()
     {
-        return $this->hasMany('App\StudentBoardExam', 'student_id');
+        return $this->hasMany(\App\StudentBoardExam::class, 'student_id');
     }
 
     public function notifications()
     {
-        return $this->hasMany('App\Notification', 'student_id');
+        return $this->hasMany(\App\Notification::class, 'student_id');
     }
 
     public function feesAssigned()
     {
-        return $this->hasMany('App\Assign', 'user_id');
+        return $this->hasMany(\App\Assign::class, 'user_id');
     }
 
     public function hasRole(string $role): bool

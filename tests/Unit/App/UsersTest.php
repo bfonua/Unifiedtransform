@@ -22,25 +22,25 @@ class UsersTest extends TestCase
     /** @test */
     public function an_user_is_an_instance_of_User()
     {
-        $this->assertInstanceOf('App\User', $this->user);
+        $this->assertInstanceOf(\App\User::class, $this->user);
     }
 
     /** @test */
     public function an_user_belongs_to_section()
     {
-        $this->assertInstanceOf('App\Section', $this->user->section);
+        $this->assertInstanceOf(\App\Section::class, $this->user->section);
     }
 
     /** @test */
     public function an_user_belongs_to_school()
     {
-        $this->assertInstanceOf('App\School', $this->user->school);
+        $this->assertInstanceOf(\App\School::class, $this->user->school);
     }
 
     /** @test */
     public function an_user_belongs_to_department()
     {
-        $this->assertInstanceOf('App\Department', $this->user->department);
+        $this->assertInstanceOf(\App\Department::class, $this->user->department);
     }
 
     /** @test */

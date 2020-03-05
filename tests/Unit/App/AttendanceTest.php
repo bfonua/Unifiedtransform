@@ -21,24 +21,24 @@ class AttendanceTest extends TestCase
     /** @test */
     public function an_attendance_is_an_instance_of_Attendance()
     {
-        $this->assertInstanceOf('App\Attendance', $this->attendance);
+        $this->assertInstanceOf(\App\Attendance::class, $this->attendance);
     }
 
     /** @test */
     public function an_attendance_belongs_to_student()
     {
-        $this->assertInstanceOf('App\User', $this->attendance->student);
+        $this->assertInstanceOf(\App\User::class, $this->attendance->student);
     }
 
     /** @test */
     public function an_attendance_belongs_to_section()
     {
-        $this->assertInstanceOf('App\Section', $this->attendance->section);
+        $this->assertInstanceOf(\App\Section::class, $this->attendance->section);
     }
 
     /** @test */
     public function an_attendance_belongs_to_exam()
     {
-        $this->assertInstanceOf('App\Exam', $this->attendance->exam);
+        $this->assertInstanceOf(\App\Exam::class, $this->attendance->exam);
     }
 }

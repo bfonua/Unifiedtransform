@@ -21,12 +21,12 @@ class SectionTest extends TestCase
     /** @test */
     public function a_section_is_an_instance_of_Section()
     {
-        $this->assertInstanceOf('App\Section', $this->section);
+        $this->assertInstanceOf(\App\Section::class, $this->section);
     }
 
     /** @test */
     public function a_section_belongs_to_class()
     {
-        $this->assertInstanceOf('App\Myclass', $this->section->class);
+        $this->assertInstanceOf(\App\Myclass::class, $this->section->class);
     }
 }

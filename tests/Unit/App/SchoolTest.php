@@ -21,7 +21,7 @@ class SchoolTest extends TestCase
     /** @test */
     public function a_school_is_an_instance_of_School()
     {
-        $this->assertInstanceOf('App\School', $this->school);
+        $this->assertInstanceOf(\App\School::class, $this->school);
     }
 
     /** @test */

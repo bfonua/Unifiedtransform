@@ -8,11 +8,11 @@ class ExamForClass extends Model
 
     public function classes()
     {
-        return $this->hasMany('App\Myclass');
+        return $this->hasMany(\App\Myclass::class);
     }
 
     public function exam()
     {
-        return $this->belongsTo('App\Exam');
+        return $this->belongsTo(\App\Exam::class);
     }
 }

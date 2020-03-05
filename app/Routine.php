@@ -9,7 +9,7 @@ class Routine extends Model
      */
     public function school()
     {
-        return $this->belongsTo('App\School');
+        return $this->belongsTo(\App\School::class);
     }
 
     /**
@@ -17,6 +17,6 @@ class Routine extends Model
      */
     public function section()
     {
-        return $this->belongsTo('App\Section');
+        return $this->belongsTo(\App\Section::class);
     }
 }

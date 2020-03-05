@@ -22,13 +22,13 @@ class GradesystemTest extends TestCase
     /** @test */
     public function a_gradesystem_is_an_instance_of_Gradesystem()
     {
-        $this->assertInstanceOf('App\Gradesystem', $this->gradesystem);
+        $this->assertInstanceOf(\App\Gradesystem::class, $this->gradesystem);
     }
 
     /** @test */
     public function a_gradesystem_belongs_to_school()
     {
-        $this->assertInstanceOf('App\School', $this->gradesystem->school);
+        $this->assertInstanceOf(\App\School::class, $this->gradesystem->school);
     }
 
     /** @test */

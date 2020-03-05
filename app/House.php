@@ -11,6 +11,6 @@ class House extends Model
      */
     public function students()
     {
-        return $this->hasMany('App\StudentInfo', 'house_id');
+        return $this->hasMany(\App\StudentInfo::class, 'house_id');
     }
 }

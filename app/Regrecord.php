@@ -12,21 +12,21 @@ class Regrecord extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 
     public function section()
     {
-        return $this->belongsTo('App\Section');
+        return $this->belongsTo(\App\Section::class);
     }
 
     public function house()
     {
-        return $this->belongsTo('App\House');
+        return $this->belongsTo(\App\House::class);
     }
 
     public function channel()
     {
-        return $this->belongsTo('App\FeeChannel', 'fee_id');
+        return $this->belongsTo(\App\FeeChannel::class, 'fee_id');
     }
 }

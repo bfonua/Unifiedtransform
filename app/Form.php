@@ -9,6 +9,6 @@ class Form extends Model
      */
     public function school()
     {
-        return $this->belongsTo('App\School');
+        return $this->belongsTo(\App\School::class);
     }
 }

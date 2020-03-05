@@ -9,7 +9,7 @@ class Course extends Model
      */
     public function class()
     {
-        return $this->belongsTo('App\Myclass');
+        return $this->belongsTo(\App\Myclass::class);
     }
 
     /**
@@ -17,7 +17,7 @@ class Course extends Model
      */
     public function section()
     {
-        return $this->belongsTo('App\Section');
+        return $this->belongsTo(\App\Section::class);
     }
 
     /**
@@ -25,7 +25,7 @@ class Course extends Model
      */
     public function teacher()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 
     /**
@@ -33,6 +33,6 @@ class Course extends Model
      */
     public function exam()
     {
-        return $this->belongsTo('App\Exam');
+        return $this->belongsTo(\App\Exam::class);
     }
 }

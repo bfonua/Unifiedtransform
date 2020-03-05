@@ -15,16 +15,16 @@ class School extends Model
 
     public function users()
     {
-        return $this->hasMany('App\User');
+        return $this->hasMany(\App\User::class);
     }
 
     public function departments()
     {
-        return $this->hasMany('App\Department');
+        return $this->hasMany(\App\Department::class);
     }
 
     public function gradesystems()
     {
-        return $this->hasMany('App\Gradesystem');
+        return $this->hasMany(\App\Gradesystem::class);
     }
 }

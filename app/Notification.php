@@ -9,7 +9,7 @@ class Notification extends Model
      */
     public function student()
     {
-        return $this->belongsTo('App\User', 'student_id');
+        return $this->belongsTo(\App\User::class, 'student_id');
     }
 
     /**
@@ -17,6 +17,6 @@ class Notification extends Model
      */
     public function teacher()
     {
-        return $this->belongsTo('App\User', 'user_id');
+        return $this->belongsTo(\App\User::class, 'user_id');
     }
 }

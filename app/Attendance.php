@@ -9,7 +9,7 @@ class Attendance extends Model
      */
     public function student()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 
     /**
@@ -17,7 +17,7 @@ class Attendance extends Model
      */
     public function section()
     {
-        return $this->belongsTo('App\Section');
+        return $this->belongsTo(\App\Section::class);
     }
 
     /**
@@ -25,6 +25,6 @@ class Attendance extends Model
      */
     public function exam()
     {
-        return $this->belongsTo('App\Exam');
+        return $this->belongsTo(\App\Exam::class);
     }
 }

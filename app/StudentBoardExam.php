@@ -11,6 +11,6 @@ class StudentBoardExam extends Model
      */
     public function student()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 }

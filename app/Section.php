@@ -20,12 +20,12 @@ class Section extends Model
      */
     public function class()
     {
-        return $this->belongsTo('App\Myclass');
+        return $this->belongsTo(\App\Myclass::class);
     }
 
     public function users()
     {
-        return $this->hasMany('App\User', 'section_id');
+        return $this->hasMany(\App\User::class, 'section_id');
     }
 
     // public function students()
@@ -36,7 +36,7 @@ class Section extends Model
     public function students()
     {
         return $this->hasManyDeep(
-            'App\User', ['App\StudentInfo'],
+            \App\User::class, [\App\StudentInfo::class],
             [
                 'form_id',
                 'id',
@@ -51,8 +51,8 @@ class Section extends Model
     public function assigned()
     {
         return $this->hasManyDeep(
-            'App\Assign',
-            ['App\StudentInfo', 'App\User'],
+            \App\Assign::class,
+            [\App\StudentInfo::class, \App\User::class],
             [
                 'form_id', // FM on StudentInfo
                 'id', // FK on User
@@ -69,8 +69,8 @@ class Section extends Model
     public function totalAssigned()
     {
         return $this->hasManyDeep(
-            'App\Fee',
-            ['App\StudentInfo', 'App\User', 'App\Assign'],
+            \App\Fee::class,
+            [\App\StudentInfo::class, \App\User::class, \App\Assign::class],
             [
                 'form_id', // FM on StudentInfo
                 'id', // FK on User
@@ -89,8 +89,8 @@ class Section extends Model
     public function payment()
     {
         return $this->hasManyDeep(
-            'App\Payment',
-            ['App\StudentInfo', 'App\User'],
+            \App\Payment::class,
+            [\App\StudentInfo::class, \App\User::class],
             [
                 'form_id', // FM on StudentInfo
                 'id', // FK on User

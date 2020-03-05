@@ -13,15 +13,15 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        'App\Events\UserRegistered' => [
-            'App\Listeners\SendWelcomeEmail',
+        \App\Events\UserRegistered::class => [
+            \App\Listeners\SendWelcomeEmail::class,
         ],
-        'App\Events\StudentInfoUpdateRequested' => [
-            'App\Listeners\UpdateStudentInfo',
+        \App\Events\StudentInfoUpdateRequested::class => [
+            \App\Listeners\UpdateStudentInfo::class,
         ],
         // Added event for TCT Registration
-        'App\Events\TCTStudentInfoUpdateRequested' => [
-            'App\Listeners\UpdateTCTStudentInfo',
+        \App\Events\TCTStudentInfoUpdateRequested::class => [
+            \App\Listeners\UpdateTCTStudentInfo::class,
         ],
     ];
 

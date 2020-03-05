@@ -11,7 +11,7 @@ class Feedback extends Model
      */
     public function student()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 
     /**
@@ -19,6 +19,6 @@ class Feedback extends Model
      */
     public function teacher()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 }
