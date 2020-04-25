@@ -15,6 +15,7 @@ use App\Exports\allHouseListExport;
 use App\Exports\allFinanceAssignListExport;
 use App\Exports\allFinancePaymentListExport;
 use App\Exports\allFinanceRemainListExport;
+use App\Exports\allFinanceTranListExport;
 use Maatwebsite\Excel\Facades\Excel;
 /*
  * jQuery File Upload Plugin PHP Class
@@ -149,18 +150,22 @@ class UploadController extends Controller {
     }
 
     public function export_tctFinanceAssignList(){
-        return Excel::download(new allFinanceAssignListExport, 'Assigned List '.date("Y").'.xlsx');
+        return Excel::download(new allFinanceAssignListExport, 'TCT Assigned List '.date("Y").'.xlsx');
     }
 
     public function export_tctFinancePaymentList(){
-        return Excel::download(new allFinancePaymentListExport, 'Payment List '.date("Y").'.xlsx');
+        return Excel::download(new allFinancePaymentListExport, 'TCT Payment List '.date("Y").'.xlsx');
     }
 
     public function export_tctFinanceRemainList(){
-        return Excel::download(new allFinanceRemainListExport, 'Remaining List '.date("Y").'.xlsx');
+        return Excel::download(new allFinanceRemainListExport, 'TCT Remaining List '.date("Y").'.xlsx');
     }
 
     public function export_allRegList(){
         return Excel::download(new allRegStudentsExport(now()->year), date('Y').'-students.xlsx');
+    }
+
+    public function export_tctFinanceTranList(){
+        return Excel::download(new allFinanceTranListExport(now()->year), 'TCT Transactions '.date("Y").'.xlsx');
     }
 }

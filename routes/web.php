@@ -75,9 +75,9 @@ Route::middleware(['auth','accountant'])->prefix('fees')->name('fees.')->group(f
     Route::get('section/{id}', 'AssignController@sectionFeeList');
     Route::get('exportAssign', 'UploadController@export_tctFinanceAssignList');
     Route::get('exportPayment', 'UploadController@export_tctFinancePaymentList');
-    Route::get('exportRemain', 'UploadController@export_tctFinanceRemainList');
-
-
+    Route::get('exportRemain', 'UploadController@export_tctFinanceRemainList'); // exports remain payments by Class
+    Route::get('exportTran', 'UploadController@export_tctFinanceTranList'); //exports all payment transactions
+    
     // Finance AJAX
     Route::get('assignListAction', 'AjaxController@getFeeAssignList');
 

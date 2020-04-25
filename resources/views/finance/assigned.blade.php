@@ -17,8 +17,10 @@
             <a href="{{url('fees/exportAssign')}}" class="btn btn-sm btn-primary"><i class="material-icons">import_export</i> Export Assigned</a>
             <a href="{{url('fees/exportPayment')}}" class="btn btn-sm btn-danger"><i class="material-icons">monetization_on</i> Export Payment</a>
             <a href="{{url('fees/exportRemain')}}" class="btn btn-sm btn-success"><i class="material-icons">monetization_on</i> Export Remaining</a>
+            <a href="{{url('fees/exportTran')}}" class="btn btn-sm btn-warning"><i class="material-icons">import_export</i> Export Transactions</a>
             {{-- @include('layouts.master.add-class-form') <!--NEW FORM BUTTON --> --}}
-            <hr>
+            <br>
+            <br>
             <table class="table table-bordered">
                 <thead>
                     <th class="text-center">Section</th>

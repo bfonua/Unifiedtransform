@@ -36,6 +36,7 @@ class financeRemainListExport implements WithEvents, WithTitle
     public function registerEvents(): array
     {
         ini_set('memory_limit', '-1');
+        set_time_limit(0);
         return [
             AfterSheet::class => function(AfterSheet $event){
                 $sheet = $event->sheet;

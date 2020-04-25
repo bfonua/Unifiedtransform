@@ -29,9 +29,6 @@ class allFinanceAssignListExport implements WithMultipleSheets
         }
         return $sheets; 
     }
-
-
 }
-
 
 ?>

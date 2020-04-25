@@ -10,4 +10,11 @@ class Payment extends Model
     {
         return $this->belongsTo('App\Fee', 'fee_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo('App\User');
+    }
+
+    
 }
