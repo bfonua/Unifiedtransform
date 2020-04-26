@@ -21,7 +21,7 @@
                 <td>{{$item->receipt}}</td>
                 <td>{{$item->pay_date}}</td>
                 <td>{{$item->user->studentInfo->tct_id}}</td>
-                <td>{{$item->user->lst_name}}</td>
+                <td>{{$item->user->given_name}} {{$item->user->lst_name}}</td>
                 <td>{{$item->fees->fee_type->name}}</td>
                 <td>{{$item->amount}}</td>
                 <td>{{$item->fees->fee_channel->name}}</td>
