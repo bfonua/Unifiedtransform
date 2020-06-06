@@ -672,6 +672,32 @@ class UserController extends Controller
         ]);
     }
 
+    public function otherDistributions()
+    {
+        $churches = DB::table('student_infos')
+            ->select('church', DB::raw('count(*) as count'))
+            ->where('session', now()->year)
+            ->groupBy('church')
+            ->get();
+
+        $villages = DB::table('student_infos')
+            ->join('users', 'student_infos.student_id', '=', 'users.id')
+            ->select('users.village', DB::raw('count(*) as count'))
+            ->where('student_infos.session', now()->year)
+            ->groupBy('users.village')
+            ->get();
+        
+        $countries = DB::table('student_infos')
+            ->join('users', 'student_infos.student_id', '=', 'users.id')
+            ->select('users.nationality',DB::raw('count(*) as count'))
+            ->where('student_infos.session', now()->year)
+            ->groupBy('users.nationality')
+            ->get();
+
+        // return $villages;
+        return view('profile.student-tct-other', compact('churches', 'villages', 'countries'));
+    }    
+
     public function queryTest()
     {
         $section = \App\Section::where('active', 1)

@@ -86,6 +86,20 @@ class HomeController extends Controller
             $totalStudents = \App\User::whereHas("studentInfo", function($q){
                 $q->where("session",now()->year);
                 })->count();  
+            $totalActive = \App\User::whereHas("studentInfo", function($q){
+                $q->where("session",now()->year);
+                })->where("active", 1)
+                ->count();  
+            $inactiveType = ["withdrawn", "removed", "suspended", "expelled"];
+            $inactiveOutput = [];
+            foreach($inactiveType as $type){
+                $inactive = \App\Inactive::where('session', now()->year)
+                    ->where('type', $type)
+                    ->distinct('user_id')
+                    ->count();
+                $inactiveOutput[$type] = $inactive;
+            }
+            
             $classes = \App\Myclass::bySchool(\Auth::user()->school->id)
                 ->get();
             $classIDs = \App\Myclass::bySchool(\Auth::user()->school->id)
@@ -115,8 +129,35 @@ class HomeController extends Controller
                     ->count('id');
                 $studentCountHouse[$house->id] = $studentCount;
             }
-    
+            $feeArr = $feeAss = $feePay = $feeRemain = [];
+            for($i=1; $i<=5; $i++){
+                $feeName = \App\FeeType::find($i)->name;
+                $totalAssign = \DB::table('assigns')
+                    ->join('fees', 'assigns.fee_id', '=', 'fees.id')
+                    ->where('assigns.session', now()->year)
+                    ->where('fees.fee_type_id', $i)
+                    ->sum('fees.amount');
+                $feeAss[$feeName] = $totalAssign;
+                
 
+                $totalPay = \DB::table('payments')
+                    ->join('fees', 'payments.fee_id', '=', 'fees.id')
+                    ->where('payments.session', now()->year)
+                    ->where('fees.fee_type_id', $i)
+                    ->sum('payments.amount');
+                $feePay[$feeName] = $totalPay;
+
+                $feeRemain[$feeName] = $totalAssign - $totalPay;
+            }
+            $feeAss['total'] = array_sum($feeAss);
+            $feePay['total'] = array_sum($feePay);
+            $feeRemain['total'] = $feeAss['total'] - $feePay['total'];
+            $feeArr = [
+                'Assigned' => $feeAss,
+                'Payment' => $feePay,
+                'Remain' => $feeRemain,
+            ];
+            // return $feeArr;
             
             // if(\Auth::user()->role == 'student')
             //   $messageCount = \App\Notification::where('student_id',\Auth::user()->id)->count();
@@ -124,6 +165,8 @@ class HomeController extends Controller
             //   $messageCount = 0;
             return view('home',[
               'totalStudents'=>$totalStudents,
+              'totalActive' => $totalActive,
+              'inactiveOutput' => $inactiveOutput,
               'totalTeachers'=>$totalTeachers,
               'totalBooks'=>$totalBooks,
               'totalClasses'=>$totalClasses,
@@ -140,6 +183,7 @@ class HomeController extends Controller
               'housesCount' => $housesCount,
               'studentCountList' => $studentCountList,
               'studentCountHouse' => $studentCountHouse,
+              'feeArr' => $feeArr,
               //'messageCount'=>$messageCount,
             ]);
         } else {

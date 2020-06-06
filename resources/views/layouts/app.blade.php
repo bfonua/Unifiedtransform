@@ -27,6 +27,7 @@
     </script>
     <script src="{{ url('js/application.js') }}"></script>
     @yield('after_scripts')
+    
 </head>
 
 <body>
@@ -38,6 +39,7 @@
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons&style=normal&weight=400" rel="stylesheet">
     <link rel="stylesheet" href="{{ url('css/vendors.css') }}" id="bootswatch-print-id">
+    
     <link rel="stylesheet" href="{{ url('css/application.css') }}">
     <script src="{{asset('js/typeahead.js')}}"></script>
     <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>

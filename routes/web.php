@@ -115,6 +115,7 @@ Route::middleware(['auth'])->group(function (){
   Route::get('section/tct_students/{section_id}', 'UserController@sectionTCTStudents');
   Route::get('house/tct_students/{house_id}', 'UserController@houseTCTStudents');
   Route::get('prefects/tct_students', 'UserController@prefectTCTStudents');
+  Route::get('other/tct_students','UserController@otherDistributions');
 
   Route::get('courses/{teacher_id}/{section_id}', 'CourseController@index');
 });

@@ -34,7 +34,7 @@
                                     <td class="text-center">{{$loop->iteration}}</td>
                                     <td class="text-center">{{$student->tct_id}}</td>
                                     <td class="text-center">
-                                        {{($student->student->active)? ucfirst($student->group):'Inactive / '.ucfirst($student->student->inactive->type)}}  
+                                        {{($student->student->active)? ucfirst($student->group):'Inactive / '.ucfirst($student->student->inactiveNow($student->session)->first()->type)}}  
                                     </td>
                                     <td>
                                         <a href="{{url('user/'.$student->student->student_code)}}">{{$student->student->given_name.' '.$student->student->lst_name}}</a>

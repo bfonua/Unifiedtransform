@@ -7,6 +7,7 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2" id="main-container">
             <div class="panel panel-default">
+                <br>
                 <div class="page-panel-title">@lang('Login')</div>
                 
                 @if ($errors->any())

@@ -50,8 +50,6 @@
             </div>
         </div>
     @endif
-
-
     <div class="col-md-10" id="main-container">
         <!-- STUDENT SUMMARY -->
         <div class="row">
@@ -784,4 +782,5 @@
         });
         });
     </script>
+@endsection
 
