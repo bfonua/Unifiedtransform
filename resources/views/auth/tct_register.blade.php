@@ -192,19 +192,18 @@
                         <div class="form-group{{ $errors->has('church') ? ' has-error' : '' }}">
                             <label for="church" class="col-md-4 control-label">* @lang('Church')</label>
                             <div class="col-md-6">
+                                @php
+                                    $churches = [
+                                        'FWC', 'Bahai', 'Catholic', 'Equippers',
+                                        "Mo'uifo'ou", "Mormon", "Penitekosi", "Salvation Army",
+                                        "Siasi 'Aho Fitu", "Siasi 'Ingilangi", "Siasi Tonga Hou'eiki",
+                                        "Siasi Tonga Konistitone", "Tokaikolo (Maama Fo'ou)", "Tonga Tau'ataina", "Other"
+                                    ];
+                                @endphp
                                 <select id="church" class="form-control" name="church">
-                                    <!-- TO BE POPULATED FROM QUERY -->
-                                    <option selected="selected">FWC</option>
-                                    <option>Mormon</option>
-                                    <option>Tonga Tauataina</option>
-                                    <option>Tonga Konisitutone</option>
-                                    <option>Tonga Hou'eiki</option>
-                                    <option>Anglican</option>
-                                    <option>Catholic</option>
-                                    <option>Tokaikolo</option>
-                                    <option>Penitekosi</option>
-                                    <option>Salvation Army</option>
-                                    <option>Other</option>
+                                    @foreach ($churches as $church)
+                                        <option>{{$church}}</option>
+                                    @endforeach
                                 </select>
                                 @if ($errors->has('church'))
                                 <span class="help-block">
