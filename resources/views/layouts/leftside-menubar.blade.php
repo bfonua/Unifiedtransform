@@ -112,7 +112,7 @@
     </li>
     <li class="nav-item" style="border-bottom: 2px solid #dbd8d8;"></li>
     
-    <li class="nav-item dropdown">
+    {{-- <li class="nav-item dropdown">
         <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
             class="material-icons">date_range</i> <span class="nav-link-text">@lang('Attendance')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>
         <ul class="dropdown-menu" style="width: 100%;">
@@ -127,9 +127,9 @@
             <a class="dropdown-item" href="#"><i class="material-icons">account_balance_wallet</i> <span class="nav-link-text">@lang('Staff Attendance')</span></a>
           </li>
         </ul>
-    </li>
+    </li> --}}
     @endif
-    @if(Auth::user()->role != 'student')
+    {{-- @if(Auth::user()->role != 'student')
         <li class="nav-item">
         <a class="nav-link" href="{{url('users/'.Auth::user()->school->code.'/0/1')}}"><i class="material-icons">contacts</i>
             <span class="nav-link-text">@lang('Teachers')</span></a>
@@ -256,8 +256,6 @@
       <a class="nav-link" href="{{url('stripe/receipts')}}"><i class="material-icons">receipt</i> <span class="nav-link-text">@lang('Receipt')</span></a>
     </li>
     @endif
-    {{--<div style="text-align:center;">@lang('Student')</div>--}}
-    {{--<div style="text-align:center;">@lang('Teacher')</div>--}}
     @if(Auth::user()->role == 'admin' || Auth::user()->role == 'librarian')
     <li class="nav-item dropdown">
       <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
@@ -292,6 +290,6 @@
       <a class="nav-link" href="{{ url('courses/'.Auth::user()->id.'/0') }}"><i class="material-icons">import_contacts</i>
         <span class="nav-link-text">@lang('My Courses')</span></a>
     </li>
-    @endif
+    @endif --}}
   </ul>
   

@@ -41,7 +41,7 @@
         </tr>
         <tr>    
             <td>
-                <strong>Form:</strong> {{$user->studentInfo->section->class->class_number}}{{$user->studentInfo->section->section_number}}(#{{$user->studentInfo->form_num}})
+                <strong>Form:</strong> {{$user->studentInfo->section->class->class_number}}{{$user->studentInfo->section->section_number}} (#{{$user->studentInfo->form_num}})
             </td>
             <td>
                 <strong>House:</strong> {{$user->studentInfo->house->house_name}}

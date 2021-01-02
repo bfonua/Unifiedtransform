@@ -18,8 +18,8 @@
             @include('layouts.leftside-menubar')
         </div>
         <div class="col-md-10" id="main-container">
-            <div class="panel panel-default" style="border-top: 0px;">
-                <div class="panel-body">
+            <div class="" style="border-top: 0px;">
+                <div class="">
                     @if (session('status'))
                         <div class="alert alert-success">
                             {{ session('status') }}
@@ -53,19 +53,18 @@
                             </div>
                         </div>
                     </div> --}}
-                    <p></p>
                     <div class="row">
-                        <div class="col-md-12">
-                            <div class="panel panel-default" style="background-color: rgba(242,245,245,0.8);">
-                                <div class="panel-body">
-                                    <h3>@lang('Welcome to') 
+                        <div class="container col-md-12">
+                            <br>
+                            <div class="" style="">
+                                <div class="">
+                                    <h2>@lang('Welcome to') 
                                         @if(Auth::user()->school->name == "Tupou College")
                                              TCTNET
                                         @else
                                             {{Auth::user()->school->name}}
                                         @endif
-                                    </h3>
-                                    <br>
+                                    </h2>
                                     <div class="panel panel-default">
                                         {{-- <div class="page-panel-title">
                                             Mission Statement
