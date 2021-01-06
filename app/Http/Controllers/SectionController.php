@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Section as Section;
 use App\Http\Resources\SectionResource;
+use App\Regrecord as Regrecord;
 use Illuminate\Http\Request;
 
 class SectionController extends Controller
@@ -13,23 +14,24 @@ class SectionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-     public function index()
-     {
+    public function index()
+    {
         $school = \Auth::user()->school;
         $classes = \App\Myclass::bySchool(\Auth::user()->school->id)
-                    ->get();
+            ->get();
         $classeIds = \App\Myclass::bySchool(\Auth::user()->school->id)
-                        ->pluck('id')
-                        ->toArray();
-        $sections = \App\Section::whereIn('class_id',$classeIds)
-                    ->where('active', 1)
-                    ->orderBy('class_id')
-                    ->orderBy('section_number', 'asc')
-                    ->get();
-        $exams = \App\ExamForClass::whereIn('class_id',$classeIds)
-                    ->where('active', 1)
-                    ->groupBy('class_id')
-                    ->get();
+            ->pluck('id')
+            ->toArray();
+        $sections = \App\Section::whereIn('class_id', $classeIds)
+            ->where('active', 1)
+            ->orderBy('class_id')
+            ->orderBy('section_number', 'asc')
+            ->get();
+        // return dd($sections);
+        $exams = \App\ExamForClass::whereIn('class_id', $classeIds)
+            ->where('active', 1)
+            ->groupBy('class_id')
+            ->get();
 
         $departments = \App\Department::all();
         // $departments = Department::bySchool(\Auth::user()->school_id)->get();
@@ -40,16 +42,16 @@ class SectionController extends Controller
         //     ->where('active', 1)
         //     ->get();
 
-        return view('school.sections',[
-            'classes'=>$classes,
-            'sections'=>$sections,
-            'exams'=>$exams,
-            'school'=>$school,
-            'departments'=>$departments,
+        return view('school.sections', [
+            'classes' => $classes,
+            'sections' => $sections,
+            'exams' => $exams,
+            'school' => $school,
+            'departments' => $departments,
             // 'teachers'=>$tecahers,
 
         ]);
-     }
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -69,17 +71,17 @@ class SectionController extends Controller
      */
     public function store(Request $request)
     {
-      $request->validate([
-        'section_number' => 'required',
-        'room_number' => 'required|numeric',
-        'class_id' => 'required|numeric',
-      ]);
-      $tb = new Section;
-      $tb->section_number = $request->section_number;
-      $tb->room_number = $request->room_number;
-      $tb->class_id = $request->class_id;
-      $tb->save();
-      return back()->with('status', __('Created'));
+        $request->validate([
+            'section_number' => 'required',
+            'room_number' => 'required|numeric',
+            'class_id' => 'required|numeric',
+        ]);
+        $tb = new Section;
+        $tb->section_number = $request->section_number;
+        $tb->room_number = $request->room_number;
+        $tb->class_id = $request->class_id;
+        $tb->save();
+        return back()->with('status', __('Created'));
     }
 
     /**
@@ -113,15 +115,15 @@ class SectionController extends Controller
      */
     public function update(Request $request, $id)
     {
-      $tb = Section::find($id);
-      $tb->section_number = $request->section_number;
-      $tb->room_number = $request->room_number;
-      $tb->class_id = $request->class_id;
-      return ($tb->save())?response()->json([
-        'status' => 'success'
-      ]):response()->json([
-        'status' => 'error'
-      ]);
+        $tb = Section::find($id);
+        $tb->section_number = $request->section_number;
+        $tb->room_number = $request->room_number;
+        $tb->class_id = $request->class_id;
+        return ($tb->save()) ? response()->json([
+            'status' => 'success'
+        ]) : response()->json([
+            'status' => 'error'
+        ]);
     }
 
     /**
@@ -140,12 +142,12 @@ class SectionController extends Controller
         $tb->active = $request->section_active;
         $tb->save();
         return redirect('school/sections?course=1');
-    
-    //   return ($tb->save())?response()->json([
-    //     'status' => 'success'
-    //   ]):response()->json([
-    //     'status' => 'error'
-    //   ]);
+
+        //   return ($tb->save())?response()->json([
+        //     'status' => 'success'
+        //   ]):response()->json([
+        //     'status' => 'error'
+        //   ]);
     }
 
     /**
@@ -156,10 +158,58 @@ class SectionController extends Controller
      */
     public function destroy($id)
     {
-      return (Section::destroy($id))?response()->json([
-        'status' => 'success'
-      ]):response()->json([
-        'status' => 'error'
-      ]);
+        return (Section::destroy($id)) ? response()->json([
+            'status' => 'success'
+        ]) : response()->json([
+            'status' => 'error'
+        ]);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function inactive()
+    {
+
+        $school = \Auth::user()->school;
+        $classes = \App\Myclass::bySchool(\Auth::user()->school->id)
+            ->get();
+        $classeIds = \App\Myclass::bySchool(\Auth::user()->school->id)
+            ->pluck('id')
+            ->toArray();
+        $sections = \App\Section::whereIn('class_id', $classeIds)
+            ->where('active', 0)
+            ->orderBy('class_id')
+            ->orderBy('section_number', 'asc')
+            ->get();
+
+        return view('school.inactiveSections', [
+            'classes' => $classes,
+            'sections' => $sections,
+            'school' => $school,
+        ]);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function sectionByYear()
+    {
+        $years = Regrecord::groupBy('session')->orderBy('session', 'desc')->pluck('session')->toArray();
+        $list = [];
+        foreach ($years as $year) {
+            $sections = Regrecord::where('session', $year)->groupBy('form_id')->orderBy('form_id', 'desc')->pluck('form_id')->toArray();
+            $list[$year] = [
+                'sections' => $sections,
+            ];
+        }
+        // dd($list);
+        return view('school.sections-year', [
+            'list' => $list,
+        ]);
     }
 }

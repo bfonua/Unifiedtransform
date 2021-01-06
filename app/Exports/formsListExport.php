@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Exports;
 
@@ -20,7 +20,8 @@ class formsListExport implements WithEvents, WithTitle
         $this->section_id = $section_id;
     }
 
-    public function split_name($name) {
+    public function split_name($name)
+    {
         $parts = explode(' ', $name); // $meta->post_title
         $name_first = array_shift($parts);
         $name_last = array_pop($parts);
@@ -31,20 +32,20 @@ class formsListExport implements WithEvents, WithTitle
     public function title(): string
     {
         $formRec = Section::find($this->section_id);
-        return $formRec->class->class_number.$formRec->section_number;
+        return $formRec->class->class_number . $formRec->section_number;
     }
 
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event){
+            AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet;
                 $sheet->getPageSetup()
                     ->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
                 $formRec = \App\Section::find($this->section_id);
                 // == SHEET TITLE
                 $sheet->mergeCells('A1:D1');
-                $sheet->setCellValue('A1', $formRec->class->class_number.$formRec->section_number);
+                $sheet->setCellValue('A1', $formRec->class->class_number . $formRec->section_number);
                 $title_style = array(
                     'font' => array(
                         'bold' => true,
@@ -80,32 +81,33 @@ class formsListExport implements WithEvents, WithTitle
                 $sheet->getStyle('A2:D2')->applyFromArray($heading_style);
                 $reslist = \App\StudentInfo::where('form_id', $this->section_id)
                     ->where('session', now()->year)
+                    // ->where('session', "2020")
                     ->orderBy('form_num', 'asc')->get();
                 $formList = array();
                 $row = 3;
                 $count = 1;
-                foreach($reslist as $res){
+                foreach ($reslist as $res) {
                     $class_num = $res->form_num;
-                    while($count < $class_num){
-                        $sheet->setCellValue('B'.$row, $count);
+                    while ($count < $class_num) {
+                        $sheet->setCellValue('B' . $row, $count);
                         $count++;
                         $row++;
                     }
-                    $name = $this->split_name($res->student->given_name)[0]." ". $this->split_name($res->student->given_name)[1]." ".$res->student->lst_name;
-                    if($res->group == "Head Prefect"){
+                    $name = $this->split_name($res->student->given_name)[0] . " " . $this->split_name($res->student->given_name)[1] . " " . $res->student->lst_name;
+                    if ($res->group == "Head Prefect") {
                         $name .= ' (HP)';
-                    } elseif(ucfirst($res->group) == "Prefect"){
+                    } elseif (ucfirst($res->group) == "Prefect") {
                         $name .= " (P)";
                     }
-                    $sheet->setCellValue('A'.$row, $res->tct_id)
-                        ->setCellValue('B'.$row, $res->form_num)
-                        ->setCellValue('C'.$row, $name)
-                        ->setCellValue('D'.$row, $res->house->house_abbrv);
-                        if($res->student->active == '0'){
-                            $sheet->getStyle("A".$row.":D".$row)->applyFromArray($inactiveStyle);
-                        }
-                        $row++;
-                        $count++;
+                    $sheet->setCellValue('A' . $row, $res->tct_id)
+                        ->setCellValue('B' . $row, $res->form_num)
+                        ->setCellValue('C' . $row, $name)
+                        ->setCellValue('D' . $row, $res->house->house_abbrv);
+                    if ($res->student->active == '0') {
+                        $sheet->getStyle("A" . $row . ":D" . $row)->applyFromArray($inactiveStyle);
+                    }
+                    $row++;
+                    $count++;
                 }
                 $last_row = $row - 1;
                 $last_border = $last_row + 5;
@@ -125,23 +127,17 @@ class formsListExport implements WithEvents, WithTitle
                     ),
                 );
                 $sheet->getStyle("A1:L{$last_border}")->applyFromArray($borderArray);
-                $sheet -> getHeaderFooter()->setDifferentOddEven(false)
-							->setOddHeader('&RForm List  - &D');
+                $sheet->getHeaderFooter()->setDifferentOddEven(false)
+                    ->setOddHeader('&RForm List  - &D');
                 // WIDTHS
                 $sheet->getColumnDimension('A')->setWidth(7);
                 $sheet->getColumnDimension('B')->setWidth(5);
                 $sheet->getColumnDimension('C')->setWidth(35);
                 $sheet->getColumnDimension('D')->setWidth(7);
-                foreach(range('E','M') as $columnID){
+                foreach (range('E', 'M') as $columnID) {
                     $sheet->getColumnDimension($columnID)->setWidth(4);
                 }
-
-
             }
         ];
     }
 }
-
-
-
-?>

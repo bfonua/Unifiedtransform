@@ -14,13 +14,16 @@ class FeeChannelController extends Controller
      */
     public function index()
     {
-        $fee_channel = FeeChannel::orderBy('session','desc')
-            ->orderBy('name','asc')
+        $fee_channel = FeeChannel::where('session', '>', '2018')
+            ->orderBy('session', 'desc')
+            ->orderBy('name', 'asc')
             ->get();
-        return view('finance.fee_channel',
-        [
-            'fee_channels' => $fee_channel,
-        ]);
+        return view(
+            'finance.fee_channel',
+            [
+                'fee_channels' => $fee_channel,
+            ]
+        );
     }
 
     /**
@@ -44,11 +47,11 @@ class FeeChannelController extends Controller
         $request->validate([
             'name' => 'required',
             'session' => 'required',
-          ]);
+        ]);
         $tb = new FeeChannel;
         $tb->name = $request->name;
         $tb->active = $request->active;
-        $tb->notes = ($request->notes)? $request->notes : '';
+        $tb->notes = ($request->notes) ? $request->notes : '';
         $tb->session = $request->session;
         $tb->save();
 
@@ -89,16 +92,34 @@ class FeeChannelController extends Controller
         $request->validate([
             'name' => 'required',
             'session' => 'required',
-          ]);
+        ]);
 
         $feeChannel->name = $request->name;
         $feeChannel->active = $request->active;
-        $feeChannel->notes = ($request->notes)? $request->notes : '';
+        $feeChannel->notes = ($request->notes) ? $request->notes : '';
         $feeChannel->session = $request->session;
         $feeChannel->save();
 
         return back()->with('status', __('Updated'));
+    }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\FeeChannel  $feeChannel
+     * @return \Illuminate\Http\Response
+     */
+    public function updateSession(Request $request)
+    {
+        // return $request;
+
+        $maxSession = \App\FeeChannel::max('session');
+        \App\FeeChannel::where('session', $maxSession)->update([
+            'session' => $request->session,
+        ]);
+
+        return back()->with('status', __('Updated'));
     }
 
     /**

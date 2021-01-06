@@ -70,6 +70,28 @@
         </div> --}}
     @endslot
 @endcomponent
+
+
+
+@component('components.fee-type-form', [
+    'buttonTitle' => 'Update Session',
+    'modal_name' => 'feeModal',
+    'title' => 'Update Fee Session',
+    'put_method' => '',
+    'url' => url('fees/tct_update_session'),
+])
+    @slot('buttonType')
+        <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#feeModal"><i class="material-icons">warning</i>
+    @endslot
+    @slot('form_content')
+        <div class="form-group">
+            <label for="session" class="col-sm-4 control-label">@lang('Session')</label>
+            <div class="col-sm-8">
+            <input type="text" class="form-control" id="session" name="session" value="{{ now()->year }}">
+            </div>
+        </div>
+    @endslot
+@endcomponent
 <hr>
           
 <!-- Removed table-data-div to resolve form alignment issues -->
@@ -78,7 +100,7 @@
       <thead>
         <tr>
           <th class="text-center">#</th>
-          <th class="text-center">Name</th>
+          {{-- <th class="text-center">Name</th> --}}
           <th class="text-center">Channel</th>
           <th class="text-center">Type</th>
           <th class="text-center">Active</th>
@@ -91,7 +113,7 @@
         @foreach($fees as $fee)
         <tr>
           <td class="text-center">{{($loop->index + 1)}}</td>
-          <td class="text-center">{{$fee->fee_name}}</td>
+          {{-- <td class="text-center">{{$fee->fee_name}}</td> --}}
           <td class="text-center">{{$fee->fee_channel->name}}</td>
           <td class="text-center">{{$fee->fee_type->name}}</td>
           <td class="text-center">{{($fee->active)?'Yes':'No'}}</td>
@@ -109,12 +131,12 @@
                     <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#myModal{{$fee->id}}"><i class="material-icons">edit</i> 
                 @endslot
                 @slot('form_content')
-                    <div class="row form-group">
+                    {{-- <div class="row form-group">
                         <label for="name" class="col-sm-4 control-label">@lang('Name')</label>
                         <div class="col-sm-8">
                         <input type="text" class="form-control" id="name" name="name" value="{{$fee->fee_name}}">
                         </div>
-                    </div>
+                    </div> --}}
                     <div class="row form-group">
                         <label for="session" class="col-sm-4 control-label">@lang('Session')</label>
                         <div class="col-sm-8">
@@ -169,5 +191,5 @@
         @endforeach
       </tbody>
     </table>
-  </div>
+</div>
   

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Fee;
 
 class FeeController extends Controller
 {
@@ -13,14 +14,14 @@ class FeeController extends Controller
      */
     public function index()
     {
-      $fees = \App\Fee::bySchool(\Auth::user()->school_id)->get();
-      return view('fees.all',['fees'=>$fees]);
+        $fees = \App\Fee::bySchool(\Auth::user()->school_id)->get();
+        return view('fees.all', ['fees' => $fees]);
     }
 
     public function tct_index()
     {
-      $fees = \App\Fee::where('session', now()->year)->simplepaginate(50);
-      return view('fees.tct_all',['fees'=>$fees]);
+        $fees = \App\Fee::where('active', 1)->simplepaginate(65);
+        return view('fees.tct_all', ['fees' => $fees]);
     }
 
     /**
@@ -54,19 +55,20 @@ class FeeController extends Controller
 
     public function tct_store(Request $request)
     {
-        
+
         $request->validate([
             'name' => 'required',
             'session' => 'required',
-          ]);
+        ]);
         $fee =  \App\Fee::firstOrNew(
             [
                 'school_id' => \Auth::user()->school_id,
                 'fee_channel_id' => $request->channel,
                 'fee_type_id' => $request->type,
-                'session' => $request->session,  
-            ]);
-        $fee->fee_name = $request->name;
+                'session' => $request->session,
+            ]
+        );
+        // $fee->fee_name = $request->name;
         // $fee->school_id = \Auth::user()->school_id;
         $fee->user_id = \Auth::user()->id;
         // $fee->fee_channel_id = $request->channel;
@@ -113,28 +115,51 @@ class FeeController extends Controller
             'school_id' => \Auth::user()->school_id,
             'fee_channel_id' => $request->channel,
             'fee_type_id' => $request->type,
-            'session' => $request->session,  
+            'session' => $request->session,
             'amount' => $request->amount,
             'active' => $request->active,
         ];
-
-        // $fee = \App\Fee::firstOrNew($update);
-        // if($fee->id == $id OR !$fee->exists){
-        //     \App\Fee::find($id)->update($update);
-        // }
-
         $fee = \App\Fee::find($id);
         $fee->update($update);
         $fee->fee_name = $request->name;
-        // $fee->school_id = \Auth::user()->school_id;
         $fee->user_id = \Auth::user()->id;
-        // $fee->fee_channel_id = $request->channel;
-        // $fee->fee_type_id = $request->type;
-        // $fee->amount = $request->amount;
-        // $fee->active = $request->active;
-
-        // print($fee);
         $fee->save();
+        return back()->with('status', __('Updated'));
+    }
+
+    /**
+     * Update fees for the new session
+     * Archives the current fees for the previous session, creates new fees for the new session
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateSession(Request $request)
+    {
+        // return $request;
+        // $latestSession = \App\Fee::max('session');
+        // return \App\Fee::where('session', '2020')->update([
+        //     'active' => 1,
+        // ]);
+
+        $currentFees = \App\Fee::where('active', 1)->get();
+        \App\Fee::where('active', 1)->update([
+            'active' => 0,
+        ]);
+        // Insert new fee records for current session
+        foreach ($currentFees as $fee) {
+            $newFee = \App\Fee::create([
+                'school_id' => \Auth::user()->school_id,
+                'user_id' => \Auth::user()->id,
+                'fee_channel_id' => $fee->fee_channel_id,
+                'fee_type_id' => $fee->fee_type_id,
+                'amount' => $fee->amount,
+                'session' => $request->session,
+                'active' => 1,
+            ]);
+            $newFee->save();
+        }
+
         return back()->with('status', __('Updated'));
     }
 

@@ -72,8 +72,12 @@
                     <span class="nav-link-text">@lang('Current Sections')</span></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ url('#') }}"><i class="material-icons">class</i> 
+                <a class="nav-link" href="{{ url('school/inactive_sections') }}"><i class="material-icons">class</i> 
                     <span class="nav-link-text">@lang('Inactive Sections')</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url('school/sections_by_year') }}"><i class="material-icons">class</i> 
+                    <span class="nav-link-text">@lang('Sections by Year')</span></a>
             </li>
            
         </ul>
