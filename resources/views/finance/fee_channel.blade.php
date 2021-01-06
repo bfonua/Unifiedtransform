@@ -55,9 +55,29 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="notes" class="col-sm-4 control-label">@lang('Commentary')</label>
+                        <label for="notes" class="col-sm-4 control-label">@lang('Notes')</label>
                         <div class="col-sm-8">
                             <textarea id="notes" class="form-control" name="notes"></textarea>
+                        </div>
+                    </div>
+                @endslot
+            @endcomponent
+
+            @component('components.fee-type-form', [
+                'buttonTitle' => 'Update Session',
+                'modal_name' => 'updateSessionModal',
+                'title' => 'Update Fee Channel Sessopm',
+                'put_method' => '',
+                'url' => url('fees/fee_channel_update_session'),
+            ])
+                @slot('buttonType')
+                    <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#updateSessionModal"><i class="material-icons">warning</i> 
+                @endslot
+                @slot('form_content')
+                    <div class="form-group">
+                        <label for="session" class="col-sm-4 control-label">@lang('session')</label>
+                        <div class="col-sm-8">
+                        <input type="text" class="form-control" id="session" name="session" value="{{now()->year}}">
                         </div>
                     </div>
                 @endslot
@@ -119,7 +139,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="notes" class="col-sm-4 control-label">@lang('Commentary')</label>
+                                                    <label for="notes" class="col-sm-4 control-label">@lang('Notes')</label>
                                                     <div class="col-sm-8">
                                                         <textarea id="notes" class="form-control" name="notes">{{$channel->notes}}</textarea>
                                                     </div>
