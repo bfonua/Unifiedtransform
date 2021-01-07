@@ -142,7 +142,10 @@ class FeeController extends Controller
         //     'active' => 1,
         // ]);
 
+        // Get current active Fees
         $currentFees = \App\Fee::where('active', 1)->get();
+
+        // Make current active Fees inactive
         \App\Fee::where('active', 1)->update([
             'active' => 0,
         ]);

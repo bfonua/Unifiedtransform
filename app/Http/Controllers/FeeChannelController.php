@@ -114,11 +114,28 @@ class FeeChannelController extends Controller
     {
         // return $request;
 
-        $maxSession = \App\FeeChannel::max('session');
-        \App\FeeChannel::where('session', $maxSession)->update([
-            'session' => $request->session,
+        // $maxSession = \App\FeeChannel::max('session');
+        // \App\FeeChannel::where('session', $maxSession)->update([
+        //     'session' => $request->session,
+        // ]);
+
+        // Get current active Fee Channels
+        $currentFeeChannel = FeeChannel::where('active', 1)->get();
+
+        // Make current active Fee Channels to be inactive
+        FeeChannel::where('active', 1)->update([
+            'active' => 0,
         ]);
 
+        // Insert new fee records for current session
+        foreach ($currentFeeChannel as $fee) {
+            $newFeeChannel = FeeChannel::create([
+                'name' => $fee->name,
+                'active' => 1,
+                'session' => $request->session,
+            ]);
+            $newFeeChannel->save();
+        }
         return back()->with('status', __('Updated'));
     }
 

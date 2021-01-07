@@ -260,11 +260,27 @@ class UserService
     {
         $bazaars = ["Bazaar (Old)", "Bazaar (New)", "bazaar"];
         if ($session > 2019) {
-            $payments = \App\Payment::where('user_id', $user_id)
-                ->where('session', $session)
-                ->orderby('receipt', 'desc')
-                ->get();
-            $payAmount = $payments->where('fee_id', $fee_id)->sum('amount');
+            // get amount from current assigned fee channel
+            $payAmountCurrent = \App\Payment::where([
+                'user_id' => $user_id,
+                'session' => $session,
+                'fee_id' => $fee_id,
+            ])
+                ->sum('amount');
+
+            // get amount from previous assigned channels
+            $feeType = \App\Fee::find($fee_id)->fee_type;
+            // echo ($fee_id . " " . $feeType);
+            $payAmountOld = \App\Payment::whereHas("fees", (function ($q) use ($feeType) {
+                $q->where('fee_type_id', $feeType->id);
+            }))
+                ->where([
+                    'user_id' => $user_id,
+                    'session' => $session
+                ])->where('fee_id', "!=", $fee_id)
+                ->sum('amount');
+
+            $payAmount = ($payAmountCurrent == 0) ? $payAmountOld : $payAmountOld + $payAmountCurrent;
         } elseif (in_array($type, $bazaars)) {
             $payAmount = \App\PaymentMigrate::where('tct_id', \App\User::find($user_id)->studentInfo->tct_id)
                 ->where('year', $session)
@@ -467,7 +483,6 @@ class UserService
     {
         return \App\User::whereHas("studentInfo", function ($q) use ($section_id) {
             $q->where('session', now()->year)
-                // $q->where('session', '2020')
                 ->where('form_id', $section_id)
                 ->orderBy('form_num', 'asc');
         })
@@ -604,8 +619,5 @@ class UserService
         if ($role == 'teacher') {
             $tb->section_id = ($request->class_teacher_section_id != 0) ? $request->class_teacher_section_id : 0;
         }
-
-        $tb->save();
-        return $tb;
     }
 }

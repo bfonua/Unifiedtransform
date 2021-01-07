@@ -15,11 +15,12 @@ class AssignController extends Controller
     protected $userService;
     protected $user;
 
-    public function __construct(UserService $userService, User $user){
+    public function __construct(UserService $userService, User $user)
+    {
         $this->userService = $userService;
         $this->user = $user;
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -33,7 +34,7 @@ class AssignController extends Controller
         $classeIds = \App\Myclass::bySchool(\Auth::user()->school->id)
             ->pluck('id')
             ->toArray();
-        $sections = \App\Section::whereIn('class_id',$classeIds)
+        $sections = \App\Section::whereIn('class_id', $classeIds)
             ->where('active', 1)
             ->orderBy('class_id')
             ->orderBy('section_number', 'asc')
@@ -62,10 +63,10 @@ class AssignController extends Controller
         //     $classTotalAssign[$class->class_number] = $assignTotal;
         // }
         // return $sectionPayment;
-        return view('finance.assigned',[
-            'classes'=>$classes,
-            'sections'=>$sections,
-            'school'=>$school,
+        return view('finance.assigned', [
+            'classes' => $classes,
+            'sections' => $sections,
+            'school' => $school,
             // 'classAssign' => $classAssign,
             // 'classTotalAssign' => $classTotalAssign,
             // 'studentCount' => $studentCount,
@@ -74,7 +75,8 @@ class AssignController extends Controller
         ]);
     }
 
-    public function sectionFeeList(Request $request){
+    public function sectionFeeList(Request $request)
+    {
 
         // return $request->id;
         $section_id = $request->id;
@@ -88,24 +90,24 @@ class AssignController extends Controller
         $feeTypes = \App\FeeType::find($feeTypesID);
 
 
-        foreach($students as $student){
+        foreach ($students as $student) {
             $assign =  $payment = $remain = [];
             $assignTotal = $paymentTotal = $remainTotal = 0;
-            foreach($feeTypes as $type){
-                 $feeAssign = \App\Fee::whereHas('assigns', function($q) use($student){
+            foreach ($feeTypes as $type) {
+                $feeAssign = \App\Fee::whereHas('assigns', function ($q) use ($student) {
                     $q->where('user_id', $student->id)
-                    ->where('session', now()->year);
+                        ->where('session', now()->year);
                 })->where('fee_type_id', $type->id)
-                ->first();
-             
-                $assign[$type->name] = $this->userService->numberformat($amountAssign = ($feeAssign)? $feeAssign->amount : 0);
+                    ->first();
+
+                $assign[$type->name] = $this->userService->numberformat($amountAssign = ($feeAssign) ? $feeAssign->amount : 0);
                 $assignTotal += $amountAssign;
 
-                $payment[$type->name] = $this->userService->numberformat($amountPaid = \App\Payment::whereHas('fees', function($q) use($type){
+                $payment[$type->name] = $this->userService->numberformat($amountPaid = \App\Payment::whereHas('fees', function ($q) use ($type) {
                     $q->where('fee_type_id', $type->id);
                 })->where('user_id', $student->id)
-                ->where('session', now()->year)
-                ->sum('amount'));
+                    ->where('session', now()->year)
+                    ->sum('amount'));
                 $paymentTotal += $amountPaid;
 
                 $remain[$type->name] = $this->userService->numberformat($amountRemain = $amountAssign - $amountPaid);
@@ -120,9 +122,9 @@ class AssignController extends Controller
             ];
 
             // return $studentFees;
-           
+
         }
-        
+
 
         // return $feeTypes;
         // $max_form = DB::table('student_infos')->where(['form_id'=> $section_id, 'session'=>now()->year])->max('form_num');
@@ -162,65 +164,61 @@ class AssignController extends Controller
      */
     public function store(Request $request)
     {
-        
+
         $channel_id = $request->channel;
         $user = \App\User::find($request->user_id);
         $session = $request->session;
-        if(isset($request['type'])){
-            foreach($request['type'] as $fee_type_id => $toAssign){
-                if($toAssign){
+        if (isset($request['type'])) {
+            foreach ($request['type'] as $fee_type_id => $toAssign) {
+                if ($toAssign) {
                     $fee = \App\Fee::where('fee_channel_id', $channel_id)
                         ->where('fee_type_id', $fee_type_id)
                         ->first();
                     $assign = new \App\Assign;
                     $assign->user_id = $request->user_id;
                     $assign->fee_id = $fee->id;
-                    $assign->session = ($request->session)?$request->session:now()->year;
+                    $assign->session = ($request->session) ? $request->session : now()->year;
                     $assign->save();
                 }
             }
-            if($session > 2019){
+            if ($session > 2019) {
                 $student = \App\User::find($request->user_id)->studentInfo;
-                if($student->assigned == 0){
+                if ($student->assigned == 0) {
                     $student->assigned = 1;
                 }
                 $student->channel_id = $request->channel;
-                $student->save();                
-            } else{
+                $student->save();
+            } else {
                 // INSERT INTO REGTABLE details
             }
-            if($request->goAssign == "1"){
+            if ($request->goAssign == "1") {
                 return redirect('fees/unassign');
-            } else{
-                return redirect('/user/'.\App\User::find($request->user_id)->student_code);
+            } else {
+                return redirect('/user/' . \App\User::find($request->user_id)->student_code);
             }
-        } else{
-            return view('finance.assignForm', compact('user','session'));
-
+        } else {
+            return view('finance.assignForm', compact('user', 'session'));
         }
-
     }
 
     public function reassign(Request $request)
     {
-        try{
+        try {
             $user = \App\User::find($request->user_id);
             $session = $request->session;
-            if(isset($request['type']) and $request->channel != 0){
+            if (isset($request['type']) and $request->channel != 0) {
                 // return $request;
                 $firstRows = \App\Assign::where('user_id', $request->user_id)
                     ->where('session', $request->session)
                     ->delete();
                 return $this->store($request);
-            } else{
-                return view('finance.assignForm', compact('user','session'));
+            } else {
+                return view('finance.assignForm', compact('user', 'session'));
             }
-        } catch(\Exception $e){
-            Log::info('Failed to update Student information'.$e->getMessage());
-            return view('finance.assignForm', compact('user','session'));
+        } catch (\Exception $e) {
+            Log::info('Failed to update Student information' . $e->getMessage());
+            return view('finance.assignForm', compact('user', 'session'));
         }
-        
-        
     }
 
     /**
@@ -245,7 +243,7 @@ class AssignController extends Controller
             ->where('session', $session)
             ->groupBy('fee_id')
             ->get();
-        if($fees_assigned->first()){
+        if ($fees_assigned->first()) {
             $feeList[$session]['year'] = $session;
             $feeIDs = $fees_assigned->pluck('fee_id')->toArray();
             $feeTypeIDs = \App\Fee::find($feeIDs)->pluck('fee_type_id')->toArray();
@@ -254,7 +252,7 @@ class AssignController extends Controller
             $feeList[$session]['fee_id'] = $feeIDs;
         }
         $assigned = count($fees_assigned);
-        return view('finance.assignForm', compact('user','session', 'feeList', 'assigned'));
+        return view('finance.assignForm', compact('user', 'session', 'feeList', 'assigned'));
     }
 
     /**

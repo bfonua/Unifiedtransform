@@ -12,7 +12,6 @@
             <div class="panel panel-default">
                 <br>
                 <div class="page-panel-title">@lang('All Fees')
-                
                   {{-- <button class="btn btn-xs btn-success pull-right" role="button" id="btnPrint" ><i class="material-icons">print</i> @lang('Print Fees Form')</button> --}}
               </div>
                 <div class="panel-body">

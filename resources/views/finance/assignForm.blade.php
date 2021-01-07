@@ -41,23 +41,25 @@
                                     </tr>
                                 </thead>
                                     <tbody>
-                                        @php $total = [
-                                            'assign' => 0,
-                                            'pay' => 0,
-                                            'remain' => 0,
-                                        ]; 
-                                        if($session < 2020){
-                                            $schoolType = ['Term 1', 'Term 2', 'Term 3', 'Term 4'];
-                                            $typeIDs = \App\FeeType::whereIn('name', $schoolType)->pluck('id')->toArray();
-                                            $allUserFees = \App\Assign::where('user_id', $user->id)
-                                            ->where('session', $session)
-                                            ->pluck('fee_id')->toArray();
-                                            $schoolAssign = \App\Fee::find($allUserFees)->whereIn('fee_type_id', $typeIDs)->sum('amount');
-                                            $schoolFees = ['School Fees','term1', 'term2', 'term3', 'term4'];
-                                            $schoolAmountPaid = \App\PaymentMigrate::where('tct_id', $user->studentInfo->tct_id)
-                                            ->whereIn('fee_type', $schoolFees)->where('year', $session)->sum('amount');
-                                            $schoolFeesAccrue = 0;
-                                        }                                                                                      
+                                        @php 
+                                            $total = [
+                                                'assign' => 0,
+                                                'pay' => 0,
+                                                'remain' => 0,
+                                            ]; 
+                                            if($session < 2020){
+                                                $schoolType = ['Term 1', 'Term 2', 'Term 3', 'Term 4'];
+                                                $typeIDs = \App\FeeType::whereIn('name', $schoolType)->pluck('id')->toArray();
+                                                $allUserFees = \App\Assign::where('user_id', $user->id)
+                                                ->where
+                                                ('session', $session)
+                                                ->pluck('fee_id')->toArray();
+                                                $schoolAssign = \App\Fee::find($allUserFees)->whereIn('fee_type_id', $typeIDs)->sum('amount');
+                                                $schoolFees = ['School Fees','term1', 'term2', 'term3', 'term4'];
+                                                $schoolAmountPaid = \App\PaymentMigrate::where('tct_id', $user->studentInfo->tct_id)
+                                                ->whereIn('fee_type', $schoolFees)->where('year', $session)->sum('amount');
+                                                $schoolFeesAccrue = 0;
+                                            }                                                                                      
                                         @endphp
                                         {{-- {{$schoolAmountPaid}} --}}
                                         @foreach ($feeList[$session]['fee_id'] as $id)
@@ -79,7 +81,9 @@
                                                         <td class="text-center">{{$userSer->numberformat($payment)}}</td>
                                                     @endif
                                                 @else
-                                                    @php $payment = $userSer->getPayment($user->id, $session, $id) @endphp
+                                                    @php $payment = $userSer->getPayment($user->id, $session, $id);
+                                                        // dd($payment);
+                                                    @endphp
                                                     <td class="text-center">{{$userSer->numberformat($payment)}}</td>
                                                 @endif
                                                 <td class="text-center">{{$userSer->numberformat($remain = $assign - $payment)}}</td>
