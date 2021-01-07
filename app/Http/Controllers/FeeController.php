@@ -151,16 +151,22 @@ class FeeController extends Controller
         ]);
         // Insert new fee records for current session
         foreach ($currentFees as $fee) {
+            $newChannel = \App\FeeChannel::find($fee->fee_channel_id)->name;
+            $newFeeChannel = \App\FeeChannel::where([
+                'name' => $newChannel,
+                'session' => $request->session,
+            ])->first();
             $newFee = \App\Fee::create([
                 'school_id' => \Auth::user()->school_id,
                 'user_id' => \Auth::user()->id,
-                'fee_channel_id' => $fee->fee_channel_id,
+                'fee_channel_id' => $newFeeChannel->id,
                 'fee_type_id' => $fee->fee_type_id,
                 'amount' => $fee->amount,
                 'session' => $request->session,
                 'active' => 1,
             ]);
             $newFee->save();
+            // return $newFee;
         }
 
         return back()->with('status', __('Updated'));
