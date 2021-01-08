@@ -69,7 +69,7 @@
                                 @endphp
                                 @foreach ($statuses as $status)
                                     <option value="{{$status}}"
-                                        {{($status == $user->studentInfo->group)?'selected="selected"':''}}
+                                        {{-- {{($status == $user->studentInfo->group)?'selected="selected"':''}} --}}
                                         >{{ucfirst($status)}}
                                     </option>
                                 @endforeach
