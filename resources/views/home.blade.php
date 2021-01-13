@@ -139,7 +139,9 @@
                                                                 <table class="table"> 
                                                                     <thead>
                                                                         <th class="text-center">Form</th>
-                                                                        <th class="text-center">Count</th>
+                                                                        <th class="text-center">Active</th>
+                                                                        <th class="text-center">Inactive</th>
+                                                                        <th class="text-center">Total</th>
                                                                     </thead> 
                                                                     @foreach($sections as $section)
                                                                         <tr>
@@ -147,7 +149,13 @@
                                                                                 <a href="{{url('section/tct_students/'.$section->id.'?section=1')}}"> {{$section->class->class_number.$section->section_number}} </a>
                                                                             </td>
                                                                             <td class="text-center">
-                                                                                {{$studentCountList[$section->id]}}
+                                                                                {{ $studentCountList['active'][$section->id] }}
+                                                                            </td>
+                                                                            <td class="text-center">
+                                                                                {{ $studentCountList['total'][$section->id] - $studentCountList['active'][$section->id] }}
+                                                                            </td>
+                                                                            <td class="text-center">
+                                                                                {{ $studentCountList['total'][$section->id] }}
                                                                             </td>
                                                                         </tr>
                                                                     @endforeach

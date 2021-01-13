@@ -600,7 +600,7 @@ class UserController extends Controller
         $tb->house_id = $user->studentInfo->house_id;
         $tb->status = $user->studentInfo->group;
         $tb->category_id = $user->studentInfo->category_id;
-        $tb->fee_id = $user->studentInfo->channel_id;
+        $tb->fee_id = ($user->studentInfo->channel_id == NULL) ? 0 : $user->studentInfo->channel_id;
         $tb->notes = $user->StudentInfo->reg_notes;
         $tb->save();
 
