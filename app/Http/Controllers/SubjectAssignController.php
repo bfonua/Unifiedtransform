@@ -61,6 +61,10 @@ class SubjectAssignController extends Controller
             }
         }
 
+        $tb = \App\StudentInfo::where('student_id', $request->user_id)->first();
+        $tb->subject_assigned = 1;
+        $tb->save();
+
         return back()->with('status', __('Updated'));
     }
 
