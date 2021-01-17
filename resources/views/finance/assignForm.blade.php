@@ -8,16 +8,17 @@
 @inject('userSer', 'App\Services\User\UserService')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-2" id="side-navbar">
-            @include('layouts.leftside-menubar')
-        </div>
-        <div class="col-md-10" id="main-container">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2" id="side-navbar">
+                @include('layouts.leftside-menubar')
+            </div>
+            <div class="col-md-10" id="main-container">
                 <div class="panel panel-default">
                     <div class="page-panel-title">
-                    <small> @component('components.tct-student-summary',['user'=>$user])
-                        @endcomponent </small>
+                        <small> @component('components.tct-student-summary',['user'=>$user])
+                            @endcomponent 
+                        </small>
                     </div>
                     <br>
                     <div class="container col-md-5">
@@ -96,9 +97,9 @@
                                         @endforeach
                                         <style>
                                             .tr-total{
-                                              color: #401500;
-                                              background-color: #FFDDCC;
-                                              border-color: #792700;
+                                                color: #401500;
+                                                background-color: #FFDDCC;
+                                                border-color: #792700;
                                             }
                                         </style>
                                         <tr class="tr-total">
@@ -113,7 +114,7 @@
                                             <td colspan="4"></td>
                                         </tr>
                                     </tbody>
-     
+        
                             </table>
                         @else
                             <br>
@@ -166,10 +167,9 @@
 
                     </div>
                 </div>
-         
+            </div>
         </div>
     </div>
-</div>
 @endsection
 
 @section('jsFiles')

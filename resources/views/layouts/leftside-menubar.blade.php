@@ -109,13 +109,25 @@
         @php 
             $count = \App\StudentInfo::where('session', now()->year)->where('assigned', 0)->count('id');
         @endphp
-        <a class="nav-link" href="{{ url('fees/unassign') }}"><i class="material-icons">assignment_late</i> <span class="nav-link-text">@lang('Unassigned')</span>&nbsp&nbsp<span class="badge">&nbsp{{$count}}&nbsp</span></a></a>
+        <a class="nav-link" href="{{ url('fees/unassign') }}"><i class="material-icons">assignment_late</i> <span class="nav-link-text">@lang('Unassigned Fees')</span>&nbsp&nbsp<span class="badge">&nbsp{{$count}}&nbsp</span></a></a>
     </li>
     <li class="nav-item">
         <a class="nav-link" href="{{ url('fees/assign') }}"><i class="material-icons">monetization_on</i> <span class="nav-link-text">@lang('Section Finance')</span></a>
     </li>
     <li class="nav-item" style="border-bottom: 2px solid #dbd8d8;"></li>
-    
+
+    {{-- <li class="nav-item" style="border-bottom: 2px solid #dbd8d8;"></li> --}}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url('subject') }}"><i class="material-icons">library_books</i> <span class="nav-link-text">Subjects</span></a>
+    </li>
+    <li class="nav-item disabled">
+        <a class="nav-link disabled" href="#"><i class="material-icons">assignment_late</i> <span class="nav-link-text">Unassigned Options</span></a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url('subject/section') }}"><i class="material-icons">subject</i> <span class="nav-link-text">Section Subject</span></a>
+    </li>
+    <li class="nav-item" style="border-bottom: 2px solid #dbd8d8;"></li>
+
     {{-- <li class="nav-item dropdown">
         <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
             class="material-icons">date_range</i> <span class="nav-link-text">@lang('Attendance')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>

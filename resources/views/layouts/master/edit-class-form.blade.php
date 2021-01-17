@@ -32,6 +32,15 @@
                             {{-- <span id="helpBlock" class="help-block">@lang('Leave Empty if this Class belongs to no Group')</span> --}}
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label for="option{{$class->class_number}}" class="col-sm-4 control-label"><h5>@lang('Optional Classes')</h5></label>
+                        <div class="col-sm-8">
+                            <select id="options" id="option{{$class->class_number}}" class="form-control" name="options">
+                                <option value="1" {{($class->options == 1)? 'selected="selected"' : ''}}>Yes</option>
+                                <option value="0" {{($class->options == 0)? 'selected="selected"' : ''}}>No</option>                            </select>
+                        </div>
+                    </div>
             </div>
             <div class="modal-footer">
                 <button type="submit" class="btn btn-danger btn-sm">@lang('Submit')</button>

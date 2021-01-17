@@ -386,7 +386,13 @@ class UserController extends Controller
         $user = $this->userService->getUserByUserCode($user_code);
         $assignedCount = $user->feesAssigned()->count('id');
         $sessions = \App\Assign::where('user_id', $user->id)->orderBy('session', 'desc')->groupBy('session')->pluck('session')->toArray();
+
         $feeList = [];
+        $subjectList = [];
+
+        $firstYear = "20" . substr($user->studentInfo->tct_id, 0, 2);
+        $years = range(now()->year, $firstYear);
+
         if ($assignedCount > 0) {
             foreach ($sessions as $session) {
                 $fees_assigned = \App\Assign::with(['fees'])
@@ -406,8 +412,28 @@ class UserController extends Controller
         } else {
             $fees_assigned = "";
         }
-        // return $user;
-        return view('profile.user', compact('user', 'assignedCount', 'feeList', 'sessions', 'fees_assigned'));
+
+        foreach ($years as $session) {
+            $subjectList[$session] = \App\SubjectAssign::where([
+                'user_id' => $user->id,
+                'session' => $session,
+            ])->pluck('option')->toArray();
+        }
+
+        $class = $user->studentInfo->section->class;
+        // return $class['id'];
+        $optionSubs = \App\SubjectClass::whereHas('subject', function ($q) {
+            $q->where('active', 1);
+        })->where([
+            'class_id' => $class['id'],
+            'active' => 1,
+        ])->pluck('subject_id')->toArray();
+
+        // return $optionSubs;
+        // return $subjectList;
+
+
+        return view('profile.user', compact('user', 'assignedCount', 'feeList', 'sessions', 'fees_assigned', 'optionSubs', 'subjectList'));
     }
 
     public function migrationTest()
