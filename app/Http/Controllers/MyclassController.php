@@ -46,6 +46,8 @@ class MyclassController extends Controller
         $tb->class_number = $request->class_number;
         $tb->school_id = \Auth::user()->school_id;
         $tb->groupClass = (!empty($request->group)) ? $request->group : '';
+        $tb->options = 0;
+        $tb->optionCount = 0;
         $tb->save();
         return back()->with('status', __('Created'));
     }
@@ -100,11 +102,13 @@ class MyclassController extends Controller
      */
     public function tct_update(Request $request, $id)
     {
+        // return $request;
         $tb = Myclass::find($id);
         $tb->class_number = $request->class_number;
         //   $tb->school_id = $request->school_id;
         $tb->groupClass = $request->group;
         $tb->options = $request->options;
+        $tb->optionCount = ($request->options == 1) ? $request->optionCount : 0;
         $tb->save();
         return redirect('school/sections?course=1');
         // return ($tb->save())?response()->json([

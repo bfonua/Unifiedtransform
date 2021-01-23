@@ -48,7 +48,6 @@ class SubjectAssignController extends Controller
         $request->validate([
             'session' => 'required',
         ]);
-
         $options = $this->options;
         foreach ($options as $optionNum => $optionID) {
             if ($request->{$optionID} != NULL) {

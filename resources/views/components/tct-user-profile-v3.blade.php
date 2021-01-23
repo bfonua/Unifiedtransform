@@ -68,9 +68,11 @@
                         <a class="nav-link" data-toggle="tab" href="#finance">Finance</a>
                     </li>
                 @endif
+                @if($user->studentInfo->section->class->options and $user->studentInfo->section->class->optionCount > 0)
                 <li class="nav-item">
                     <a class="nav-link active " data-toggle="tab" href="#subject">Subjects</a>
                 </li>
+                @endif
             </ul>
             <!-- NAV TABS CONTENT -->
             <div class="tab-content">
@@ -708,6 +710,7 @@
                     </div>
                 </div>
                 <!-- Subject Details -->
+                @if($user->studentInfo->section->class->options and $user->studentInfo->section->class->optionCount > 0)
                 <div class="tab-pane" id="subject">
                     <br/>
                     <div class="row col-md-12">
@@ -719,6 +722,7 @@
                         <div class="col-xs-6 container">
                             <div class="text-center">
                                 @foreach($subjectList as $session => $chosenOptions)
+                                    @if($session > 2020)
                                     <h4>{{$session}}<small> - Subjects</small></h4>
                                     <table class="table">
                                         <thead>
@@ -735,7 +739,7 @@
                                                     </td>
                                                 </tr>
                                             @elseif($chosenOptions != [])
-                                                @foreach(range(0,4) as $i)
+                                                @foreach(range(0,$user->studentInfo->section->class->optionCount-1) as $i)
                                                     <tr>
                                                         <td class="text-center">Option {{$i+1}}</td>
                                                         <td class="text-center"> {{ (in_array($i+1, $chosenOptions))? \App\SubjectAssign::where([
@@ -761,7 +765,7 @@
                                                             @slot('form_content')
                                                                 <input type="hidden" value="{{$session}}" name="session">
                                                                 <input type="hidden" value="{{$user->id}}" name="user_id">
-                                                                @foreach(range(0, 4) as $i)
+                                                                @foreach(range(0,$user->studentInfo->section->class->optionCount-1) as $i)
                                                                     <div class="row form-group">
                                                                         <label for="type" class="col-sm-3 control-label">Option {{$i+1}}</label>
                                                                         <div class="col-sm-5">
@@ -818,7 +822,7 @@
                                                                     @slot('form_content')
                                                                         <input type="hidden" value="{{$session}}" name="session">
                                                                         <input type="hidden" value="{{$user->id}}" name="user_id">
-                                                                        @foreach(range(0, 4) as $i)
+                                                                        @foreach(range(0,$user->studentInfo->section->class->optionCount-1) as $i)
                                                                             <div class="row form-group">
                                                                                 <label for="type" class="col-sm-3 control-label">Option {{$i+1}}</label>
                                                                                 <div class="col-sm-5">
@@ -847,12 +851,13 @@
                                             @endif
                                         </tbody>
                                     </table>
+                                    @endif
                                 @endforeach
                             </div>
                         </div>
                     </div>
                 </div>
-
+                @endif
             </div>
         </div>
     </div>
