@@ -50,7 +50,7 @@
                                 {{-- <option value="1" {{($class->options == 1)? 'selected="selected"' : ''}}>Yes</option>
                                 <option value="0" {{($class->options == 0)? 'selected="selected"' : ''}}>No</option>                             --}}
 
-                                @foreach(range(1,10) as $i)
+                                @foreach(range(1,20) as $i)
                                     <option value="{{$i}}" {{($class->optionCount == $i)? 'selected="selected"' : ''}}>{{$i}}</option> 
                                 @endforeach
                             </select>
