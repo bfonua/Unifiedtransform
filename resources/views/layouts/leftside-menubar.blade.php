@@ -145,7 +145,7 @@
         </ul>
     </li> --}}
     @endif
-    {{-- @if(Auth::user()->role != 'student')
+    @if(Auth::user()->role != 'student')
         <li class="nav-item">
         <a class="nav-link" href="{{url('users/'.Auth::user()->school->code.'/0/1')}}"><i class="material-icons">contacts</i>
             <span class="nav-link-text">@lang('Teachers')</span></a>
@@ -306,6 +306,6 @@
       <a class="nav-link" href="{{ url('courses/'.Auth::user()->id.'/0') }}"><i class="material-icons">import_contacts</i>
         <span class="nav-link-text">@lang('My Courses')</span></a>
     </li>
-    @endif --}}
+    @endif
   </ul>
   
