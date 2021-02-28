@@ -68,6 +68,11 @@
                         <a class="nav-link" data-toggle="tab" href="#finance">Finance</a>
                     </li>
                 @endif
+                @if($user->studentInfo->section->class->options and $user->studentInfo->section->class->optionCount > 0)
+                <li class="nav-item">
+                    <a class="nav-link active " data-toggle="tab" href="#subject">Subjects</a>
+                </li>
+                @endif
             </ul>
             <!-- NAV TABS CONTENT -->
             <div class="tab-content">
@@ -213,296 +218,16 @@
                             <div class="col-xs-6 container">
                                 @if($assigned > 0)
                                     @php                              
-                                        // print json_encode($feeList);
-                                        // print json_encode($fees_assigned);
                                         $firstYear = "20".substr($user->studentInfo->tct_id,0,2);
                                         $years = range(now()->year, $firstYear);
-                                        // print json_encode($years);
                                     @endphp
-                                        @foreach ($years as $session) 
-                                            @if(isset($feeList[$session]))
-                                                <div class="text-center">
-                                                    <h4>{{$session}}<small> - Channel: {{\App\Fee::find($feeList[$session]['fee_id'])->first()->fee_channel->name}}</small></h4>
-                                                </div>
-                                                <table class="table">
-                                                    @if(in_array($session, $sessions))
-                                                        <thead>
-                                                            <tr class="bg-secondary text-white">
-                                                                <th scope="col" class="text-center">Session</th>
-                                                                <th scope="col" class="text-center">Assigned</th>
-                                                                <th scope="col" class="text-center">Paid</th>
-                                                                <th scope="col" class="text-center">Remaining</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @php $total = ['assign' => 0,'pay' => 0,'remain' => 0]; 
-                                                            if($session < "2020"){
-                                                                $schoolType = ['Term 1', 'Term 2', 'Term 3', 'Term 4'];
-                                                                $typeIDs = \App\FeeType::whereIn('name', $schoolType)->pluck('id')->toArray();
-                                                                $allUserFees = \App\Assign::where('user_id', $user->id)
-                                                                    ->where('session', $session)
-                                                                    ->pluck('fee_id')->toArray();
-                                                                $schoolAssign = \App\Fee::find($allUserFees)->whereIn('fee_type_id', $typeIDs)->sum('amount');
-                                                                $schoolFees = ['School Fees','term1', 'term2', 'term3', 'term4'];
-                                                                $schoolAmountPaid = \App\PaymentMigrate::where('tct_id', $user->studentInfo->tct_id)
-                                                                    ->where('year', $session)
-                                                                    ->whereIn('fee_type', $schoolFees)->sum('amount');
-                                                                $schoolFeesAccrue = 0;
-                                                            }                                                                                      
-                                                            @endphp
-                                                            {{-- Session is {{$schoolAmountPaid}} --}}
-                                                            @foreach ($feeList[$session]['fee_id'] as $id)
-                                                                <tr>
-                                                                    <th scope="row" class="text-center">{{$type = \App\Fee::find($id)->fee_type->name}}</th>
-                                                                    <td class="text-center">{{$userSer->numberformat($assign = \App\Fee::find($id)->amount)}}</td>
-                                                                    {{-- Checks if Session is before 2020 - to use old Payments table --}}
-                                                                    @if($session < "2020")
-                                                                        {{-- Checks if fee is a school tpye --}}
-                                                                        @if(in_array($type, $schoolType))
-                                                                            @if($schoolAmountPaid - $schoolFeesAccrue >= $assign)
-                                                                                <td class="text-center">
-                                                                                    {{$userSer->numberformat($payment = $assign)}}
-                                                                                </td>
-                                                                            @else
-                                                                                <td class="text-center">
-                                                                                    {{$userSer->numberformat($payment = $schoolAmountPaid-$schoolFeesAccrue)}}
-                                                                                </td>
-                                                                            @endif
-                                                                            @php $schoolFeesAccrue += $payment; @endphp
-                                                                        @else
-                                                                            @php $payment = $userSer->getPayment($user->id, $session, $id, 0, $type) @endphp
-                                                                            <td class="text-center">{{$userSer->numberformat($payment)}}</td>
-                                                                        @endif
-                                                                    @else
-                                                                        @php $payment = $userSer->getPayment($user->id, $session, $id) @endphp
-                                                                        <td class="text-center">{{$userSer->numberformat($payment)}}</td>
-                                                                    @endif
-                                                                    <td class="text-center">{{$userSer->numberformat($remain = $assign - $payment)}}</td>
-                                                                    @php
-                                                                        $total['assign'] += $assign;
-                                                                        $total['pay'] += $payment;
-                                                                        $total['remain'] += $remain;
-                                                                    @endphp
-                                                                </tr>
-                                                            @endforeach
-                                                            <style>
-                                                                .tr-total{
-                                                                color: #401500;
-                                                                background-color: #FFDDCC;
-                                                                border-color: #792700;
-                                                                }
-                                                            </style>
-                                                            <tr class="tr-total">
-                                                                <strong>
-                                                                <th class="text-center">TOTAL</th>
-                                                                <td class="text-center">{{$userSer->numberformat($total['assign'])}}</td>
-                                                                <td class="text-center">{{$userSer->numberformat($total['pay'])}}</td>
-                                                                <td class="text-center">{{$userSer->numberformat($total['remain'])}}</td>
-                                                                </strong>
-                                                            </tr>
-                                                            <tr>
-                                                                {{-- ASSIGN BUTTON --}}
-                                                                <td colspan="2">
-                                                                    <div class="text-center">
-                                                                        <form class="form-horizontal" action="{{url('fees/reassignForm')}}" method="post">
-                                                                            {{csrf_field()}}
-                                                                            <input type="hidden" value="{{$user->id}}" name="user_id">
-                                                                            <input type="hidden" value="{{$session}}" name="session">
-                                                                            <button type="submit" class="btn btn-primary btn-sm data-to"><i class="material-icons">assignment_returned</i> Reassign</button>
-                                                                        </form>
-                                                                    </div>
-                                                                </td>
-                                                                {{-- PAYMENT BUTTON --}}
-                                                                <td colspan="2">
-                                                                    @if($session > 2019)
-                                                                        <div class="text-center">
-                                                                            @component('components.fee-type-form', [
-                                                                                'buttonTitle' => 'Make Payment',
-                                                                                'modal_name' => 'paymentModal'.$session,
-                                                                                'title' => 'Set Payment '.$session,
-                                                                                'put_method' => '',
-                                                                                'url' => url('fees/tct_payment'),
-                                                                            ])
-                                                                                @slot('buttonType')
-                                                                                    <button type="button" class="btn btn-danger btn-sm {{($total['remain'] == 0)?'':''}}" data-toggle="modal" data-target="#paymentModal{{$session}}"><i class="material-icons">attach_money</i>  
-                                                                                @endslot
-                                                                                @slot('form_content')
-                                                                                    <input type="hidden" value="{{$user->id}}" name="user_id">
-                                                                                    <input type="hidden" value="{{$session}}" name="session">
-                                                                                    <div class="row form-group">
-                                                                                        <label for="channel" class="col-sm-3 control-label">@lang('Fee Channel')</label>
-                                                                                        <div class="col-sm-5">
-                                                                                            @php
-                                                                                                $payValue = ($session == now()->year)? $user->studentInfo->channel->name: \App\Assign::where('session', $session)->where('user_id', $user->id)->first()->fees->fee_type->name;
-                                                                                            @endphp
-                                                                                            <input name="fee_channel" class="form-control" value="{{$payValue}}" readonly>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="row form-group">
-                                                                                        <label for="receipt" class="col-sm-3 control-label">@lang('Receipt #')</label>
-                                                                                        <div class="col-sm-5">
-                                                                                            <input id = "receipt" name="receipt" class="form-control">
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="row form-group">
-                                                                                        <label for="payment_date" class="col-sm-3 control-label">@lang('Date')</label>
-                                                                                        <div class="col-sm-4">
-                                                                                            <input id = "payment_date" name="payment_date" class="form-control">
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <hr>
-                                                                                    @foreach ($feeList[$session]['fee_id'] as $id)
-                                                                                        @php
-                                                                                        if($userSer->paymentExists($user->id, $id, $session)->first()){
-                                                                                            $text = 1;
-                                                                                            $assignAm = \App\Fee::find($id)->amount;
-                                                                                            $paymentAm = $userSer->paymentExists($user->id, $id, $session)->sum('amount');
-                                                                                            $remainAm = $assignAm - $paymentAm;
-                                                                                        } else{ 
-                                                                                            $text = 0;
-                                                                                            $remainAm = \App\Fee::find($id)->amount;
-                                                                                        }
-                                                                                        @endphp
-                                                                                        <div class="row form-group">
-                                                                                            <label for="type" class="col-sm-3 control-label">Fee Type</label>
-                                                                                            <div class="col-sm-4">
-                                                                                                <input id = "type" name="typePaid" class="form-control" value="{{\App\Fee::find($id)->fee_type->name}}" readonly>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div class="row form-group">
-                                                                                            <label for="assigned" class="col-sm-3 control-label">{{($text)?'Remaining':'Assigned'}}</label>
-                                                                                            <div class="col-sm-4">
-                                                                                                <input id = "assigned" name="assigned" class="form-control" value="{{$userSer->numberformat($remainAm)}}" readonly>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        @if($remainAm > 0)
-                                                                                            <div class="row form-group">
-                                                                                                <label for="payment{{$id}}" class="col-sm-3 control-label">Payment</label>
-                                                                                                <div class="col-sm-6">
-                                                                                                    <input id = "payment{{$id}}" name="payment[{{$id}}]" class="form-control" placeholder="0.00">
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <div class="row form-group">
-                                                                                                <label for="notes{{$id}}" class="col-sm-3 control-label">Notes</label>
-                                                                                                <div class="col-sm-6">
-                                                                                                    <textarea id = "notes{{$id}}" name="notes[{{$id}}]" class="form-control"></textarea>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        @endif
-                                                                                        <hr>
-                                                                                    @endforeach
-                                                                                @endslot
-                                                                            @endcomponent
-                                                                        </div>
-                                                                    @else
-                                                                        <div class="text-center">
-                                                                            @component('components.fee-type-form', [
-                                                                                'buttonTitle' => 'Make Payment',
-                                                                                'modal_name' => 'paymentOldModal'.$session,
-                                                                                'title' => 'Make Old Payment '.$session,
-                                                                                'put_method' => '',
-                                                                                'url' => url('fees/tct_paymentMigrate'),
-                                                                            ])
-                                                                                @slot('buttonType')
-                                                                                    <button type="button" class="btn btn-danger btn-sm" {{($total['remain'] <= 0)?'disabled="disabled"':''}} data-toggle="modal" data-target="#paymentOldModal{{$session}}"><i class="material-icons">attach_money</i>  
-                                                                                @endslot
-                                                                                @slot('form_content')
-                                                                                    <input type="hidden" value="{{$user->studentInfo->tct_id}}" name="user_id">
-                                                                                    <input type="hidden" value="{{$session}}" name="session">
-                                                                                    <div class="row form-group">
-                                                                                        <label for="channel" class="col-sm-3 control-label">@lang('Fee Channel')</label>
-                                                                                        <div class="col-sm-5">
-                                                                                            @php $payValue = ($session == now()->year)? $user->studentInfo->channel->name: \App\Assign::where('session', $session)->where('user_id', $user->id)->first()->fees->fee_channel->name; @endphp
-                                                                                            <input name="fee_channel" class="form-control" value="{{$payValue}}" readonly>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="row form-group">
-                                                                                        <label for="receipt" class="col-sm-3 control-label">@lang('Receipt #')</label>
-                                                                                        <div class="col-sm-5">
-                                                                                            <input id = "receipt" name="receipt" class="form-control">
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="row form-group">
-                                                                                        <label for="payment_date" class="col-sm-3 control-label">@lang('Date')</label>
-                                                                                        <div class="col-sm-4">
-                                                                                            <input id = "payment_date" name="payment_date" class="form-control">
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <hr>
-                                                                                    @php
-                                                                                        // $oldFees = $userSer->getOldFees($session);
-                                                                                        // return $oldFees;
-                                                                                        // print json_encode($oldFees);
-                                                                                        // print json_encode($allUserFees);
-                                                                                        // print json_encode($feeList[$session]['fee_id']);
-                                                                                        $assignFeeIDs = $feeList[$session]['fee_id'];
-                                                                                        $schoolFeesDone = 0; // Switch for when school fees has been processed
-                                                                                    @endphp
-                                                                                    @foreach($assignFeeIDs as $id)
-                                                                                        @php 
-                                                                                            $type = \App\Fee::find($id)->fee_type->name;
-                                                                                            // echo $type;
-                                                                                            if(in_array($session, [2018, 2019]) and in_array($type, ['Term 1', 'Term 2', 'Term 3', 'Term 4'])){
-                                                                                                if(!$schoolFeesDone){
-                                                                                                    $assignAm = $userSer->getSchoolassigned($user->id, $session);
-                                                                                                    $paymentAm = \App\PaymentMigrate::where('tct_id', $user->studentInfo->tct_id)
-                                                                                                        ->where('year', $session)
-                                                                                                        ->whereIn('fee_type', ['School Fees','term1', 'term2', 'term3', 'term4'])
-                                                                                                        ->sum('amount');
-                                                                                                    $schoolFeesDone = 1;
-                                                                                                    $type = "School Fees";
-                                                                                                }
-                                                                                            } else{
-                                                                                                $assignAm = \App\Fee::find($id)->amount;
-                                                                                                $paymentAm = $userSer->getPayment($user->id, $session, $id, 0, $type);
-                                                                                                // echo($type." ".$assignAm." ".$paymentAm);
-                                                                                            }
-                                                                                            $remainAm = $assignAm - $paymentAm
-                                                                                        @endphp
-                                                                                        @if($remainAm > 0)
-                                                                                            <div class="row form-group">
-                                                                                                <label for="type" class="col-sm-3 control-label">Fee Type</label>
-                                                                                                <div class="col-sm-4">
-                                                                                                    <input id = "type" name="typePaid" class="form-control" value="{{$type}}" readonly>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <div class="row form-group">
-                                                                                                <label for="assigned" class="col-sm-3 control-label">Remaining</label>
-                                                                                                <div class="col-sm-4">
-                                                                                                    <input id = "assigned" name="assigned" class="form-control" value="{{$remainAm}}" readonly>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <div class="row form-group">
-                                                                                                <label for="payment{{$id}}" class="col-sm-3 control-label">Payment</label>
-                                                                                                <div class="col-sm-6">
-                                                                                                    <input id = "payment{{$id}}" name="payment[{{$id}}]" class="form-control">
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <div class="row form-group">
-                                                                                                <label for="notes{{$id}}" class="col-sm-3 control-label">Notes</label>
-                                                                                                <div class="col-sm-6">
-                                                                                                    <textarea id = "notes{{$id}}" name="notes[{{$id}}]" class="form-control"></textarea>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        @endif        
-                                                                                    @endforeach
-                                                                                @endslot
-                                                                            @endcomponent
-                                                                        </div>
-                                                                    @endif
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td colspan="4"></td>
-                                                            </tr>
-                                                        </tbody>
-                                                    @endif
-                                                </table>
-                                            @else
-                                                <div class="text-center">
-                                                    <h4>{{$session}}</h4>
-                                                </div>
-                                                <table class="table">
+                                    @foreach ($years as $session) 
+                                        @if(isset($feeList[$session]))
+                                            <div class="text-center">
+                                                <h4>{{$session}}<small> - Channel: {{\App\Fee::find($feeList[$session]['fee_id'])->first()->fee_channel->name}}</small></h4>
+                                            </div>
+                                            <table class="table">
+                                                @if(in_array($session, $sessions))
                                                     <thead>
                                                         <tr class="bg-secondary text-white">
                                                             <th scope="col" class="text-center">Session</th>
@@ -512,32 +237,304 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        @if($session == now()->year and $session != $user->studentInfo->session)
+                                                        @php $total = ['assign' => 0,'pay' => 0,'remain' => 0]; 
+                                                        if($session < "2020"){
+                                                            $schoolType = ['Term 1', 'Term 2', 'Term 3', 'Term 4'];
+                                                            $typeIDs = \App\FeeType::whereIn('name', $schoolType)->pluck('id')->toArray();
+                                                            $allUserFees = \App\Assign::where('user_id', $user->id)
+                                                                ->where('session', $session)
+                                                                ->pluck('fee_id')->toArray();
+                                                            $schoolAssign = \App\Fee::find($allUserFees)->whereIn('fee_type_id', $typeIDs)->sum('amount');
+                                                            $schoolFees = ['School Fees','term1', 'term2', 'term3', 'term4'];
+                                                            $schoolAmountPaid = \App\PaymentMigrate::where('tct_id', $user->studentInfo->tct_id)
+                                                                ->where('year', $session)
+                                                                ->whereIn('fee_type', $schoolFees)->sum('amount');
+                                                            $schoolFeesAccrue = 0;
+                                                        }                                                                                      
+                                                        @endphp
+                                                        {{-- Session is {{$schoolAmountPaid}} --}}
+                                                        @foreach ($feeList[$session]['fee_id'] as $id)
                                                             <tr>
-                                                                <td colspan="4" class="text-center">
-                                                                    Please promote student to assign fees for the school year   
-                                                                </td>
+                                                                <th scope="row" class="text-center">{{$type = \App\Fee::find($id)->fee_type->name}}</th>
+                                                                <td class="text-center">{{$userSer->numberformat($assign = \App\Fee::find($id)->amount)}}</td>
+                                                                {{-- Checks if Session is before 2020 - to use old Payments table --}}
+                                                                @if($session < "2020")
+                                                                    {{-- Checks if fee is a school tpye --}}
+                                                                    @if(in_array($type, $schoolType))
+                                                                        @if($schoolAmountPaid - $schoolFeesAccrue >= $assign)
+                                                                            <td class="text-center">
+                                                                                {{$userSer->numberformat($payment = $assign)}}
+                                                                            </td>
+                                                                        @else
+                                                                            <td class="text-center">
+                                                                                {{$userSer->numberformat($payment = $schoolAmountPaid-$schoolFeesAccrue)}}
+                                                                            </td>
+                                                                        @endif
+                                                                        @php $schoolFeesAccrue += $payment; @endphp
+                                                                    @else
+                                                                        @php $payment = $userSer->getPayment($user->id, $session, $id, 0, $type) @endphp
+                                                                        <td class="text-center">{{$userSer->numberformat($payment)}}</td>
+                                                                    @endif
+                                                                @else
+                                                                    @php $payment = $userSer->getPayment($user->id, $session, $id) @endphp
+                                                                    <td class="text-center">{{$userSer->numberformat($payment)}}</td>
+                                                                @endif
+                                                                <td class="text-center">{{$userSer->numberformat($remain = $assign - $payment)}}</td>
+                                                                @php
+                                                                    $total['assign'] += $assign;
+                                                                    $total['pay'] += $payment;
+                                                                    $total['remain'] += $remain;
+                                                                @endphp
                                                             </tr>
-                                                        @else
-                                                            <tr>
-                                                                <th class="text-center" colspan="2">Currently Not Assigned</th>
-                                                                <th class="text-center" colspan="2">
+                                                        @endforeach
+                                                        <style>
+                                                            .tr-total{
+                                                            color: #401500;
+                                                            background-color: #FFDDCC;
+                                                            border-color: #792700;
+                                                            }
+                                                        </style>
+                                                        <tr class="tr-total">
+                                                            <strong>
+                                                            <th class="text-center">TOTAL</th>
+                                                            <td class="text-center">{{$userSer->numberformat($total['assign'])}}</td>
+                                                            <td class="text-center">{{$userSer->numberformat($total['pay'])}}</td>
+                                                            <td class="text-center">{{$userSer->numberformat($total['remain'])}}</td>
+                                                            </strong>
+                                                        </tr>
+                                                        <tr>
+                                                            {{-- ASSIGN BUTTON --}}
+                                                            <td colspan="2">
+                                                                <div class="text-center">
+                                                                    <form class="form-horizontal" action="{{url('fees/reassignForm')}}" method="post">
+                                                                        {{csrf_field()}}
+                                                                        <input type="hidden" value="{{$user->id}}" name="user_id">
+                                                                        <input type="hidden" value="{{$session}}" name="session">
+                                                                        <button type="submit" class="btn btn-primary btn-sm data-to"><i class="material-icons">assignment_returned</i> Reassign</button>
+                                                                    </form>
+                                                                </div>
+                                                            </td>
+                                                            {{-- PAYMENT BUTTON --}}
+                                                            <td colspan="2">
+                                                                @if($session > 2019)
                                                                     <div class="text-center">
-                                                                        <form class="form-horizontal" action="{{url('fees/reassignForm')}}" method="post">
-                                                                            {{csrf_field()}}
-                                                                            <input type="hidden" value="{{$user->id}}" name="user_id">
-                                                                            <input type="hidden" value="{{$session}}" name="session">
-                                                                            <button type="submit" class="btn btn-primary btn-sm data-to"><i class="material-icons">assignment_returned</i> Assign Fees</button>
-                                                                        </form>
+                                                                        @component('components.fee-type-form', [
+                                                                            'buttonTitle' => 'Make Payment',
+                                                                            'modal_name' => 'paymentModal'.$session,
+                                                                            'title' => 'Set Payment '.$session,
+                                                                            'put_method' => '',
+                                                                            'url' => url('fees/tct_payment'),
+                                                                        ])
+                                                                            @slot('buttonType')
+                                                                                <button type="button" class="btn btn-danger btn-sm {{($total['remain'] == 0)?'':''}}" data-toggle="modal" data-target="#paymentModal{{$session}}"><i class="material-icons">attach_money</i>  
+                                                                            @endslot
+                                                                            @slot('form_content')
+                                                                                <input type="hidden" value="{{$user->id}}" name="user_id">
+                                                                                <input type="hidden" value="{{$session}}" name="session">
+                                                                                <div class="row form-group">
+                                                                                    <label for="channel" class="col-sm-3 control-label">@lang('Fee Channel')</label>
+                                                                                    <div class="col-sm-5">
+                                                                                        @php
+                                                                                            $payValue = ($session == now()->year)? $user->studentInfo->channel->name: \App\Assign::where('session', $session)->where('user_id', $user->id)->first()->fees->fee_type->name;
+                                                                                        @endphp
+                                                                                        <input name="fee_channel" class="form-control" value="{{$payValue}}" readonly>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="row form-group">
+                                                                                    <label for="receipt" class="col-sm-3 control-label">@lang('Receipt #')</label>
+                                                                                    <div class="col-sm-5">
+                                                                                        <input id = "receipt" name="receipt" class="form-control">
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="row form-group">
+                                                                                    <label for="payment_date" class="col-sm-3 control-label">@lang('Date')</label>
+                                                                                    <div class="col-sm-4">
+                                                                                        <input id = "payment_date" name="payment_date" class="form-control">
+                                                                                    </div>
+                                                                                </div>
+                                                                                <hr>
+                                                                                @foreach ($feeList[$session]['fee_id'] as $id)
+                                                                                    @php
+                                                                                    if($userSer->paymentExists($user->id, $id, $session)->first()){
+                                                                                        $text = 1;
+                                                                                        $assignAm = \App\Fee::find($id)->amount;
+                                                                                        $paymentAm = $userSer->paymentExists($user->id, $id, $session)->sum('amount');
+                                                                                        $remainAm = $assignAm - $paymentAm;
+                                                                                    } else{ 
+                                                                                        $text = 0;
+                                                                                        $remainAm = \App\Fee::find($id)->amount;
+                                                                                    }
+                                                                                    @endphp
+                                                                                    <div class="row form-group">
+                                                                                        <label for="type" class="col-sm-3 control-label">Fee Type</label>
+                                                                                        <div class="col-sm-4">
+                                                                                            <input id = "type" name="typePaid" class="form-control" value="{{\App\Fee::find($id)->fee_type->name}}" readonly>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="row form-group">
+                                                                                        <label for="assigned" class="col-sm-3 control-label">{{($text)?'Remaining':'Assigned'}}</label>
+                                                                                        <div class="col-sm-4">
+                                                                                            <input id = "assigned" name="assigned" class="form-control" value="{{$userSer->numberformat($remainAm)}}" readonly>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    @if($remainAm > 0)
+                                                                                        <div class="row form-group">
+                                                                                            <label for="payment{{$id}}" class="col-sm-3 control-label">Payment</label>
+                                                                                            <div class="col-sm-6">
+                                                                                                <input id = "payment{{$id}}" name="payment[{{$id}}]" class="form-control" placeholder="0.00">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="row form-group">
+                                                                                            <label for="notes{{$id}}" class="col-sm-3 control-label">Notes</label>
+                                                                                            <div class="col-sm-6">
+                                                                                                <textarea id = "notes{{$id}}" name="notes[{{$id}}]" class="form-control"></textarea>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    @endif
+                                                                                    <hr>
+                                                                                @endforeach
+                                                                            @endslot
+                                                                        @endcomponent
                                                                     </div>
-                                                                </th>
-                                                            </tr>
-                                                        @endif
+                                                                @else
+                                                                    <div class="text-center">
+                                                                        @component('components.fee-type-form', [
+                                                                            'buttonTitle' => 'Make Payment',
+                                                                            'modal_name' => 'paymentOldModal'.$session,
+                                                                            'title' => 'Make Old Payment '.$session,
+                                                                            'put_method' => '',
+                                                                            'url' => url('fees/tct_paymentMigrate'),
+                                                                        ])
+                                                                            @slot('buttonType')
+                                                                                <button type="button" class="btn btn-danger btn-sm" {{($total['remain'] <= 0)?'disabled="disabled"':''}} data-toggle="modal" data-target="#paymentOldModal{{$session}}"><i class="material-icons">attach_money</i>  
+                                                                            @endslot
+                                                                            @slot('form_content')
+                                                                                <input type="hidden" value="{{$user->studentInfo->tct_id}}" name="user_id">
+                                                                                <input type="hidden" value="{{$session}}" name="session">
+                                                                                <div class="row form-group">
+                                                                                    <label for="channel" class="col-sm-3 control-label">@lang('Fee Channel')</label>
+                                                                                    <div class="col-sm-5">
+                                                                                        @php $payValue = ($session == now()->year)? $user->studentInfo->channel->name: \App\Assign::where('session', $session)->where('user_id', $user->id)->first()->fees->fee_channel->name; @endphp
+                                                                                        <input name="fee_channel" class="form-control" value="{{$payValue}}" readonly>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="row form-group">
+                                                                                    <label for="receipt" class="col-sm-3 control-label">@lang('Receipt #')</label>
+                                                                                    <div class="col-sm-5">
+                                                                                        <input id = "receipt" name="receipt" class="form-control">
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="row form-group">
+                                                                                    <label for="payment_date" class="col-sm-3 control-label">@lang('Date')</label>
+                                                                                    <div class="col-sm-4">
+                                                                                        <input id = "payment_date" name="payment_date" class="form-control">
+                                                                                    </div>
+                                                                                </div>
+                                                                                <hr>
+                                                                                @php
+                                                                                    $assignFeeIDs = $feeList[$session]['fee_id'];
+                                                                                    $schoolFeesDone = 0; // Switch for when school fees has been processed
+                                                                                @endphp
+                                                                                @foreach($assignFeeIDs as $id)
+                                                                                    @php 
+                                                                                        $type = \App\Fee::find($id)->fee_type->name;
+                                                                                        // echo $type;
+                                                                                        if(in_array($session, [2018, 2019]) and in_array($type, ['Term 1', 'Term 2', 'Term 3', 'Term 4'])){
+                                                                                            if(!$schoolFeesDone){
+                                                                                                $assignAm = $userSer->getSchoolassigned($user->id, $session);
+                                                                                                $paymentAm = \App\PaymentMigrate::where('tct_id', $user->studentInfo->tct_id)
+                                                                                                    ->where('year', $session)
+                                                                                                    ->whereIn('fee_type', ['School Fees','term1', 'term2', 'term3', 'term4'])
+                                                                                                    ->sum('amount');
+                                                                                                $schoolFeesDone = 1;
+                                                                                                $type = "School Fees";
+                                                                                            }
+                                                                                        } else{
+                                                                                            $assignAm = \App\Fee::find($id)->amount;
+                                                                                            $paymentAm = $userSer->getPayment($user->id, $session, $id, 0, $type);
+                                                                                            // echo($type." ".$assignAm." ".$paymentAm);
+                                                                                        }
+                                                                                        $remainAm = $assignAm - $paymentAm
+                                                                                    @endphp
+                                                                                    @if($remainAm > 0)
+                                                                                        <div class="row form-group">
+                                                                                            <label for="type" class="col-sm-3 control-label">Fee Type</label>
+                                                                                            <div class="col-sm-4">
+                                                                                                <input id = "type" name="typePaid" class="form-control" value="{{$type}}" readonly>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="row form-group">
+                                                                                            <label for="assigned" class="col-sm-3 control-label">Remaining</label>
+                                                                                            <div class="col-sm-4">
+                                                                                                <input id = "assigned" name="assigned" class="form-control" value="{{$remainAm}}" readonly>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="row form-group">
+                                                                                            <label for="payment{{$id}}" class="col-sm-3 control-label">Payment</label>
+                                                                                            <div class="col-sm-6">
+                                                                                                <input id = "payment{{$id}}" name="payment[{{$id}}]" class="form-control">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="row form-group">
+                                                                                            <label for="notes{{$id}}" class="col-sm-3 control-label">Notes</label>
+                                                                                            <div class="col-sm-6">
+                                                                                                <textarea id = "notes{{$id}}" name="notes[{{$id}}]" class="form-control"></textarea>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    @endif        
+                                                                                @endforeach
+                                                                            @endslot
+                                                                        @endcomponent
+                                                                    </div>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="4"></td>
+                                                        </tr>
                                                     </tbody>
-                                                </table> 
-                                            @endif
-                                            <hr>
-                                        @endforeach
+                                                @endif
+                                            </table>
+                                        @else
+                                            <div class="text-center">
+                                                <h4>{{$session}}</h4>
+                                            </div>
+                                            <table class="table">
+                                                <thead>
+                                                    <tr class="bg-secondary text-white">
+                                                        <th scope="col" class="text-center">Session</th>
+                                                        <th scope="col" class="text-center">Assigned</th>
+                                                        <th scope="col" class="text-center">Paid</th>
+                                                        <th scope="col" class="text-center">Remaining</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if($session == now()->year and $session != $user->studentInfo->session)
+                                                        <tr>
+                                                            <td colspan="4" class="text-center">
+                                                                Please promote student to assign fees for the school year   
+                                                            </td>
+                                                        </tr>
+                                                    @else
+                                                        <tr>
+                                                            <th class="text-center" colspan="2">Currently Not Assigned</th>
+                                                            <th class="text-center" colspan="2">
+                                                                <div class="text-center">
+                                                                    <form class="form-horizontal" action="{{url('fees/reassignForm')}}" method="post">
+                                                                        {{csrf_field()}}
+                                                                        <input type="hidden" value="{{$user->id}}" name="user_id">
+                                                                        <input type="hidden" value="{{$session}}" name="session">
+                                                                        <button type="submit" class="btn btn-primary btn-sm data-to"><i class="material-icons">assignment_returned</i> Assign Fees</button>
+                                                                    </form>
+                                                                </div>
+                                                            </th>
+                                                        </tr>
+                                                    @endif
+                                                </tbody>
+                                            </table> 
+                                        @endif
+                                        <hr>
+                                    @endforeach
                                 @else
                                     Student has not been assigned! <br>
                                     <br>
@@ -712,6 +709,155 @@
                         </div>
                     </div>
                 </div>
+                <!-- Subject Details -->
+                @if($user->studentInfo->section->class->options and $user->studentInfo->section->class->optionCount > 0)
+                <div class="tab-pane" id="subject">
+                    <br/>
+                    <div class="row col-md-12">
+                        <table class="table">
+                            <tr>
+                                <td  class="bg-dark text-white text-center">Optional Courses</td>
+                            </tr>
+                        </table>
+                        <div class="col-xs-6 container">
+                            <div class="text-center">
+                                @foreach($subjectList as $session => $chosenOptions)
+                                    @if($session > 2020)
+                                    <h4>{{$session}}<small> - Subjects</small></h4>
+                                    <table class="table">
+                                        <thead>
+                                            <tr class="bg-secondary text-white">
+                                                <th scope="col" class="text-center">Option</th>
+                                                <th scope="col" class="text-center">Course</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if($session != now()->year and $session == $user->studentInfo->session)
+                                                <tr>
+                                                    <td colspan="2" class="text-center">
+                                                        Please promote student to assign subjects for the school year   
+                                                    </td>
+                                                </tr>
+                                            @elseif($chosenOptions != [])
+                                                @foreach(range(0,$user->studentInfo->section->class->optionCount-1) as $i)
+                                                    <tr>
+                                                        <td class="text-center">Option {{$i+1}}</td>
+                                                        <td class="text-center"> {{ (in_array($i+1, $chosenOptions))? \App\SubjectAssign::where([
+                                                            'user_id'=> $user->id,
+                                                            'session' => $session,
+                                                            'option' => $i+1,
+                                                        ])->first()->subject->name : "-" }}</td>
+                                                    </tr>
+                                                @endforeach
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="text-center">
+                                                        @component('components.fee-type-form', [
+                                                            'buttonTitle' => 'Re-assign',
+                                                            'modal_name' => 'reassignSubject',
+                                                            'title' => 'Re-assign Optional Subjects',
+                                                            'put_method' => '',
+                                                            'url' => url("subject/reassign"),
+                                                        ])
+                                                            @slot('buttonType')
+                                                                <button type="button" class="btn btn-warning btn-sm {{($session <= 2020)? 'disabled' : '' }}" data-toggle="modal" data-target="#reassignSubject"><i class="material-icons">edit</i>  
+                                                            @endslot
+                                                            @slot('form_content')
+                                                                <input type="hidden" value="{{$session}}" name="session">
+                                                                <input type="hidden" value="{{$user->id}}" name="user_id">
+                                                                @foreach(range(0,$user->studentInfo->section->class->optionCount-1) as $i)
+                                                                    <div class="row form-group">
+                                                                        <label for="type" class="col-sm-3 control-label">Option {{$i+1}}</label>
+                                                                        <div class="col-sm-5">
+                                                                            <select id="option{{$i+1}}" class="form-control" name="option{{$i+1}}">
+                                                                                <option value="">N/A</option>
+                                                                                @foreach ($optionSubs as $sub)
+                                                                                    <option value="{{$sub}}"
+                                                                                        @php
+                                                                                            $selectedOption = \App\SubjectAssign::where([
+                                                                                                'user_id' => $user->id,
+                                                                                                'option' => $i+1,
+                                                                                                'subject_id' => $sub,
+                                                                                            ])->get();
+                                                                                        @endphp
+                                                                                        @if($selectedOption->first())
+                                                                                            selected = "selected"
+                                                                                        @endif
+                                                                                        >
+                                                                                        {{\App\Subject::find($sub)->name}}
+                                                                                    </option>
+                                                                                @endforeach
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                                <br>
+                                                                <div class="row form-group">
+                                                                    <label for="session" class="col-sm-3 control-label">Session</label>
+                                                                    <div class="col-sm-4">
+                                                                        <input id = "session" name="session" class="form-control" value="{{now()->year}}">
+                                                                    </div>
+                                                                </div>
+                                                            @endslot
+                                                        @endcomponent
+                                                    </td>
+                                                </tr>
+                                            @else
+                                                <tr>
+                                                    <td class="text-center">Currently Not Assigned</th>
+                                                    <td class="text-center">
+                                                        <div class="text-center">
+                                                            {{-- SUBJECT ASSIGN FORM MODAL --}}
+                                                            <div class="text-center">
+                                                                @component('components.fee-type-form', [
+                                                                    'buttonTitle' => 'Assign',
+                                                                    'modal_name' => 'assignSubject',
+                                                                    'title' => 'Assign Optional Subjects',
+                                                                    'put_method' => '',
+                                                                    'url' => url("subject/assign"),
+                                                                ])
+                                                                    @slot('buttonType')
+                                                                        <button type="button" class="btn btn-primary btn-sm {{($session <= 2020)? 'disabled' : '' }}" data-toggle="modal" data-target="#assignSubject"><i class="material-icons">edit</i>  
+                                                                    @endslot
+                                                                    @slot('form_content')
+                                                                        <input type="hidden" value="{{$session}}" name="session">
+                                                                        <input type="hidden" value="{{$user->id}}" name="user_id">
+                                                                        @foreach(range(0,$user->studentInfo->section->class->optionCount-1) as $i)
+                                                                            <div class="row form-group">
+                                                                                <label for="type" class="col-sm-3 control-label">Option {{$i+1}}</label>
+                                                                                <div class="col-sm-5">
+                                                                                    <select id="option{{$i+1}}" class="form-control" name="option{{$i+1}}">
+                                                                                        <option value="">N/A</option>
+                                                                                        @foreach ($optionSubs as $sub)
+                                                                                            <option value="{{$sub}}">{{\App\Subject::find($sub)->name}}</option>
+                                                                                        @endforeach
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                        @endforeach
+                                                                        <br>
+                                                                        <div class="row form-group">
+                                                                            <label for="session" class="col-sm-3 control-label">Session</label>
+                                                                            <div class="col-sm-4">
+                                                                                <input id = "session" name="session" class="form-control" value="{{now()->year}}">
+                                                                            </div>
+                                                                        </div>
+                                                                    @endslot
+                                                                @endcomponent
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
     </div>

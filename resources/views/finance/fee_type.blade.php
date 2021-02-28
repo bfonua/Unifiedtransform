@@ -15,12 +15,12 @@
             <h4>@lang('All Fee Types')</h4>
             <br>
             @if ($errors->any())
-            @foreach ($errors->all() as $error)
-                <div class="text-white bg-danger">{{$error}}</div>
-                {{-- <span class="error">{{ $error}}</span> --}}
-            @endforeach
-            <br>
-        @endif
+                @foreach ($errors->all() as $error)
+                    <div class="text-white bg-danger">{{$error}}</div>
+                    {{-- <span class="error">{{ $error}}</span> --}}
+                @endforeach
+                <br>
+            @endif
             <!-- Componeent holds modal details -->
             @component('components.fee-type-form', [
                 'buttonTitle' => 'Add Fee Type',

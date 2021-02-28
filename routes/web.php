@@ -84,6 +84,19 @@ Route::middleware(['auth', 'accountant'])->prefix('fees')->name('fees.')->group(
     Route::get('assignListAction', 'AjaxController@getFeeAssignList');
 });
 
+Route::middleware(['auth', 'admin'])->prefix('subject')->name('subject.')->group(function () {
+    Route::resource('/', 'SubjectController');
+    Route::post('/add-class', 'SubjectController@store');
+    Route::put('/update_subject/{id}', 'SubjectController@update_subject');
+    Route::put('/update_inactive_subject/{id}', 'SubjectController@update_inactive_subject');
+    // Route::resource('/class', 'SubjectClassController');
+    // Route::post('/assign-form', 'SubjectAssignController@showForm');
+    Route::post('/assign', 'SubjectAssignController@store');
+    Route::post('/reassign', 'SubjectAssignController@reassign');
+    Route::get('/section', 'SubjectController@show_sections');
+    Route::get('/tct_students/{id}', 'SubjectController@show_section_list');
+});
+
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/settings', 'SettingController@index')->name('settings.index');
     Route::get('gpa/create-gpa', 'GradesystemController@create');

@@ -13,13 +13,13 @@ class MyclassController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-     public function index($school_id)
-     {
-       return ($school_id > 0)? ClassResource::collection(Myclass::bySchool($school_id)->get()):response()->json([
-         'Invalid School id: '. $school_id,
-         404
-       ]);
-     }
+    public function index($school_id)
+    {
+        return ($school_id > 0) ? ClassResource::collection(Myclass::bySchool($school_id)->get()) : response()->json([
+            'Invalid School id: ' . $school_id,
+            404
+        ]);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -39,15 +39,17 @@ class MyclassController extends Controller
      */
     public function store(Request $request)
     {
-      $request->validate([
-        'class_number' => 'required'
-      ]);
-      $tb = new Myclass;
-      $tb->class_number = $request->class_number;
-      $tb->school_id = \Auth::user()->school_id;
-      $tb->groupClass = (!empty($request->group))?$request->group:'';
-      $tb->save();
-      return back()->with('status', __('Created'));
+        $request->validate([
+            'class_number' => 'required'
+        ]);
+        $tb = new Myclass;
+        $tb->class_number = $request->class_number;
+        $tb->school_id = \Auth::user()->school_id;
+        $tb->groupClass = (!empty($request->group)) ? $request->group : '';
+        $tb->options = 0;
+        $tb->optionCount = 0;
+        $tb->save();
+        return back()->with('status', __('Created'));
     }
 
     /**
@@ -81,14 +83,14 @@ class MyclassController extends Controller
      */
     public function update(Request $request, $id)
     {
-      $tb = Myclass::find($id);
-      $tb->class_number = $request->class_number;
-      $tb->school_id = $request->school_id;
-      return ($tb->save())?response()->json([
-        'status' => 'success'
-      ]):response()->json([
-        'status' => 'error'
-      ]);
+        $tb = Myclass::find($id);
+        $tb->class_number = $request->class_number;
+        $tb->school_id = $request->school_id;
+        return ($tb->save()) ? response()->json([
+            'status' => 'success'
+        ]) : response()->json([
+            'status' => 'error'
+        ]);
     }
 
     /**
@@ -100,10 +102,13 @@ class MyclassController extends Controller
      */
     public function tct_update(Request $request, $id)
     {
+        // return $request;
         $tb = Myclass::find($id);
         $tb->class_number = $request->class_number;
         //   $tb->school_id = $request->school_id;
         $tb->groupClass = $request->group;
+        $tb->options = $request->options;
+        $tb->optionCount = ($request->options == 1) ? $request->optionCount : 0;
         $tb->save();
         return redirect('school/sections?course=1');
         // return ($tb->save())?response()->json([
@@ -121,10 +126,10 @@ class MyclassController extends Controller
      */
     public function destroy($id)
     {
-      return (Myclass::destroy($id))?response()->json([
-        'status' => 'success'
-      ]):response()->json([
-        'status' => 'error'
-      ]);
+        return (Myclass::destroy($id)) ? response()->json([
+            'status' => 'success'
+        ]) : response()->json([
+            'status' => 'error'
+        ]);
     }
 }

@@ -8,7 +8,7 @@
         <div class="col-md-2" id="side-navbar">
             @include('layouts.leftside-menubar')
         </div>
-        <div class="col-md-10" id="main-container">
+        <div class="col-md-7" id="main-container">
             <br>
             <h4>
                 {{$house->house_name}}
