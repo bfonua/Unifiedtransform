@@ -191,7 +191,7 @@ Route::middleware(['auth', 'accountant'])->prefix('accounts')->name('accounts.')
     Route::get('sectors', 'AccountController@sectors');
     Route::post('create-sector', 'AccountController@storeSector');
     Route::get('edit-sector/{id}', 'AccountController@editSector');
-    Route::post('update-sector', 'AccountController@updateSector');
+    Route::put('update-sector', 'AccountController@updateSector');
     //Route::get('delete-sector/{id}','AccountController@deleteSector');
 
     Route::get('income', 'AccountController@income');
@@ -201,6 +201,9 @@ Route::middleware(['auth', 'accountant'])->prefix('accounts')->name('accounts.')
     Route::get('edit-income/{id}', 'AccountController@editIncome');
     Route::post('update-income', 'AccountController@updateIncome');
     Route::get('delete-income/{id}', 'AccountController@deleteIncome');
+
+    Route::get('set-budget', 'AccountController@viewBudget');
+
 
     Route::get('expense', 'AccountController@expense');
     Route::post('create-expense', 'AccountController@storeExpense');
@@ -235,6 +238,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::put('edit-tct-section/{id}', 'SectionController@tct_update'); // UPDATE SECTION
         Route::post('add-house', 'Housecontroller@store'); // STORE HOUSE
         Route::put('edit-tct-house/{id}', 'HouseController@update'); // UPDATE HOUSE
+        // ACCOUNT SECTORS
+        Route::put('edit-tct-sector/{id}', 'AccountController@updateSector'); // UPDATE HOUSE
+
         // Route::post('add-department','SchoolController@addDepartment');
         Route::get('promote-students/{section_id}', 'UserController@promoteSectionStudents');
         Route::post('promote-students', 'UserController@promoteSectionStudentsPost');

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Account;
 
 use App\AccountSector;
@@ -7,35 +8,47 @@ use App\Account;
 // use App\Section;
 // use App\User;
 
-class AccountService {
+class AccountService
+{
     public $account_type;
     public $request;
 
-    public function getSectorsBySchoolId(){
-        return AccountSector::where('school_id', auth()->user()->school_id)->get();
+    public function getSectorsBySchoolId($income = False, $expense = False)
+    {
+        return AccountSector::where('school_id', auth()->user()->school_id)
+            ->orderBy('code', 'asc')
+            ->get();
     }
 
-    public function getAccountsBySchoolId(){
+    public function getAccountsBySchoolId()
+    {
         return Account::where('school_id', auth()->user()->school_id)
-                          ->where('type', $this->account_type)
-                          ->orderBy('id', 'desc')
-                          ->take(50)
-                          ->get();
+            ->where('type', $this->account_type)
+            ->orderBy('id', 'desc')
+            ->take(50)
+            ->get();
     }
 
-    public function storeSector(){
+    public function storeSector()
+    {
         $sector = new AccountSector();
         $sector->name = $this->request->name;
         $sector->type = $this->request->type;
+        $sector->code = $this->request->code;
         $sector->school_id = auth()->user()->school_id;
         $sector->user_id = auth()->user()->id;
         $sector->save();
     }
 
-    public function updateSector(){
-        $sector = AccountSector::find($this->request->id);
+    public function updateSector()
+    {
+        // return $this->request;
+        $sector = AccountSector::find($this->request->sector_id);
         $sector->name = $this->request->name;
         $sector->type = $this->request->type;
+        $sector->code = $this->request->code;
+        $sector->active = $this->request->active;
+
         $sector->save();
     }
 
@@ -57,7 +70,8 @@ class AccountService {
     //                       ->get();
     // }
 
-    public function storeAccount(){
+    public function storeAccount()
+    {
         $income = new Account();
         $income->name = $this->request->name;
         $income->type = $this->account_type;
@@ -68,14 +82,16 @@ class AccountService {
         $income->save();
     }
 
-    public function getAccountsByYear(){
+    public function getAccountsByYear()
+    {
         return Account::where('school_id', auth()->user()->school_id)
-                          ->where('type', $this->account_type)
-                          ->whereYear('created_at',$this->request->year)
-                          ->get();
+            ->where('type', $this->account_type)
+            ->whereYear('created_at', $this->request->year)
+            ->get();
     }
 
-    public function updateAccount(){
+    public function updateAccount()
+    {
         $account = Account::find($this->request->id);
         $account->amount = $this->request->amount;
         $account->description = $this->request->description;

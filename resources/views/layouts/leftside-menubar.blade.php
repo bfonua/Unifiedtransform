@@ -128,6 +128,54 @@
     </li>
     <li class="nav-item" style="border-bottom: 2px solid #dbd8d8;"></li>
 
+    @if(Auth::user()->role == 'admin' || Auth::user()->role == 'accountant')
+    <li class="nav-item dropdown">
+        <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="material-icons">account_balance_wallet</i> <span class="nav-link-text">@lang('Manage Accounts')</span> 
+            <i class="material-icons pull-right">keyboard_arrow_down</i>
+        </a>
+        <ul class="dropdown-menu" style="width: 100%;">
+            <li>
+                <a class="dropdown-item" href="{{url('users/'.Auth::user()->school->code.'/accountant')}}">
+                    <i class="material-icons">account_balance_wallet</i>
+                    <span class="nav-link-text">@lang('Accountant List')</span>
+                </a>
+            </li>
+            <li>
+            <a class="dropdown-item" href="{{ url('accounts/sectors') }}"><i class="material-icons">developer_board</i>
+            <span class="nav-link-text">@lang('Add Account Sector')</span></a>
+            </li>
+            <li>
+            <a class="dropdown-item" href="{{ url('accounts/expense') }}"><i class="material-icons">note_add</i> <span
+                class="nav-link-text">@lang('Add New Expense')</span></a>
+            </li>
+            <li>
+            <a class="dropdown-item" href="{{ url('accounts/expense-list') }}"><i class="material-icons">developer_board</i>
+                <span class="nav-link-text">@lang('Expense List')</span></a>
+            </li>
+            <li>
+            <a class="dropdown-item" href="{{ url('accounts/income') }}"><i class="material-icons">note_add</i> <span class="nav-link-text">@lang('Add New Income')</span></a>
+            </li>
+            <li>
+            <a class="dropdown-item" href="{{ url('accounts/income-list') }}"><i class="material-icons">developer_board</i>
+                <span class="nav-link-text">@lang('Income List')</span></a>
+            </li>
+        </ul>
+    </li>
+    <li class="nav-item dropdown">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url('accounts/set-budget') }}"><i class="material-icons">subject</i> <span class="nav-link-text">Set Annual Budget</span></a>
+        </li>
+    </li>
+    <li class="nav-item dropdown">
+        <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="material-icons">account_balance_wallet</i> <span class="nav-link-text">Account Summary</span> 
+            <i class="material-icons pull-right">keyboard_arrow_down</i>
+        </a>
+    </li>
+    <li class="nav-item" style="border-bottom: 2px solid #dbd8d8;"></li>
+    @endif
+
     {{-- <li class="nav-item dropdown">
         <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
             class="material-icons">date_range</i> <span class="nav-link-text">@lang('Attendance')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>
@@ -220,7 +268,7 @@
     </li>
     @endif
      
-    @if(Auth::user()->role == 'admin' || Auth::user()->role == 'accountant')
+    {{-- @if(Auth::user()->role == 'admin' || Auth::user()->role == 'accountant')
     <li class="nav-item dropdown">
       <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
           class="material-icons">account_balance_wallet</i> <span class="nav-link-text">@lang('Manage Accounts')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>
@@ -251,7 +299,7 @@
         </li>
       </ul>
     </li>
-    @endif
+    @endif --}}
     @if(Auth::user()->role == 'student')
     <li class="nav-item">
       <a class="nav-link active" href="{{ url('attendances/0/'.Auth::user()->id.'/0') }}"><i class="material-icons">date_range</i>

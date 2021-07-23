@@ -17,4 +17,9 @@ class AccountSector extends Model
     {
         return $this->belongsTo('App\User', 'user_id');
     }
+
+    public function budgets()
+    {
+        return $this->hasMany('App\Budget');
+    }
 }

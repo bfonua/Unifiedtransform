@@ -7,11 +7,13 @@ use App\User;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 // use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+// use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 ini_set('memory_limit', '-1');
+ini_set('max_execution_time', 300);
 class allFinanceTranListExport implements FromView
 {
-    public function __construct(int $year){
+    public function __construct(int $year)
+    {
         $this->year = $year;
     }
     public function view(): View
@@ -23,5 +25,4 @@ class allFinanceTranListExport implements FromView
             'transactions' => $transactions
         ]);
     }
-
 }

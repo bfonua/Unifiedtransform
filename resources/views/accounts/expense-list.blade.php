@@ -54,59 +54,59 @@
           <div class="row">
             <div class="col-md-12">
               @isset($expenses)
-                    <div class="table-responsive">
-                      <table class="table table-data-div table-hover">
-                        <thead>
-                          <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">@lang('Sector Name')</th>
-                            <th scope="col">@lang('Amount')</th>
-                            <th scope="col">@lang('Description')</th>
-                            <th scope="col">@lang('Year')</th>
-                            <th scope="col">@lang('Action')</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @foreach($expenses as $expense)
-                          <tr>
-                            <td>{{($loop->index + 1)}}</td>
-                            <td>{{$expense->name}}</td>
-                            <td>{{$expense->amount}}</td>
-                            <td>{{$expense->description}}</td>
-                            <td>{{Carbon\Carbon::parse($expense->created_at)->format('Y')}}</td>
-                            <td><a title='Edit' class='btn btn-info btn-sm' href='{{url("accounts/edit-expense")}}/{{$expense->id}}'>@lang('Edit')</a></td>
-                          </tr>
-                          @endforeach
-                        </tbody>
-                      </table>
-                      <div id="printDiv"  class="visible-print">
-                      <h2 style="text-align:center;">{{Auth::user()->school->name}}</h2>
-                      <h4 style="text-align:center;">@lang('Expense List')</h4>
-                      <table style="border: 1px solid #888888;border-collapse: collapse;background-color: #f5f5f5;" cellpadding="5">
-                        <thead>
-                          <tr>
-                            <th style="border: 1px solid #888888;">#</th>
-                            <th style="border: 1px solid #888888;">@lang('Sector Name')</th>
-                            <th style="border: 1px solid #888888;">@lang('Amount')</th>
-                            <th style="border: 1px solid #888888;">@lang('Description')</th>
-                            <th style="border: 1px solid #888888;">@lang('Year')</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @foreach($expenses as $expense)
-                          <tr>
-                            <td style="border: 1px solid #888888;">{{($loop->index + 1)}}</td>
-                            <td style="border: 1px solid #888888;">{{$expense->name}}</td>
-                            <td style="border: 1px solid #888888;">{{$expense->amount}}</td>
-                            <td style="border: 1px solid #888888;">{{$expense->description}}</td>
-                            <td style="border: 1px solid #888888;">{{Carbon\Carbon::parse($expense->created_at)->format('Y')}}</td>
-                          </tr>
-                          @endforeach
-                        </tbody>
-                      </table>
-                      </div>
+                <div class="table-responsive">
+                    <table class="table table-data-div table-hover">
+                    <thead>
+                        <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">@lang('Sector Name')</th>
+                        <th scope="col">@lang('Amount')</th>
+                        <th scope="col">@lang('Description')</th>
+                        <th scope="col">@lang('Year')</th>
+                        <th scope="col">@lang('Action')</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($expenses as $expense)
+                        <tr>
+                        <td>{{($loop->index + 1)}}</td>
+                        <td>{{$expense->name}}</td>
+                        <td>{{$expense->amount}}</td>
+                        <td>{{$expense->description}}</td>
+                        <td>{{Carbon\Carbon::parse($expense->created_at)->format('Y')}}</td>
+                        <td><a title='Edit' class='btn btn-info btn-sm' href='{{url("accounts/edit-expense")}}/{{$expense->id}}'>@lang('Edit')</a></td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                    </table>
+                    <div id="printDiv"  class="visible-print">
+                    <h2 style="text-align:center;">{{Auth::user()->school->name}}</h2>
+                    <h4 style="text-align:center;">@lang('Expense List')</h4>
+                    <table style="border: 1px solid #888888;border-collapse: collapse;background-color: #f5f5f5;" cellpadding="5">
+                    <thead>
+                        <tr>
+                        <th style="border: 1px solid #888888;">#</th>
+                        <th style="border: 1px solid #888888;">@lang('Sector Name')</th>
+                        <th style="border: 1px solid #888888;">@lang('Amount')</th>
+                        <th style="border: 1px solid #888888;">@lang('Description')</th>
+                        <th style="border: 1px solid #888888;">@lang('Year')</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($expenses as $expense)
+                        <tr>
+                        <td style="border: 1px solid #888888;">{{($loop->index + 1)}}</td>
+                        <td style="border: 1px solid #888888;">{{$expense->name}}</td>
+                        <td style="border: 1px solid #888888;">{{$expense->amount}}</td>
+                        <td style="border: 1px solid #888888;">{{$expense->description}}</td>
+                        <td style="border: 1px solid #888888;">{{Carbon\Carbon::parse($expense->created_at)->format('Y')}}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                    </table>
                     </div>
-                    @endisset
+                </div>
+                @endisset
             </div>
           </div>
       </div>
