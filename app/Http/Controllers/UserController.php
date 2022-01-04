@@ -23,7 +23,7 @@ use App\Http\Requests\User\ChangePasswordRequest;
 use App\Http\Requests\User\ImpersonateUserRequest;
 use App\Http\Requests\User\CreateLibrarianRequest;
 use App\Http\Requests\User\CreateAccountantRequest;
-use Mavinoo\LaravelBatch\Batch;
+use Mavinoo\Batch\Batch;
 use App\Events\UserRegistered;
 use App\Events\StudentInfoUpdateRequested;
 use App\Events\TCTStudentInfoUpdateRequested;
@@ -295,7 +295,6 @@ class UserController extends Controller
      */
     public function tct_store(TCTCreateUserRequest $request)
     {
-        // print($request);
         $tb = $this->userService->storeTCTStudent($request);
         event(new TCTStudentInfoUpdateRequested($request, $tb->id));
         return redirect('register/tct_student')->with('status', __('Saved'));
@@ -384,7 +383,6 @@ class UserController extends Controller
     public function show($user_code)
     {
         $user = $this->userService->getUserByUserCode($user_code);
-        $assignedCount = $user->feesAssigned()->count('id');
         $sessions = \App\Assign::where('user_id', $user->id)->orderBy('session', 'desc')->groupBy('session')->pluck('session')->toArray();
 
         $feeList = [];
@@ -393,9 +391,9 @@ class UserController extends Controller
         $firstYear = "20" . substr($user->studentInfo->tct_id, 0, 2);
         $years = range(now()->year, $firstYear);
 
-        if ($assignedCount > 0) {
+        if ($assignedCount = $user->fees_assigned_count > 0) {
             foreach ($sessions as $session) {
-                $fees_assigned = \App\Assign::with(['fees'])
+                $fees_assigned = \App\Assign::withCount('fees')
                     ->where('user_id', $user->id)
                     ->where('session', $session)
                     ->groupBy('fee_id')
@@ -413,13 +411,12 @@ class UserController extends Controller
             $fees_assigned = "";
         }
 
-        foreach ($years as $session) {
-            $subjectList[$session] = \App\SubjectAssign::where([
-                'user_id' => $user->id,
-                'session' => $session,
-            ])->pluck('option')->toArray();
-        }
+        $subID = \App\SubjectAssign::where(['user_id' => $user->id])->get();
 
+        foreach ($years as $session) {
+            $subjectList[$session] = $subID->where('session', $session)->pluck('option')->toArray();
+        }
+        
         $class = $user->studentInfo->section->class;
         // return $class['id'];
         $optionSubs = \App\SubjectClass::whereHas('subject', function ($q) {
@@ -436,49 +433,49 @@ class UserController extends Controller
         return view('profile.user', compact('user', 'assignedCount', 'feeList', 'sessions', 'fees_assigned', 'optionSubs', 'subjectList'));
     }
 
-    public function migrationTest()
-    {
-        return view('home');
-        $toMigrate = DB::table('assignMigrate')->get()->slice(3000);
-        $types = [
-            'term1' => 1, 'term2' => 2, 'term3' => 3, 'term4' => 4, 'late' => 5, 'pta' => 6,
-            'magazine' => 7,
-            'bazaar' => 9,
-        ];
-        $main = [];
-        $count = 1;
-        try {
-            foreach ($toMigrate as $assignOld) {
-                foreach ($types as $type => $type_id) {
-                    if ($assignOld->{$type} > 0) {
-                        $assign = new \App\Assign;
-                        $assign->user_id = \App\User::where('student_code', $assignOld->tct_id)->first()->id;
-                        if ($type_id == 9 && $assignOld->{$type} < 100) {
-                            $tbType = 8;
-                        } else {
-                            $tbType = $type_id;
-                        }
-                        if ($assignOld->fee_id < 50) {
-                            $tbChannel = $assignOld->fee_id;
-                        } elseif ($assignOld->fee_id < 63) {
-                            $tbChannel = $assignOld->fee_id - 1;
-                        } else {
-                            $tbChannel = $assignOld->fee_id - 2;
-                        }
-                        $assign->fee_id = \App\Fee::where([
-                            'session' => $assignOld->session_id + 2015,
-                            'fee_type_id' => $tbType,
-                            'fee_channel_id' => $tbChannel,
-                        ])->first()->id;
-                        $assign->session = $assignOld->session_id + 2015;
-                        $count++;
-                        echo ("COUNT" . $count);
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-        }
-    }
+    // public function migrationTest()
+    // {
+    //     return view('home');
+    //     $toMigrate = DB::table('assignMigrate')->get()->slice(3000);
+    //     $types = [
+    //         'term1' => 1, 'term2' => 2, 'term3' => 3, 'term4' => 4, 'late' => 5, 'pta' => 6,
+    //         'magazine' => 7,
+    //         'bazaar' => 9,
+    //     ];
+    //     $main = [];
+    //     $count = 1;
+    //     try {
+    //         foreach ($toMigrate as $assignOld) {
+    //             foreach ($types as $type => $type_id) {
+    //                 if ($assignOld->{$type} > 0) {
+    //                     $assign = new \App\Assign;
+    //                     $assign->user_id = \App\User::where('student_code', $assignOld->tct_id)->first()->id;
+    //                     if ($type_id == 9 && $assignOld->{$type} < 100) {
+    //                         $tbType = 8;
+    //                     } else {
+    //                         $tbType = $type_id;
+    //                     }
+    //                     if ($assignOld->fee_id < 50) {
+    //                         $tbChannel = $assignOld->fee_id;
+    //                     } elseif ($assignOld->fee_id < 63) {
+    //                         $tbChannel = $assignOld->fee_id - 1;
+    //                     } else {
+    //                         $tbChannel = $assignOld->fee_id - 2;
+    //                     }
+    //                     $assign->fee_id = \App\Fee::where([
+    //                         'session' => $assignOld->session_id + 2015,
+    //                         'fee_type_id' => $tbType,
+    //                         'fee_channel_id' => $tbChannel,
+    //                     ])->first()->id;
+    //                     $assign->session = $assignOld->session_id + 2015;
+    //                     $count++;
+    //                     echo ("COUNT" . $count);
+    //                 }
+    //             }
+    //         }
+    //     } catch (\Exception $e) {
+    //     }
+    // }
 
 
     /**
@@ -703,7 +700,7 @@ class UserController extends Controller
 
     public function prefectTCTStudents()
     {
-        $prefects = \App\StudentInfo::where('session', now()->year)
+        $prefects = \App\StudentInfo::with('student', 'house', 'section.class')->where('session', now()->year)
             ->whereIn('group', ['Prefect', 'Head Prefect'])
             ->orderBy('group', 'asc')
             ->orderBy('house_id', 'asc')
@@ -739,36 +736,35 @@ class UserController extends Controller
         return view('profile.student-tct-other', compact('churches', 'villages', 'countries'));
     }
 
-    public function queryTest()
+    public function functionTesting()
     {
-        $section = \App\Section::where('active', 1)
-            ->orderBy('class_id', 'asc')
-            ->orderBy('section_number', 'asc')
-            ->first();
-        // echo('<table>
-        //     <thead>
-        //         <th>Form</th>
-        //         <th>Count</th>
-        //         <th>Assign</th>
-        //         <th>Payment</th>
-        //         <th>Remainging</th>
-        //     </thead>
-        //     <tbody>');
-        // foreach($section as $section){
-        //     $assign = $section->totalAssigned()->sum('fees.amount');
-        //     $payment = $section->payment()->sum('amount');
-        //     $remain = $assign - $payment;
-        //     echo('<tr>
-        //         <td>'.$section->class->class_number.$section->section_number.'</td>
-        //         <td>'.$section->students()->count().'</td>
-        //         <td>'.$assign.'</td>
-        //         <td>'.$payment.'</td>
-        //         <td>'.$remain.'</td>
-        //     </tr>');
-        // }
-        // echo('</tbody>
-        // </table>');
+        // TESTING SECTION FINANCE RELATIONSHIPS
 
+        return date_default_timezone_get();
+        $sections = \App\Section::with('class', 'totalPaidAmount', 'totalAssignedAmount')
+        ->withCount(['students' => function ($q) {
+            $q->where('active', 1);
+        }])
+            ->where('active', 1)
+            ->orderBy('class_id')
+            ->orderBy('section_number', 'asc')
+            ->get();
+
+        // return view('test', compact('sections'));
+
+
+
+        // TESTING USER FINANCE RELATIONSHIPS
+
+        // return $user = \App\User::find('108')->with('totalFeeTypesAssigned')->get();
+        // return $user = \App\User::find('108')->feeTypesAssigned()->get();
+
+        $userTest = User::with('totalFeesAssigned', 'feeTypesAssigned')->whereHas("studentInfo", function ($q){
+            $q->where('session', now()->year);
+            // ->orderBy('form_num', 'asc');
+        })->get();
+
+        return view('test', compact('sections','userTest'));
 
 
     }

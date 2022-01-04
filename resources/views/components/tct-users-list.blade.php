@@ -14,7 +14,7 @@
     </tr>
   </thead>
   <tbody>
-    @foreach ($users as $key=>$user)
+    {{-- @foreach ($users as $key=>$user)
     <tr>
         <td class="text-center"><small>{{$user->student_code}}</small></td>
         <td class="text-center">
@@ -37,6 +37,30 @@
         <td class="text-center"><small>{{$user->studentInfo->form_num}}</small></td>
         <td  class="text-center" style="white-space: nowrap;"><small>{{$user->studentInfo->house->house_name}}</small></td>
     </tr>
+    @endforeach --}}
+
+    @foreach ($users as $user)
+        <tr class="bg-">
+            <td class="text-center"><small>{{$user->student_code}}</small></td>
+            <td class="text-center">
+                @if($type == 'registered')
+                    {{($user->active)?''.ucfirst($user->studentInfo->group):'Inactive'}}
+                @elseif($type == 'archived')
+                    {{($user->active)?'Graduated / '.ucfirst($user->studentInfo->group):'Inactive'}}
+                @endif
+            </td>
+            <td><small><a href="{{url('user/'.$user->student_code)}}">{{($user->name == '')?$user->given_name.' '.$user->lst_name:$user->name}}</a></small></td>
+            @if($type != 'registered')
+                <td class="text-center">
+                    <small>
+                        {{$user->studentInfo['session']}}
+                    </small>
+                </td>
+            @endif
+            <td class="text-center"><small>{{$user->studentInfo->section->class->class_number}}{{$user->studentInfo->section->section_number}}</small></td>
+            <td class="text-center"><small>{{$user->studentInfo->form_num}}</small></td>
+            <td class="text-center" style="white-space: nowrap;"><small>{{$user->studentInfo->house->house_name}}</small></td>
+        </tr>
     @endforeach
   </tbody>
 </table>
@@ -48,6 +72,7 @@
             $('#myTable').DataTable({
                 paging: false,
                 dom: 'Bfrtip',
+                // pagingType: 'simple',
                 buttons: [
                     'copy', 'excel', 'pdf'
                 ]

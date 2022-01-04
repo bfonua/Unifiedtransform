@@ -6,7 +6,7 @@ use App\User;
 use App\StudentInfo;
 use App\Inactive;
 use Illuminate\Support\Facades\DB;
-use Mavinoo\LaravelBatch\Batch;
+use Mavinoo\Batch\Batch;
 use Illuminate\Support\Facades\Log;
 
 class UserService
@@ -342,6 +342,8 @@ class UserService
         $sections = \App\Section::with('class')
             ->whereIn('class_id', $classes_id)
             ->where('active', 1)
+            ->orderBy('class_id')
+            ->orderBy('section_number', 'asc')
             ->get();
         $form_nums = $this->getFormNumbersArray($sections);
         $houses = \App\House::all();
@@ -422,21 +424,27 @@ class UserService
             ->paginate(50);
     }
 
+    // Loads and view registered students for the school year
     public function getTCTStudents()
     {
-        return User::whereHas("studentInfo", function ($q) {
+        return User::with('studentInfo.house', 'studentInfo.section.class')->whereHas('studentInfo', function ($q){
             $q->where("session", now()->year);
         })->get();
     }
 
     public function getTCTArchive()
     {
-        ini_set('memory_limit', '-1');
-        return User::whereHas("studentInfo", function ($q) {
-            $q->where("session", ">", 2018)
-                ->where("session", "<", now()->year);
+        // ini_set('memory_limit', '-1');
+        // return User::whereHas("studentInfo", function ($q) {
+        //     $q->where("session", ">", 2018)
+        //         ->where("session", "<", now()->year);
+        // })->where('role', 'student')
+        //     ->get();
+
+        return User::with('studentInfo.house', 'studentInfo.section.class')->whereHas('studentInfo', function($q) {
+            $q->whereBetween('session', [2018, now()->year-1]);
         })->where('role', 'student')
-            ->get();
+        ->get();
     }
 
     public function getTeachers()
@@ -481,12 +489,20 @@ class UserService
 
     public function getTCTSectionStudentsWithSchool($section_id)
     {
-        return \App\User::whereHas("studentInfo", function ($q) use ($section_id) {
+        return \App\User::with('studentInfo.house', 'fees')->whereHas("studentInfo", function ($q) use ($section_id) {
             $q->where('session', now()->year)
                 ->where('form_id', $section_id)
                 ->orderBy('form_num', 'asc');
-        })
-            ->get();
+        })->get();
+    }
+
+    public function getTCTSectionStudentsWithFinance($section_id)
+    {
+        return \App\User::with('studentInfo', 'fees', 'totalFeesAssigned', 'totalFeesPaid', 'feeTypesAssigned', 'feeTypesPaid')->whereHas("studentInfo", function ($q) use ($section_id) {
+            $q->where('session', now()->year)
+                ->where('form_id', $section_id)
+                ->orderBy('form_num', 'asc');
+        })->get();
     }
 
     public function getSectionStudentsWithStudentInfo($request, $section_id)
@@ -519,7 +535,7 @@ class UserService
 
     public function getUserByUserCode($user_code)
     {
-        return $this->user->with('section', 'studentInfo')
+        return $this->user->with('studentInfo.section.class', 'feesAssigned.fees.fee_type')->withCount('feesAssigned')
             ->where('student_code', $user_code)
             //   ->where('active', 1)
             ->first();

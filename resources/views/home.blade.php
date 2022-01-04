@@ -66,14 +66,10 @@
                                         @endif
                                     </h2>
                                     <div class="panel panel-default">
-                                        {{-- <div class="page-panel-title">
-                                            Mission Statement
-                                        </div> --}}
                                         <div class="panel-body">
-                                            <h4>{{now()->year}} Administration</h4>
+                                            <h4>{{now()->year}} Administration Summary</h4>
                                             <div class="row">
                                                 <div class="col-md-4">
-                                                    {{-- <div class="col-sm-7"> --}}
                                                     <div class="card bg-light mb-3">
                                                         <div class="card-header">Student Count</div>
                                                         <div class="card-body">
@@ -132,7 +128,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-md-3">
-                                                    <div class="card text-center bg-light mb-3">
+                                                    <div class="card bg-light mb-3">
                                                         <div class="card-header">Form Distribution</div>
                                                         <div class="card-body pre-scrollable">
                                                             @if($sections->first())
@@ -145,7 +141,7 @@
                                                                     </thead> 
                                                                     @foreach($sections as $section)
                                                                         <tr>
-                                                                            <td class="text-center">
+                                                                            <td class="text-left">
                                                                                 <a href="{{url('section/tct_students/'.$section->id.'?section=1')}}"> {{$section->class->class_number.$section->section_number}} </a>
                                                                             </td>
                                                                             <td class="text-center">
@@ -165,8 +161,8 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-md-3">
-                                                    <div class="card text-center bg-light mb-3">
-                                                        <div class="card-header">House Distribution</div>
+                                                    <div class="card bg-light mb-3">
+                                                        <div class="text-left card-header">House Distribution</div>
                                                         <div class="card-body pre-scrollable">
                                                             @if($houses->first())
                                                                 <table class="table"> 
@@ -176,7 +172,7 @@
                                                                     </thead> 
                                                                     @foreach($houses as $house)
                                                                         <tr>
-                                                                            <td class="text-center">
+                                                                            <td class="text-left">
                                                                                 <a href="{{url('house/tct_students/'.$house->id.'?section=1')}}">{{$house->house_name}}</a>
                                                                             </td>
                                                                             <td class="text-center">
@@ -212,27 +208,34 @@
                                                         </div>
                                                     </div> --}}
                                                     <div class="row panel panel-default">
-                                                        <div class="page-panel-title text-center">Links</div>
+                                                        <div class="page-panel-title text-center">Quick Links</div>
                                                         <div class="panel-body text-center">
-                                                            <a href="#">New Application</a><br>
-                                                            <a data-toggle="tooltip" data-placement="bottom" title="Please search Student ID to register">
+                                                            <a class="btn btn-sm btn-block btn-success" href="{{url('register/tct_student')}}"> <i class="material-icons">person_add</i> New Application</a><br>
+                                                            
+                                                            <a class="btn btn-sm btn-block btn-primary" href="{{url('students/export/tct')}}"> <i class="material-icons">import_export</i> Export Class Lists</a><br>                                                            
+                                                            <a class="btn btn-sm btn-block btn-primary" href="{{url('students/export/house')}}"> <i class="material-icons">import_export</i> Export House Lists</a><br>                                                            
+                                                            
+
+                                                            <a class="btn btn-sm btn-block btn-info" href="#"><i class="material-icons">price_check</i> Finance Summary</a><br>
+                                                            
+                                                            {{-- <a data-toggle="tooltip" data-placement="bottom" title="Please search Student ID to register">
                                                                 Register Old Students
                                                             </a><br>
-                                                            <a href="{{url('students/export/tct')}}">Export Class Lists</a><br>
                                                             <br>
                                                             <a href="{{url('prefects/tct_students')}}">View Prefects</a><br>
                                                             <a data-toggle="tooltip" data-placement="bottom" title="Please use Student profile page">
                                                                 Set Student Fees
                                                             </a><br>
                                                             <a href="{{url('fees/fee_types')}}">View Fee Types</a><br>
-                                                            <a href="{{url('fees/fee_channel')}}">View Fee Channels</a><br>
+                                                            <a href="{{url('fees/fee_channel')}}">View Fee Channels</a><br> --}}
 
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                             <br>
-                                            <h4>{{now()->year}} Finance</h4>
+
+                                            <h4>{{now()->year}} Finance Summary</h4>
                                             <div class="row">
                                                 <div class="col-md-10">
                                                     <div class="card bg-light mb-3">
@@ -371,6 +374,9 @@
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script> --}}
 <script>
 $(function () {
   $('[data-toggle="tooltip"]').tooltip()

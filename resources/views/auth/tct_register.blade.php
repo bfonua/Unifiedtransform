@@ -240,102 +240,99 @@
                         <hr>
                         @if(session('register_role', 'student') == 'student')
                         <div class="page-panel-title">Enrollment</div>
-                            <!-- Session -->
-                            <div class="form-group{{ $errors->has('session') ? ' has-error' : '' }}">
-                                <label for="session" class="col-md-4 control-label">* @lang('Session')</label>
-                                <div class="col-md-6">
-                                    <input id="session" type="text" class="form-control" name="session" value="{{date('Y')}}"
-                                        required>
-                                    @if ($errors->has('session'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('session') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
+                        <!-- Session -->
+                        <div class="form-group{{ $errors->has('session') ? ' has-error' : '' }}">
+                            <label for="session" class="col-md-4 control-label">* @lang('Session')</label>
+                            <div class="col-md-6">
+                                <input id="session" type="text" class="form-control" name="session" value="{{date('Y')}}"
+                                    required>
+                                @if ($errors->has('session'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('session') }}</strong>
+                                </span>
+                                @endif
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tct_id"  class="col-md-4 control-label">@lang('TCT ID')</label>
+                            <div class="col-md-6">
+                                <input id="tct_id" type="text" class="form-control" name="tct_id" value="{{session('tct_id')}}" required>
+                            </div>
+                        </div>   
+                        <!-- FOMRS & CLASSES -->                 
+                        <div class="form-group{{ $errors->has('section') ? ' has-error' : '' }}">
+                            <label for="section" class="col-md-4 control-label">* @lang('Class and Section')</label>
+                            <div class="col-md-6">
+                                <select id="section" class="form-control" name="section" required>
 
-                           <div class="form-group">
-                                <label for="tct_id"  class="col-md-4 control-label">@lang('TCT ID')</label>
-                                <div class="col-md-6">
-                                    <input id="tct_id" type="text" class="form-control" name="tct_id" value="{{session('tct_id')}}" required>
-                                </div>
-                           </div>   
-
-                            <!-- FOMRS & CLASSES -->                 
-                            <div class="form-group{{ $errors->has('section') ? ' has-error' : '' }}">
-                                <label for="section" class="col-md-4 control-label">* @lang('Class and Section')</label>
-                                <div class="col-md-6">
-                                    <select id="section" class="form-control" name="section" required>
-
-                                        @foreach( session('register_forms') as $class)  
-                                            @foreach ($class->active_sections as $section)
-                                                <option value="{{$section->id}}">{{$class->class_number}}{{ucfirst($section->section_number)}} 
-                                                    (#{{session('register_numbers')[$section->id]}})
-                                                </option>
-                                            @endforeach
+                                    @foreach( session('register_forms') as $class)  
+                                        @foreach ($class->active_sections as $section)
+                                            <option value="{{$section->id}}">{{$class->class_number}}{{ucfirst($section->section_number)}} 
+                                                (#{{session('register_numbers')[$section->id]}})
+                                            </option>
                                         @endforeach
-                                    </select>
-                                    @if ($errors->has('section'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('section') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
+                                    @endforeach
+                                </select>
+                                @if ($errors->has('section'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('section') }}</strong>
+                                </span>
+                                @endif
                             </div>
-
-                            <!-- HOUSES -->
-                            <div class="form-group{{ $errors->has('house') ? ' has-error' : '' }}">
-                                <label for="house" class="col-md-4 control-label">@lang('House')</label>
-                                <div class="col-md-6">
-                                    <select id="house" class="form-control" name="house">
-                                        @foreach (session('register_house') as $house)
-                                            <option value="{{$house->id}}">{{$house->house_name}}</option>
-                                        @endforeach
-                                    </select>
-                                    @if ($errors->has('house'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('house') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
+                        </div>
+                        <!-- HOUSES -->
+                        <div class="form-group{{ $errors->has('house') ? ' has-error' : '' }}">
+                            <label for="house" class="col-md-4 control-label">@lang('House')</label>
+                            <div class="col-md-6">
+                                <select id="house" class="form-control" name="house">
+                                    @foreach (session('register_house') as $house)
+                                        <option value="{{$house->id}}">{{$house->house_name}}</option>
+                                    @endforeach
+                                </select>
+                                @if ($errors->has('house'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('house') }}</strong>
+                                </span>
+                                @endif
                             </div>
-                            <!-- PREVIOUS FORM -->
-                            <div class="form-group{{ $errors->has('previous_form') ? ' has-error' : '' }}">
-                                <label for="previous_form" class="col-md-4 control-label">@lang('Previous Form')</label>
-                                <div class="col-md-6">
-                                    <input id="previous_form" type="text" class="form-control" name="previous_form" value="{{ old('previous_form') }}" >
-                                    @if ($errors->has('previous_form'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('previous_form') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
+                        </div>
+                        <!-- PREVIOUS FORM -->
+                        <div class="form-group{{ $errors->has('previous_form') ? ' has-error' : '' }}">
+                            <label for="previous_form" class="col-md-4 control-label">@lang('Previous Form')</label>
+                            <div class="col-md-6">
+                                <input id="previous_form" type="text" class="form-control" name="previous_form" value="{{ old('previous_form') }}" >
+                                @if ($errors->has('previous_form'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('previous_form') }}</strong>
+                                </span>
+                                @endif
                             </div>
-                            <!-- PREVIOUS SCHOOL -->
-                            <div class="form-group{{ $errors->has('previous_school') ? ' has-error' : '' }}">
-                                <label for="previous_school" class="col-md-4 control-label">@lang('Previous School')</label>
-                                <div class="col-md-6">
-                                    <input id="previous_school" type="text" class="form-control" name="previous_school" value="{{ old('previous_school') }}" >
-                                    @if ($errors->has('previous_school'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('previous_school') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>         
-                            <!-- GROUPS -->
-                            {{-- <div class="form-group{{ $errors->has('group') ? ' has-error' : '' }}">
-                                <label for="group" class="col-md-4 control-label">@lang('Group (Optional)')</label>
-                                <div class="col-md-6">
-                                    <input id="group" type="text" class="form-control" name="group" value="{{ old('group') }}"
-                                        placeholder="@lang('Academy, Sports, etc.')">
-                                    @if ($errors->has('group'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('group') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>                 --}}
+                        </div>
+                        <!-- PREVIOUS SCHOOL -->
+                        <div class="form-group{{ $errors->has('previous_school') ? ' has-error' : '' }}">
+                            <label for="previous_school" class="col-md-4 control-label">@lang('Previous School')</label>
+                            <div class="col-md-6">
+                                <input id="previous_school" type="text" class="form-control" name="previous_school" value="{{ old('previous_school') }}" >
+                                @if ($errors->has('previous_school'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('previous_school') }}</strong>
+                                </span>
+                                @endif
+                            </div>
+                        </div>         
+                        <!-- GROUPS -->
+                        {{-- <div class="form-group{{ $errors->has('group') ? ' has-error' : '' }}">
+                            <label for="group" class="col-md-4 control-label">@lang('Group (Optional)')</label>
+                            <div class="col-md-6">
+                                <input id="group" type="text" class="form-control" name="group" value="{{ old('group') }}"
+                                    placeholder="@lang('Academy, Sports, etc.')">
+                                @if ($errors->has('group'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('group') }}</strong>
+                                </span>
+                                @endif
+                            </div>
+                        </div>                 --}}
                         <hr>
                         @endif
                         @if(session('register_role', 'teacher') == 'teacher')

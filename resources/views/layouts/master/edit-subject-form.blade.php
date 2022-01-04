@@ -30,16 +30,9 @@
                             @foreach ($classes as $class)
                                 <label class="checkbox-inline">
                                     <input type="checkbox" class="form-check-input" id="inlineCheckbox{{$loop->iteration}}"" name="options[]" value="{{$class->id}}"
-                                    @php
-                                        $subClass = \App\SubjectClass::where([
-                                            'subject_id' => $sub->id,
-                                            'class_id' => $class->id,
-                                            'active' => 1,
-                                        ])->get();
-                                    @endphp
-                                    @if($subClass->first())
-                                        checked
-                                    @endif
+                                        @if($sub->class->where('class_id', $class->id)->first())
+                                            checked
+                                        @endif
                                     >
                                     {{$class->class_number}}
                                 </label>

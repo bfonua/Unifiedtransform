@@ -15,14 +15,11 @@ class SubjectController extends Controller
      */
     public function index()
     {
-        $classes = \App\Myclass::where('options', 1)->get();
-        $activeSubjects = \App\Subject::where('active', 1)->orderBy('name', 'asc')->get();
-        $inactiveSubjects = \App\Subject::where('active', 0)->orderBy('name', 'asc')->get();
-        return view('subject.subject', [
-            'classes' => $classes,
-            'activeSubjects' => $activeSubjects,
-            'inactiveSubjects' => $inactiveSubjects,
-        ]);
+       $classes = \App\Myclass::with(['subjects' => function ($q) {
+            $q->where('active', 1);
+        }])->where('options', 1)->get();
+        $subjects = \App\Subject::with('class')->orderBy('name', 'asc')->get();
+        return view('subject.subject', compact('classes', 'subjects'));
     }
 
     /**

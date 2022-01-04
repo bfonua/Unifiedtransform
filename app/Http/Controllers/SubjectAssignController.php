@@ -13,7 +13,11 @@ class SubjectAssignController extends Controller
         '2' => 'option2',
         '3' => 'option3',
         '4' => 'option4',
-        '5' => 'option5'
+        '5' => 'option5',
+        '6' => 'option6',
+        '7' => 'option7',
+        '8' => 'option8',
+
     ];
     /**
      * Display a listing of the resource.

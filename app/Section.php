@@ -27,7 +27,7 @@ class Section extends Model
 
     public function users()
     {
-        return $this->hasMany('App\User', 'section_id');
+        return $this->hasMany('App\User', 'section_id')->where('session', now()->year);
     }
 
     // public function students()
@@ -35,17 +35,22 @@ class Section extends Model
     //     return $this->hasManyThrough('App\User', 'App\StudentInfo','form_id', 'id', 'id', 'user_id')->where('session', now()->year);
     // }
 
+    public function studentInfo()
+    {
+        return $this->hasMany('App\StudentInfo', 'form_id');
+    }
+
     public function students()
     {
         return $this->hasManyDeep(
             'App\User', ['App\StudentInfo'],
             [
-                'form_id',
-                'id'
+                'form_id', // Section FK on StudentInfo
+                'id' // StudentInfo FK on User
             ],
             [
-                'id', 
-                'student_id'
+                'id', // LK on Section
+                'student_id' // LK on StudentInfo
             ]
         )->where('session', now()->year);
     }
@@ -56,7 +61,7 @@ class Section extends Model
             'App\Assign',
             ['App\StudentInfo', 'App\User'],
             [
-                'form_id', // FM on StudentInfo
+                'form_id', // FK on StudentInfo
                 'id', // FK on User
                 'user_id', // FK on Assign
             ],
@@ -88,6 +93,21 @@ class Section extends Model
         )->where('assigns.session', now()->year);
     }
 
+    public function totalAssignedAmount()
+    {
+        return $this->totalAssigned()
+            ->selectRaw('sum(fees.amount) as aggregate')
+            ->groupBy('student_infos.form_id');
+    }
+
+    public function getTotalAssignedAmountAttribute()
+    {
+        if (!$this->relationLoaded('totalAssignedAmount'))
+            $this->load('totalAssignedAmount');
+        $related = $this->getRelation('totalAssignedAmount');
+        return ($related)? $related->first(): 0 ;
+    }
+
     public function payment(){
         return $this->hasManyDeep(
             'App\Payment',
@@ -105,5 +125,18 @@ class Section extends Model
         )->where('payments.session', now()->year);
     }
 
+    public function totalPaidAmount(){
+        return $this->payment()
+            ->selectRaw('sum(payments.amount) as aggregate')
+            ->groupBy('student_infos.form_id');
+    }
+
+    public function getTotalPaidAmountAttribute()
+    {
+        if(!$this->relationLoaded('totalPaidAmount'))
+            $this->load('totalPaidAmount');
+        $related = $this->getRelation('totalPaidAmount');
+        return ($related)? $related->first() : 0 ;
+    }
 
 }

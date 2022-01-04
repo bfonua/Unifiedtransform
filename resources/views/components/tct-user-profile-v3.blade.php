@@ -716,7 +716,7 @@
                     <div class="row col-md-12">
                         <table class="table">
                             <tr>
-                                <td  class="bg-dark text-white text-center">Optional Courses</td>
+                                <td  class="bg-dark text-white text-center">Subjects & Grades</td>
                             </tr>
                         </table>
                         <div class="col-xs-6 container">
@@ -732,7 +732,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @if($session != now()->year and $session == $user->studentInfo->session)
+                                            @if($session > $user->studentInfo->session)
                                                 <tr>
                                                     <td colspan="2" class="text-center">
                                                         Please promote student to assign subjects for the school year   

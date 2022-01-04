@@ -24,7 +24,7 @@
             <table class="table table-bordered">
                 <thead>
                     <th class="text-center">Section</th>
-                    <th class="text-center">Student Count</th>
+                    <th class="text-center">Student Count (Active)</th>
                     <th class="text-center">Total Assigned</th>
                     <th class="text-center">Total Payments</th>
                     <th class="text-center">Remaining</th>
@@ -44,18 +44,22 @@
                 @endphp
                     @foreach ($sections as $section)
                         @php
-                            $assign = $section->totalAssigned()->sum('fees.amount');
-                            $payment = $section->payment()->sum('amount');
+                            $assign = (!empty($section->total_assigned_amount))? $section->total_assigned_amount->aggregate : 0;
+                            $payment = (!empty($section->total_paid_amount))? $section->total_paid_amount->aggregate : 0;
                             $remain = $assign - $payment;
                         @endphp
                         <tr>
                             <td class="text-center">{{$section->class->class_number.$section->section_number}}</td>
-                            <td class="text-center">{{$section->students()->count()}}</td>
+                            <td class="text-center">{{$section->students_count}}</td>
                             <td class="text-center">{{numberformat($assign)}}</td>
                             <td class="text-center">{{numberformat($payment)}}</td>
                             <td class="text-center">{{numberformat($remain)}}</td>
                             <td class="text-center">
-                                <a role="button" class="btn btn-primary btn-xs" href="{{url('/fees/section/'.$section->id)}}"><i class="material-icons">visibility</i> @lang('View')</a>
+                                <a role="button" class="btn btn-primary btn-xs 
+                                    @if($assign <= 0)
+                                        disabled
+                                    @endif
+                                " href="{{url('/fees/section/'.$section->id)}}"><i class="material-icons">visibility</i> @lang('View')</a>
                             </td>
                         </tr>
 

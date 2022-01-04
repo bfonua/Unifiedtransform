@@ -318,4 +318,6 @@ Route::middleware(['auth', 'student'])->prefix('stripe')->group(function () {
 });
 
 
-Route::get('test', 'UserController@migrationTest');
+// Route::get('test', 'UserController@migrationTest');
+// Route::get('test', 'UserController@functionTesting');
+

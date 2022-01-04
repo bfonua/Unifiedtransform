@@ -20,8 +20,11 @@ class FeeController extends Controller
 
     public function tct_index()
     {
-        $fees = \App\Fee::where('active', 1)->simplepaginate(65);
-        return view('fees.tct_all', ['fees' => $fees]);
+        $fees = \App\Fee::where('active', 1)->with('fee_type', 'fee_channel')->get();
+        $feeTypes = \App\FeeType::where('active', 1)->get();
+        $feeChannels = \App\FeeChannel::where('active', 1)->with('fees')->where('session', now()->year)->get();
+        
+        return view('fees.tct_all', compact('fees', 'feeTypes', 'feeChannels'));
     }
 
     /**
@@ -42,9 +45,9 @@ class FeeController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'fee_name' => 'required|string|max:255',
-        ]);
+        // $request->validate([
+        //     'fee_name' => 'required|string|max:255',
+        // ]);
         $fee = new \App\Fee;
         $fee->fee_name = $request->fee_name;
         $fee->school_id = \Auth::user()->school_id;

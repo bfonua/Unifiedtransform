@@ -17,12 +17,14 @@ class SectionController extends Controller
     public function index()
     {
         $school = \Auth::user()->school;
-        $classes = \App\Myclass::bySchool(\Auth::user()->school->id)
+        $classes = \App\Myclass::bySchool(\Auth::user()->school->id)->withCount(['sections' => function ($q) {
+            $q->where('active', 1);
+        }])
             ->get();
         $classeIds = \App\Myclass::bySchool(\Auth::user()->school->id)
             ->pluck('id')
             ->toArray();
-        $sections = \App\Section::whereIn('class_id', $classeIds)
+        $sections = \App\Section::with('class')->withCount('students')
             ->where('active', 1)
             ->orderBy('class_id')
             ->orderBy('section_number', 'asc')

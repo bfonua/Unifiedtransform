@@ -7,6 +7,8 @@ use App\Model;
 
 class House extends Model
 {
+    use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
+
     /**
      * Gets the associated users for each hosue
      * 
@@ -15,4 +17,20 @@ class House extends Model
     {
         return $this->hasMany('App\StudentInfo', 'house_id');
     }
+
+    public function users()
+    {
+        return $this->hasManyDeep(
+            'App\User', ['App\StudentInfo'],
+            [
+                'house_id',
+                'id'
+            ],
+            [
+                'id', 
+                'student_id'
+            ]
+        )->where('session', now()->year);
+    }
+    
 }

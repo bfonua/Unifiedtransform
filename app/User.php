@@ -20,7 +20,7 @@ class User extends Model implements
     CanResetPasswordContract
 {
     use Authenticatable, Authorizable, CanResetPassword, HasApiTokens, Notifiable, Impersonate, Billable;
-
+    use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
     /**
      * The attributes that are mass assignable.
      *
@@ -71,7 +71,6 @@ class User extends Model implements
         return $this->hasMany('App\Inactive', 'user_id')->where('session', $session);
     }
 
-
     public function reinstate(){
         return $this->hasMany('App\Reinstate', 'user_id');
     }
@@ -92,6 +91,135 @@ class User extends Model implements
         return $this->hasMany('App\Assign', 'user_id');
     }
 
+    public function getFeesAssignedAttribute()
+    {
+        if (!$this->relationLoaded('feesAssigned'))
+            $this->load('feesAssigned');
+        $related = $this->getRelation('feesAssigned');
+        return ($related)? $related: 0 ;
+    }
+
+    public function fees()
+    {
+         return $this->hasManyDeep(
+            'App\Fee', ['App\Assign'],
+            [
+                'user_id', // User FK on Assign
+                'id', // Assign FK on Fee
+            ], 
+            [
+                'id', // LK on User
+                'fee_id' // LK on Assign
+            ]
+        )->where('assigns.session', now()->year);
+    }
+
+    public function feeTypesAssigned()
+    {
+        return $this->hasManyDeep(
+            'App\FeeType', ['App\Assign','App\Fee'],
+            [
+                'user_id', // User FK on Assign
+                'id', // Assign FK on Fee
+                'id' // Fee FK on FeeType
+            ],
+            [
+                'id', // LK on User
+                'fee_id', // LK on Assign
+                'fee_type_id' // LK on Fee
+            ]
+        )->where('assigns.session', now()->year)
+        ->where('fee_types.active', 1)
+        ->selectRaw('fee_types.id, sum(fees.amount) as aggregate')
+        ->groupBy('assigns.fee_id', 'assigns.user_id');
+    }
+
+    public function getFeeTypesAssignedAttribute()
+    {
+        if (!$this->relationLoaded('feeTypesAssigned'))
+            $this->load('feeTypesAssigned');
+        $related = $this->getRelation('feeTypesAssigned');
+        return ($related)? $related: 0 ;
+    }
+
+
+    public function feeTypesPaid()
+    {
+        return $this->hasManyDeep(
+            'App\FeeType', ['App\Payment', 'App\Fee'],
+            [
+                'user_id', // User FK on Payment
+                'id', // Payment FK on Fee
+                'id' // Fee FK on FeeType
+            ],
+            [
+                'id', // LK on User
+                'fee_id', // LK on Payment
+                'fee_type_id' // LK on FeeType
+            ]
+        )->where('payments.session', now()->year)
+        ->where('fee_types.active', 1)
+        ->selectRaw('fee_types.id, sum(fees.amount) as aggregate')
+        ->groupBy('payments.fee_id', 'payments.user_id');
+    }
+
+    public function getFeeTypesPaidAttribute()
+    {
+        if (!$this->relationLoaded('feeTypesPaid'))
+            $this->load('feeTypesPaid');
+        $related = $this->getRelation('feeTypesPaid');
+        return ($related)? $related: 0 ;
+    }
+
+    public function totalFeesAssigned()
+    {
+         return $this->hasManyDeep(
+            'App\Fee', ['App\Assign'],
+            [
+                'user_id', // User FK on Assign
+                'id', // Assign FK on Fee
+            ], 
+            [
+                'id', // LK on User
+                'fee_id' // LK on Assign
+            ]
+        )->where('assigns.session', now()->year)
+        ->selectRaw('sum(fees.amount) as aggregate')
+        ->groupBy('assigns.user_id');
+    }
+
+    public function getTotalFeesAssignedAttribute()
+    {
+        if (!$this->relationLoaded('totalFeesAssigned'))
+            $this->load('totalFeesAssigned');
+        $related = $this->getRelation('totalFeesAssigned');
+        return ($related)? $related: 0 ;
+    }
+
+    public function totalFeesPaid()
+    {
+        return $this->hasManyDeep(
+            'App\Fee', ['App\Payment'],
+            [
+                'user_id', // User FK on Payment
+                'id' // Payment FK on Fee
+            ],
+            [
+                'id', // LK on User
+                'fee_id' // LK on Payment
+            ]
+        )->where('payments.session', now()->year)
+        ->selectRaw('sum(fees.amount) as aggregate')
+        ->groupBy('payments.user_id');
+    }
+    
+    public function getTotalFeesPaidAttribute()
+    {
+        if(!$this->relationLoaded('totalFeesPaid'))
+            $this->load('totalFeesPaid');
+        $related = $this->getRelation('totalFeesPaid');
+        return ($related)? $related: 0;
+    }
 
     public function hasRole(string $role): bool
     {
