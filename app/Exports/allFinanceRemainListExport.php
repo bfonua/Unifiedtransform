@@ -12,21 +12,26 @@ class allFinanceRemainListExport implements WithMultipleSheets
     public function sheets(): array
     {
         $sheets = [];
-        $year = date("Y");
-        // $formList = "";
-        $classes = Myclass::query()
-            ->bySchool(\Auth::user()->school->id)
-            ->pluck('id');
-        $sections = Section::whereIn('class_id', $classes)
+        $sections = Section::with('class')
             ->where('active', 1)
             ->orderBy('class_id', 'asc')
             ->orderBy('section_number', 'asc')
             ->pluck('id');
-        // $classes_id = Myclass::with('sections')->where('school_id',\Auth::user()->school->id)
-        //     ->orderBy('class_id','asc')->pluck('id');
+
         foreach($sections as $id){
             $sheets[] = new financeRemainListExport($id);
         }
+
+        // TESTING SECOND VERSION
+
+        return $sections = Section::with('class', 'students')
+            ->where('active', 1)
+            ->orderBy('class_id', 'asc')
+            ->orderBy('section_number', 'asc')
+            ->get();
+
+
+
         return $sheets; 
     }
 

@@ -1,5 +1,5 @@
 {{-- BUTTON --}}
-<button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#addDepartment">+Add New Department</button>
+<button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#addDepartment">+ Add New Department</button>
 <!-- Modal -->
 <div class="modal fade" id="addDepartment" tabindex="-1" role="dialog" aria-labelledby="addDepartmentLabel">
   <div class="modal-dialog" role="document">

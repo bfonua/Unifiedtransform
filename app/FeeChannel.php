@@ -12,4 +12,9 @@ class FeeChannel extends Model
         'notes',
         'session',
     ];
+
+    public function fees()
+    {
+        return $this->hasMany('App\Fee')->where('fees.session', now()->year);
+    }
 }

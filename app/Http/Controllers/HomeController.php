@@ -83,13 +83,13 @@ class HomeController extends Controller
             });
 
             // TCT functions
-            $totalStudents = \App\User::whereHas("studentInfo", function ($q) {
+
+            $studentQuery = \App\User::withCount('studentInfo')->whereHas("studentInfo", function ($q) {
                 $q->where("session", now()->year);
-            })->count();
-            $totalActive = \App\User::whereHas("studentInfo", function ($q) {
-                $q->where("session", now()->year);
-            })->where("active", 1)
-                ->count();
+            })->get();
+            $totalStudents = $studentQuery->count();
+            $totalActive = $studentQuery->where('active', 1)->count();
+
             $inactiveType = ["withdrawn", "removed", "suspended", "expelled"];
             $inactiveOutput = [];
             foreach ($inactiveType as $type) {
@@ -100,62 +100,88 @@ class HomeController extends Controller
                 $inactiveOutput[$type] = $inactive;
             }
 
-            $classes = \App\Myclass::bySchool(\Auth::user()->school->id)
-                ->get();
-            $classIDs = \App\Myclass::bySchool(\Auth::user()->school->id)
-                ->pluck('id')
-                ->toArray();
-            $sections = \App\Section::whereIn('class_id', $classIDs)
+            // $classes = \App\Myclass::bySchool(\Auth::user()->school->id)
+            //     ->get();
+            // $classIDs = \App\Myclass::bySchool(\Auth::user()->school->id)
+            //     ->pluck('id')
+            //     ->toArray();
+            // $sections = \App\Section::whereIn('class_id', $classIDs)
+            //     ->where('active', 1)
+            //     ->orderBy('class_id')
+            //     ->orderBy('section_number', 'asc')
+            //     ->get();
+
+            $sections = \App\Section::with('class')->withCount('students')
                 ->where('active', 1)
                 ->orderBy('class_id')
                 ->orderBy('section_number', 'asc')
                 ->get();
-            $houses = \App\House::where('active', 1)
+
+            $sectionsActive = \App\Section::withCount(['students' => function ($q) {
+                $q->where('active', 1);
+            }])
+                ->where('active', 1)
+                ->orderBy('class_id')
+                ->orderBy('section_number', 'asc')
                 ->get();
-            $housesCount = \App\House::where('active', 1)->count();
 
             $studentCountList = [];
+            $count = 0;
             foreach ($sections as $section) {
-                $studentCount = \App\StudentInfo::where('form_id', $section->id)
-                    ->where('session', now()->year)
-                    ->count('id');
-                $studentCountList['total'][$section->id] = $studentCount;
+                // $studentCount = \App\StudentInfo::where('form_id', $section->id)
+                //     ->where('session', now()->year)
+                //     ->count('id');
+                $studentCountList['total'][$section->id] = $section->students_count;
 
-                $studentCountActive = \App\User::whereHas("studentInfo", function ($q) use ($section) {
-                    $q->where("session", now()->year)
-                        ->where('form_id', $section->id);
-                })->where("active", 1)
-                    ->count();
-                $studentCountList['active'][$section->id] = $studentCountActive;
+                // $studentCountActive = \App\User::whereHas("studentInfo", function ($q) use ($section) {
+                //     $q->where("session", now()->year)
+                //         ->where('form_id', $section->id);
+                // })->where("active", 1)
+                //     ->count();
+                $studentCountList['active'][$section->id] = $sectionsActive[$count]->students_count;
+                $count++;
             }
+
+
+            $houses = \App\House::withCount(['users' => function($q){
+                $q->where('active', 1);
+            },'students'])
+                ->where('active', 1)
+                ->get();
+            $housesCount = $houses->count();
+
 
             $studentCountHouse = [];
             foreach ($houses as $house) {
-                $studentCount = \App\StudentInfo::where('house_id', $house->id)
-                    ->where('session', now()->year)
-                    ->count('id');
-                $studentCountHouse[$house->id] = $studentCount;
+                // $studentCount = \App\StudentInfo::where('house_id', $house->id)
+                //     ->where('session', now()->year)
+                //     ->count('id');
+
+                $studentCountHouse[$house->id] = $house->users_count;
             }
             $feeArr = $feeAss = $feePay = $feeRemain = [];
-            for ($i = 1; $i <= 5; $i++) {
-                $feeName = \App\FeeType::find($i)->name;
+
+            $feeTypes = \App\FeeType::where('active', 1)->get();
+            foreach($feeTypes as $feeType){
+            // for ($i = 1; $i <= count($feeTypes); $i++) {
+                $feeName = $feeType->name;
                 $totalAssign = \DB::table('assigns')
                     ->join('fees', 'assigns.fee_id', '=', 'fees.id')
                     ->where('assigns.session', now()->year)
-                    ->where('fees.fee_type_id', $i)
+                    ->where('fees.fee_type_id', $feeType->id)
                     ->sum('fees.amount');
                 $feeAss[$feeName] = $totalAssign;
-
 
                 $totalPay = \DB::table('payments')
                     ->join('fees', 'payments.fee_id', '=', 'fees.id')
                     ->where('payments.session', now()->year)
-                    ->where('fees.fee_type_id', $i)
+                    ->where('fees.fee_type_id', $feeType->id)
                     ->sum('payments.amount');
                 $feePay[$feeName] = $totalPay;
 
                 $feeRemain[$feeName] = $totalAssign - $totalPay;
             }
+
             $feeAss['total'] = array_sum($feeAss);
             $feePay['total'] = array_sum($feePay);
             $feeRemain['total'] = $feeAss['total'] - $feePay['total'];
@@ -184,7 +210,7 @@ class HomeController extends Controller
                 'syllabuses' => $syllabuses,
                 'exams' => $exams,
                 'classes' => $classes,
-                'classIDs' => $classIDs,
+                // 'classIDs' => $classIDs,
                 'sections' => $sections,
                 'houses' => $houses,
                 'housesCount' => $housesCount,

@@ -25,7 +25,7 @@
                 <div class="panel panel-default">
                     <h4>Active Subjects</h4>
                     <br>
-                    @if($activeSubjects->first())
+                    @if($subjects->where('active', 1)->first())
                         <table id="subject" class="table">
                             <thead>
                                 <th class="text-center">#</th>
@@ -36,7 +36,7 @@
                                 <th class="text-center">Edit</th>
                             </thead>
                             <tbody>
-                                @foreach ($activeSubjects as $sub)
+                                @foreach ($subjects->where('active', 1) as $sub)
                                     <tr>
                                         <td class="text-center">{{ $loop->iteration }}</td>
                                         <td class="text-left">{{ $sub->name}}</td>
@@ -44,18 +44,13 @@
                                             $subOptions = [];
                                         @endphp
                                         @foreach ($classes as $class)
-                                            @php
-                                                $subClass = \App\SubjectClass::where([
-                                                    'subject_id' => $sub->id,
-                                                    'class_id' => $class->id,
-                                                    'active' => 1,
-                                                ])->get();
-                                            @endphp
-                                            @if($subClass->first())
-                                                <td class="text-center"><i class="material-icons">done</i></td>
-                                            @else
-                                                <td class="text-center">-</td>
-                                            @endif
+                                            <td class="text-center"> 
+                                                @if($sub->class->where('class_id', $class->id)->first())
+                                                    <i class="material-icons">done</i>
+                                                @else
+                                                    -
+                                                @endif 
+                                            </td>
                                         @endforeach
                                         <td class="text-center">
                                             @include('layouts.master.edit-subject-form')
@@ -73,7 +68,7 @@
                 <div class="panel panel-default">
                     <h4>Inactive Subjects</h4>
                     <br>
-                    @if($inactiveSubjects->first())
+                    @if($subjects->where('active', 0)->first())
                         <table id="inactive_subject" class="table">
                             <thead>
                                 <th class="text-center">#</th>
@@ -82,7 +77,7 @@
                                 <th class="text-center">Edit</th>
                             </thead>
                             <tbody>
-                                @foreach($inactiveSubjects as $sub)
+                                @foreach($subjects->where('active', 0) as $sub)
                                     <tr>
                                         <td class="text-center">{{ $loop->iteration }}</td>
                                         <td class="text-left">{{ $sub->name }}</td>

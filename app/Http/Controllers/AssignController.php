@@ -29,113 +29,58 @@ class AssignController extends Controller
     public function index()
     {
         $school = \Auth::user()->school;
-        $classes = \App\Myclass::bySchool(\Auth::user()->school->id)
-            ->get();
-        $classeIds = \App\Myclass::bySchool(\Auth::user()->school->id)
-            ->pluck('id')
-            ->toArray();
-        $sections = \App\Section::whereIn('class_id', $classeIds)
+        $classes = \App\Myclass::bySchool(\Auth::user()->school->id)->get();
+        $sections = \App\Section::with('class', 'totalAssignedAmount', 'totalPaidAmount')->withCount(['students' => function ($q) {
+            $q->where('active', 1);
+        }])
             ->where('active', 1)
             ->orderBy('class_id')
             ->orderBy('section_number', 'asc')
             ->get();
-        // $classAssign =  $classTotalAssign = $studentCount = $sectionPayment = $sectionRemain = $test = [];
-        // foreach($classes as $class){
-        //     $forms = $class->active_sections()->get();
-        //     $assignTotal = 0;
-        //     $assignAssign = [];
-        //     foreach($forms as $form){
-        //         $studentCount[$form->id] = $this->userService->getStudentCount($form->id, now()->year);
-        //         $students = $this->userService->getAssignedStudentsID($form->id, now()->year);
+            
+        // return $sections->where('id', '38')->first()->total_paid_amount->aggregate;
 
-        //         $minutes = 1440;// 24 hours = 1440 minutes
-        //         $school_id = \Auth::user()->school->id;
-        //         $getFees = \Cache::remember('totalFees'.$form->id.'-'.$school_id, $minutes, function () use($school_id, $students) {
-        //             return $this->userService->getFeesStudents(now()->year, $students);
-        //         });
-        //         // return $getFees;
-        //         $assignAssign[$form->id] = $getFees['assign'];
-        //         $assignTotal += $getFees['assign'];
-        //         $sectionPayment[$form->id] = $getFees['payment'];
-        //         $sectionRemain[$form->id] = $getFees['remain'];
-        //     }
-        //     $classAssign[$class->class_number] = $assignAssign;
-        //     $classTotalAssign[$class->class_number] = $assignTotal;
-        // }
-        // return $sectionPayment;
-        return view('finance.assigned', [
-            'classes' => $classes,
-            'sections' => $sections,
-            'school' => $school,
-            // 'classAssign' => $classAssign,
-            // 'classTotalAssign' => $classTotalAssign,
-            // 'studentCount' => $studentCount,
-            // 'sectionPayment' => $sectionPayment,
-            // 'sectionRemain' => $sectionRemain,
-        ]);
+        return view('finance.assigned', compact('classes', 'sections', 'school'));
     }
 
     public function sectionFeeList(Request $request)
     {
+        $students = $this->userService->getTCTSectionStudentsWithFinance($request->id);
+        $section = \App\Section::find($request->id);
 
-        // return $request->id;
-        $section_id = $request->id;
-        $students = $this->userService->getTCTSectionStudentsWithSchool($section_id);
-        $section = \App\Section::find($section_id);
-        $feeTypesID = \App\Fee::where('session', now()->year)
-            ->groupBy('fee_type_id')
-            ->orderBy('fee_type_id', 'asc')
-            ->pluck('fee_type_id')->toArray();
         $studentFees = [];
-        $feeTypes = \App\FeeType::find($feeTypesID);
-
+        $feeTypes = \App\FeeType::withCount(['fees' => function($q) {
+                $q->where('session', now()->year);
+        }])
+            ->where('fee_types.active', 1)
+            ->get();
 
         foreach ($students as $student) {
             $assign =  $payment = $remain = [];
-            $assignTotal = $paymentTotal = $remainTotal = 0;
             foreach ($feeTypes as $type) {
-                $feeAssign = \App\Fee::whereHas('assigns', function ($q) use ($student) {
-                    $q->where('user_id', $student->id)
-                        ->where('session', now()->year);
-                })->where('fee_type_id', $type->id)
-                    ->first();
-
-                $assign[$type->name] = $this->userService->numberformat($amountAssign = ($feeAssign) ? $feeAssign->amount : 0);
-                $assignTotal += $amountAssign;
-
-                $payment[$type->name] = $this->userService->numberformat($amountPaid = \App\Payment::whereHas('fees', function ($q) use ($type) {
-                    $q->where('fee_type_id', $type->id);
-                })->where('user_id', $student->id)
-                    ->where('session', now()->year)
-                    ->sum('amount'));
-                $paymentTotal += $amountPaid;
-
+                $amountAssign = (!empty($student->fee_types_assigned->where('id', $type->id)->first()))? $student->fee_types_assigned->where('id', $type->id)->first()->aggregate : 0;
+                $assign[$type->name] = $this->userService->numberformat($amountAssign);
+                $amountPaid = (!empty($student->fee_types_paid->where('id', $type->id)->first()))? $student->fee_types_paid->where('id', $type->id)->first()->aggregate : 0;
+                $payment[$type->name] = $this->userService->numberformat($amountPaid);
                 $remain[$type->name] = $this->userService->numberformat($amountRemain = $amountAssign - $amountPaid);
             }
-            $assign['total'] = $this->userService->numberformat($assignTotal);
-            $payment['total'] = $this->userService->numberformat($paymentTotal);
-            $remain['total'] = $this->userService->numberformat($assignTotal - $paymentTotal);
+            $totalAssign = (!empty($student->totalFeesAssigned->first()))? $student->totalFeesAssigned->first()->aggregate : 0;
+            $assign['total'] = $this->userService->numberformat($totalAssign);
+            $totalPaid = (!empty($student->totalFeesPaid->first()))? $student->totalFeesPaid->first()->aggregate : 0;
+            $payment['total'] = $this->userService->numberformat($totalPaid);
+            $remain['total'] = $this->userService->numberformat($totalAssign - $totalPaid);
             $studentFees[$student->id] = [
                 'assign' => $assign,
                 'payment' => $payment,
                 'remain' => $remain,
             ];
-
-            // return $studentFees;
-
         }
-
-
-        // return $feeTypes;
-        // $max_form = DB::table('student_infos')->where(['form_id'=> $section_id, 'session'=>now()->year])->max('form_num');
-        // $max_loop = ($max_form == 0)? 1 : $max_form;
-
         return view('finance.section-tct-finance', compact('students', 'section', 'feeTypes', 'studentFees'));
     }
 
     public function showUnassigned()
     {
-        $unassigned = \App\StudentInfo::where(
+        $unassigned = \App\StudentInfo::with('student','house', 'section.class')->where(
             [
                 'session' => now()->year,
                 'assigned' => 0

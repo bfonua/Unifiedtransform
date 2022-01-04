@@ -1,86 +1,86 @@
 <script>
-    $(document).ready(function () {
-      $('.nav-item.active').removeClass('active');
-      $('a[href="' + window.location.href + '"]').closest('li').closest('ul').closest('li').addClass('active');
-      $('a[href="' + window.location.href + '"]').closest('li').addClass('active');
-    });
-  </script>
-  <style>
-    .nav-item.active {
-      background-color: #fce8e6;
-      font-weight: bold;
-    }
-    .nav-item.active a {
-      color: #d93025;
-    }
-  
-    .nav-link-text {
-      padding-left: 10%;
-    }
-  
-    #side-navbar ul>li>a {
-      padding: 8px 15px;
-    }
-  </style>
-  <ul class="nav flex-column">
+  $(document).ready(function () {
+    $('.nav-item.active').removeClass('active');
+    $('a[href="' + window.location.href + '"]').closest('li').closest('ul').closest('li').addClass('active');
+    $('a[href="' + window.location.href + '"]').closest('li').addClass('active');
+  });
+</script>
+<style>
+  .nav-item.active {
+    background-color: #fce8e6;
+    font-weight: bold;
+  }
+  .nav-item.active a {
+    color: #d93025;
+  }
 
-    <li class="nav-item">
-      {{-- <div class="md-form mb-3 mt-0">
-          <input id="search-input" class="search-input typeahead form-control" type="text" placeholder="Search" aria-label="Search">
-        </div> --}}
-    </li>
-    <li class="nav-item active">
-      <a class="nav-link" href="{{ url('home') }}"><i class="material-icons">dashboard</i> <span class="nav-link-text">@lang('Dashboard')</span></a>
-    </li>
-    <!-- STUDENT REGISTRATION -->
-    <li class="nav-item dropdown">
-        <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
-            class="material-icons">contacts</i> <span class="nav-link-text">@lang('Students')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>
-        <ul class="dropdown-menu" style="width: 100%;">
-            <li class="nav-item">
-                <a class="dropdown-item" href="{{url('register/tct_student')}}"><i class="material-icons">group_add</i> <span class="nav-link-text">@lang('New Student Form')</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="dropdown-item" href="{{url('tct_users/'.Auth::user()->school->code.'/1/0')}}"><i class="material-icons">group</i><span class="nav-link-text">@lang('Registered')</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="dropdown-item" href="{{url('school/inactive')}}"><i class="material-icons">group</i><span class="nav-link-text">@lang('Inactive')</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="dropdown-item" href="{{url('prefects/tct_students')}}"><i class="material-icons">group</i><span class="nav-link-text">@lang('Prefects')</span></a>
-            </li>
-            <li class="nav-item"> 
-                <a class="dropdown-item" href="{{url('tct_users_archive')}}"><i class="material-icons">group</i><span class="nav-link-text">@lang('Archived')</span></a>
-            </li>
-            <li class="nav-item"> 
-                <a class="dropdown-item" href="{{url('other/tct_students')}}"><i class="material-icons">assignment</i><span class="nav-link-text">@lang('Church / Nationality')</span></a>
-            </li>
+  .nav-link-text {
+    padding-left: 10%;
+  }
 
-        </ul>
+  #side-navbar ul>li>a {
+    padding: 8px 15px;
+  }
+</style>
+<ul class="nav flex-column">
+  <li class="nav-item">
+    {{-- <div class="md-form mb-3 mt-0">
+        <input id="search-input" class="search-input typeahead form-control" type="text" placeholder="Search" aria-label="Search">
+      </div> --}}
+  </li>
+  <li class="nav-item active">
+    <a class="nav-link" href="{{ url('home') }}"><i class="material-icons">dashboard</i> <span class="nav-link-text">@lang('Home')</span></a>
+  </li>
+  <!-- STUDENT REGISTRATION -->
+  <li class="nav-item dropdown">
+    <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
+          class="material-icons">contacts</i> <span class="nav-link-text">@lang('Students')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>
+      <ul class="dropdown-menu" style="width: 100%;">
+          <li class="nav-item">
+              <a class="dropdown-item" href="{{url('register/tct_student')}}"><i class="material-icons">group_add</i> <span class="nav-link-text">@lang('New Student Form')</span></a>
+          </li>
+          <li class="nav-item">
+              <a class="dropdown-item" href="{{url('tct_users/'.Auth::user()->school->code.'/1/0')}}"><i class="material-icons">group</i><span class="nav-link-text">@lang('Registered')</span></a>
+          </li>
+          <li class="nav-item">
+              <a class="dropdown-item" href="{{url('school/inactive')}}"><i class="material-icons">group</i><span class="nav-link-text">@lang('Inactive')</span></a>
+          </li>
+          <li class="nav-item">
+              <a class="dropdown-item" href="{{url('prefects/tct_students')}}"><i class="material-icons">group</i><span class="nav-link-text">@lang('Prefects')</span></a>
+          </li>
+          <li class="nav-item"> 
+              <a class="dropdown-item" href="{{url('tct_users_archive')}}"><i class="material-icons">group</i><span class="nav-link-text">@lang('Archived')</span></a>
+          </li>
+          <li class="nav-item"> 
+              <a class="dropdown-item" href="{{url('other/tct_students')}}"><i class="material-icons">assignment</i><span class="nav-link-text">@lang('Church / Nationality')</span></a>
+          </li>
 
-      </li>
-      
-      <!-- END OF STUDENT SECTION -->
-    @if(Auth::user()->role != 'student')
+      </ul>
+
+  </li>
     
+    <!-- END OF STUDENT SECTION -->
+  
+  @if(Auth::user()->role != 'student')
+  
     <li class="nav-item dropdown">
-        <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
-            class="material-icons">class</i> <span class="nav-link-text">@lang('Classes &amp; Sections')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>
-        <ul class="dropdown-menu" style="width: 100%;">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url('school/sections?course=1') }}"><i class="material-icons">class</i> 
-                    <span class="nav-link-text">@lang('Current Sections')</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url('school/inactive_sections') }}"><i class="material-icons">class</i> 
-                    <span class="nav-link-text">@lang('Inactive Sections')</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url('school/sections_by_year') }}"><i class="material-icons">class</i> 
-                    <span class="nav-link-text">@lang('Sections by Year')</span></a>
-            </li>
-           
-        </ul>
+      <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
+          class="material-icons">class</i> <span class="nav-link-text">@lang('Classes &amp; Sections')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>
+      <ul class="dropdown-menu" style="width: 100%;">
+          <li class="nav-item">
+              <a class="nav-link" href="{{ url('school/sections?course=1') }}"><i class="material-icons">class</i> 
+                  <span class="nav-link-text">@lang('Current Sections')</span></a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link" href="{{ url('school/inactive_sections') }}"><i class="material-icons">class</i> 
+                  <span class="nav-link-text">@lang('Inactive Sections')</span></a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link" href="{{ url('school/sections_by_year') }}"><i class="material-icons">class</i> 
+                  <span class="nav-link-text">@lang('Sections by Year')</span></a>
+          </li>
+          
+      </ul>
     </li>
     <li class="nav-item">
         <a class="nav-link" href="{{ url('school/houses') }}">
@@ -102,9 +102,9 @@
             </li>
         </ul>
     </li>
-    @endif
+  @endif
 
-    @if(Auth::user()->role == 'admin')
+  @if(Auth::user()->role == 'admin')
     <li class="nav-item">
         @php 
             $count = \App\StudentInfo::where('session', now()->year)->where('assigned', 0)->count('id');
@@ -123,8 +123,40 @@
     <li class="nav-item disabled">
         <a class="nav-link disabled" href="#"><i class="material-icons">assignment_late</i> <span class="nav-link-text">Unassigned Options</span></a>
     </li>
-    <li class="nav-item">
+    {{-- <li class="nav-item">
         <a class="nav-link" href="{{ url('subject/section') }}"><i class="material-icons">subject</i> <span class="nav-link-text">Section Subject</span></a>
+    </li> --}}
+
+    <li class="nav-item dropdown">
+      <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="material-icons">library_books</i> <span class="nav-link-text">Section Subject</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>
+      <ul class="dropdown-menu" style="width: 100%;">
+        <li>
+          <a class="dropdown-item" href="{{ url('subject/section') }}"><i class="material-icons">toc</i> <span class="nav-link-text">By Subject</span></a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="#"><i class="material-icons">toc</i> <span class="nav-link-text">By Form</span></a>
+        </li>
+      </ul>
+    </li>
+
+
+    <li class="nav-item dropdown">
+      <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
+          class="material-icons">line_style</i> <span class="nav-link-text">@lang('Exams')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>
+      <ul class="dropdown-menu" style="width: 100%;">
+        <!-- Dropdown menu links -->
+
+        <li>
+          <a class="dropdown-item" href="{{ url('exams/create') }}"><i class="material-icons">note_add</i> <span class="nav-link-text">@lang('Add Examination')</span></a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="{{ url('exams/active') }}"><i class="material-icons">developer_board</i> <span
+              class="nav-link-text">@lang('Active Exams')</span></a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="{{ url('exams') }}"><i class="material-icons">settings</i> <span class="nav-link-text">@lang('Manage Examinations')</span></a>
+        </li>
+      </ul>
     </li>
     <li class="nav-item" style="border-bottom: 2px solid #dbd8d8;"></li>
 
@@ -144,31 +176,17 @@
           </li>
         </ul>
     </li> --}}
-    @endif
-    @if(Auth::user()->role != 'student')
-        <li class="nav-item">
-        <a class="nav-link" href="{{url('users/'.Auth::user()->school->code.'/0/1')}}"><i class="material-icons">contacts</i>
-            <span class="nav-link-text">@lang('Teachers')</span></a>
-        </li>
-    @endif
-    @if(Auth::user()->role == 'admin')
-    <li class="nav-item dropdown">
-      <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
-          class="material-icons">line_style</i> <span class="nav-link-text">@lang('Exams')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>
-      <ul class="dropdown-menu" style="width: 100%;">
-        <!-- Dropdown menu links -->
-        <li>
-          <a class="dropdown-item" href="{{ url('exams/create') }}"><i class="material-icons">note_add</i> <span class="nav-link-text">@lang('Add Examination')</span></a>
-        </li>
-        <li>
-          <a class="dropdown-item" href="{{ url('exams/active') }}"><i class="material-icons">developer_board</i> <span
-              class="nav-link-text">@lang('Active Exams')</span></a>
-        </li>
-        <li>
-          <a class="dropdown-item" href="{{ url('exams') }}"><i class="material-icons">settings</i> <span class="nav-link-text">@lang('Manage Examinations')</span></a>
-        </li>
-      </ul>
+  @endif
+
+  @if(Auth::user()->role != 'student')
+    <li class="nav-item">
+      <a class="nav-link" href="{{url('users/'.Auth::user()->school->code.'/0/1')}}"><i class="material-icons">contacts</i>
+      <span class="nav-link-text">@lang('Teachers')</span></a>
     </li>
+  @endif
+
+
+  @if(Auth::user()->role == 'admin')
     <li class="nav-item">
       <a class="nav-link" href="{{ url('grades/all-exams-grade') }}"><i class="material-icons">assignment</i> <span class="nav-link-text">@lang('Grades')</span></a>
     </li>
@@ -184,7 +202,7 @@
     <li class="nav-item">
       <a class="nav-link" href="{{ url('academic/event') }}"><i class="material-icons">event</i> <span class="nav-link-text">@lang('Event')</span></a>
     </li>
-    
+  
     <li class="nav-item" style="border-bottom: 1px solid #dbd8d8;"></li>
     <li class="nav-item">
       <a class="nav-link" href="{{ route('settings.index') }}"><i class="material-icons">settings</i> <span class="nav-link-text">@lang('Academic Settings')</span></a>
@@ -203,24 +221,24 @@
         </li>
       </ul>
     </li>
-    @endif
-    @if(Auth::user()->role == 'admin' || Auth::user()->role == 'accountant')
-    <li class="nav-item dropdown">
-      <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
-          class="material-icons">monetization_on</i> <span class="nav-link-text">@lang('Fees Generator')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>
-      <ul class="dropdown-menu" style="width: 100%;">
-        <!-- Dropdown menu links -->
-        <li>
-          <a class="dropdown-item" href="{{ url('fees/all') }}"><i class="material-icons">developer_board</i> <span class="nav-link-text">@lang('Generate Form')</span></a>
-        </li>
-        <li>
-          <a class="dropdown-item" href="{{ url('fees/create') }}"><i class="material-icons">note_add</i> <span class="nav-link-text">@lang('Add Fee Field')</span></a>
-        </li>
-      </ul>
-    </li>
-    @endif
+  @endif
+  @if(Auth::user()->role == 'admin' || Auth::user()->role == 'accountant')
+  <li class="nav-item dropdown">
+    <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
+        class="material-icons">monetization_on</i> <span class="nav-link-text">@lang('Fees Generator')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>
+    <ul class="dropdown-menu" style="width: 100%;">
+      <!-- Dropdown menu links -->
+      <li>
+        <a class="dropdown-item" href="{{ url('fees/all') }}"><i class="material-icons">developer_board</i> <span class="nav-link-text">@lang('Generate Form')</span></a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="{{ url('fees/create') }}"><i class="material-icons">note_add</i> <span class="nav-link-text">@lang('Add Fee Field')</span></a>
+      </li>
+    </ul>
+  </li>
+  @endif
      
-    @if(Auth::user()->role == 'admin' || Auth::user()->role == 'accountant')
+  @if(Auth::user()->role == 'admin' || Auth::user()->role == 'accountant')
     <li class="nav-item dropdown">
       <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
           class="material-icons">account_balance_wallet</i> <span class="nav-link-text">@lang('Manage Accounts')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>
@@ -251,8 +269,8 @@
         </li>
       </ul>
     </li>
-    @endif
-    @if(Auth::user()->role == 'student')
+  @endif
+  @if(Auth::user()->role == 'student')
     <li class="nav-item">
       <a class="nav-link active" href="{{ url('attendances/0/'.Auth::user()->id.'/0') }}"><i class="material-icons">date_range</i>
         <span class="nav-link-text">@lang('My Attendance')</span></a>
@@ -271,8 +289,8 @@
     <li class="nav-item">
       <a class="nav-link" href="{{url('stripe/receipts')}}"><i class="material-icons">receipt</i> <span class="nav-link-text">@lang('Receipt')</span></a>
     </li>
-    @endif
-    @if(Auth::user()->role == 'admin' || Auth::user()->role == 'librarian')
+  @endif
+  @if(Auth::user()->role == 'admin' || Auth::user()->role == 'librarian')
     <li class="nav-item dropdown">
       <a role="button" href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
           class="material-icons">local_library</i> <span class="nav-link-text">@lang('Manage Library')</span> <i class="material-icons pull-right">keyboard_arrow_down</i></a>
@@ -300,12 +318,12 @@
         </li>
       </ul>
     </li>
-    @endif
-    @if(Auth::user()->role == 'teacher')
+  @endif
+  @if(Auth::user()->role == 'teacher')
     <li class="nav-item">
       <a class="nav-link" href="{{ url('courses/'.Auth::user()->id.'/0') }}"><i class="material-icons">import_contacts</i>
         <span class="nav-link-text">@lang('My Courses')</span></a>
     </li>
-    @endif
-  </ul>
+  @endif
+</ul>
   

@@ -13,7 +13,7 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 
 class financeRemainListExport implements WithEvents, WithTitle
 {
-    private $form_id;
+    // private $form_id;
     public function __construct(int $section_id)
     {
         $this->section_id = $section_id;
@@ -29,7 +29,7 @@ class financeRemainListExport implements WithEvents, WithTitle
 
     public function title(): string
     {
-        $formRec = Section::find($this->section_id);
+        $formRec = Section::with('class')->find($this->section_id);
         return $formRec->class->class_number.$formRec->section_number;
     }
 
@@ -101,7 +101,7 @@ class financeRemainListExport implements WithEvents, WithTitle
                     ->setCellValue('I2', 'Late')
                     ->setCellValue('J2', 'Total');
                 $sheet->getStyle('A2:J2')->applyFromArray($heading_style);
-                $reslist = \App\StudentInfo::where('form_id', $this->section_id)
+                $reslist = \App\StudentInfo::with('section', 'student')->where('form_id', $this->section_id)
                     ->where('session', now()->year)
                     ->orderBy('form_num', 'asc')->get();
                 // $formList = array();
@@ -133,7 +133,7 @@ class financeRemainListExport implements WithEvents, WithTitle
                         $sheet->setCellValue('J'.$row, '-');
                         $sheet->getStyle("E".$row.":J".$row)->applyFromArray($unassigned_style);
                     } else{
-                        $assigned = \App\Assign::where('session', now()->year)
+                        $assigned = \App\Assign::with('fees')->where('session', now()->year)
                             ->where('user_id', $res->student->id)->pluck('fee_id')->toArray();
                         $feeList = [];
                         $total = 0;

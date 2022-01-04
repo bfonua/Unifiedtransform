@@ -25,7 +25,7 @@
                 <br>
                 <h4>@lang('Active Departments & Classes')</h4>
                 {{-- <br> --}}
-                <a href="{{url('students/export/tct')}}" class="btn btn-sm btn-success"><i class="material-icons">import_export</i> Export all classes</a>
+                <a href="{{url('students/export/tct')}}" class="btn btn-sm btn-success"><i class="material-icons">import_export</i> Export Class List</a>
                 <a href="{{url('students/all_reg')}}" class="btn btn-sm btn-primary"><i class="material-icons">import_export</i> Export Reg Info</a>
                 @include('layouts.master.add-class-form') <!--NEW FORM BUTTON -->
                 @include('layouts.master.add-department-form')
@@ -52,7 +52,8 @@
                                             </div>
                                             <div class="col-md-3">
                                                 @php
-                                                    $output = $class->active_sections()->count('id');
+                                                    // $output = $class->active_sections()->count('id');
+                                                    $output = $class->sections_count;
                                                     $msg = (($output == 0)? '-': (($output == 1)? '1 section': $output.' sections'));
                                                     // $active = $class->sections()->where('active', 1)->count('id');
                                                     // ({{$active}} / {{$output - $active}})
@@ -131,12 +132,12 @@
                                                             @endif
                                                             @if(isset($_GET['course']) && $_GET['course'] == 1)
                                                                 <td class="text-center">{{($section->active)?"Yes":"No"}}</td>
-                                                                @php
+                                                                {{-- @php
                                                                     $studentCount = \App\StudentInfo::where('form_id', $section->id)
                                                                     ->where('session', now()->year)
                                                                     ->count('id');
-                                                                @endphp
-                                                                <td class="text-center">{{($section->active)?$studentCount:'-'}}</td>
+                                                                @endphp --}}
+                                                                <td class="text-center">{{($section->active)?$section->students_count:'-'}}</td>
                                                                 {{-- <td class="text-center"></td> --}}
                                                                 {{-- <td class="text-center">
                                                                     <a role="button" class="btn btn-info btn-xs" href="{{url('courses/0/'.$section->id)}}"><i class="material-icons">visibility</i> @lang('View Courses')</a>
