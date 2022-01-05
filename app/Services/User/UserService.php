@@ -489,7 +489,16 @@ class UserService
 
     public function getTCTSectionStudentsWithSchool($section_id)
     {
-        return \App\User::with('studentInfo.house', 'fees')->whereHas("studentInfo", function ($q) use ($section_id) {
+        return \App\User::with('studentInfo.house')->whereHas("studentInfo", function ($q) use ($section_id) {
+            $q->where('session', now()->year)
+                ->where('form_id', $section_id)
+                ->orderBy('form_num', 'asc');
+        })->get();
+    }
+
+    public function getTCTSectionStudentsWithSubject($section_id)
+    {
+        return \App\User::with('studentInfo', 'subjectAssigned.subject')->whereHas("studentInfo", function ($q) use ($section_id) {
             $q->where('session', now()->year)
                 ->where('form_id', $section_id)
                 ->orderBy('form_num', 'asc');

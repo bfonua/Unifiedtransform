@@ -95,6 +95,8 @@ Route::middleware(['auth', 'admin'])->prefix('subject')->name('subject.')->group
     Route::post('/reassign', 'SubjectAssignController@reassign');
     Route::get('/section', 'SubjectController@show_sections');
     Route::get('/tct_students/{id}', 'SubjectController@show_section_list');
+    Route::get('/subject-assign-class', 'SubjectClassController@index');
+    Route::get('section/{id}', 'SubjectClassController@sectionFeeList');
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {

@@ -93,7 +93,6 @@ class SubjectAssignController extends Controller
                     $tb = \App\SubjectAssign::find($existing->first()->id);
                     $tb->delete();
                 } else {
-                    //
                     $tb = $existing->first();
                     $tb->subject_id = $request->{$optionID};
                     $tb->save();

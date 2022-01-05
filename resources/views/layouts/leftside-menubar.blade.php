@@ -124,6 +124,9 @@
         <a class="nav-link disabled" href="#"><i class="material-icons">assignment_late</i> <span class="nav-link-text">Unassigned Options</span></a>
     </li>
     {{-- <li class="nav-item">
+      <a class="nav-link" href="{{ url('subject/subject-assign-class') }}"><i class="material-icons">assignment_late</i> <span class="nav-link-text">Assign Options</span></a>
+  </li> --}}
+    {{-- <li class="nav-item">
         <a class="nav-link" href="{{ url('subject/section') }}"><i class="material-icons">subject</i> <span class="nav-link-text">Section Subject</span></a>
     </li> --}}
 
@@ -134,7 +137,7 @@
           <a class="dropdown-item" href="{{ url('subject/section') }}"><i class="material-icons">toc</i> <span class="nav-link-text">By Subject</span></a>
         </li>
         <li>
-          <a class="dropdown-item" href="#"><i class="material-icons">toc</i> <span class="nav-link-text">By Form</span></a>
+          <a class="dropdown-item" href="{{ url('subject/subject-assign-class') }}"><i class="material-icons">toc</i> <span class="nav-link-text">By Form</span></a>
         </li>
       </ul>
     </li>

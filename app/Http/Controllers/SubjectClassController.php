@@ -4,9 +4,21 @@ namespace App\Http\Controllers;
 
 use App\SubjectClass;
 use Illuminate\Http\Request;
+use App\Services\User\UserService;
+use App\User;
+
 
 class SubjectClassController extends Controller
 {
+    protected $userService;
+    protected $user;
+
+    public function __construct(UserService $userService, User $user)
+    {
+        $this->userService = $userService;
+        $this->user = $user;
+    }
+    
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +26,24 @@ class SubjectClassController extends Controller
      */
     public function index()
     {
-        //
+        $sections = \App\Section::with('class')->withCount(['subjects', 'students' => function ($q) {
+            $q->where('active', 1);
+        }])->where('active', 1)
+        ->orderBy('class_id')
+        ->orderBy('section_number', 'asc')
+        ->get();
+        return view('subject.assign_subject_class', compact('sections'));
+    }
+
+    public function sectionfeeList(Request $request)
+    {
+        // return $request->id;
+        $students = $this->userService->getTCTSectionStudentsWithSubject($request->id);
+        $section = \App\Section::with('class')->find($request->id);
+        $subjectClass = \App\SubjectClass::with('subject')->whereHas("subject", function($q) {
+            $q->where('active', 1);
+        })->where('class_id', $section->class->id)->where('active', 1)->get();
+        return view('subject.section-tct-subject', compact('students', 'section', 'subjectClass'));
     }
 
     /**

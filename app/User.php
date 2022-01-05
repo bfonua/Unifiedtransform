@@ -91,6 +91,10 @@ class User extends Model implements
         return $this->hasMany('App\Assign', 'user_id');
     }
 
+    public function subjectAssigned(){
+        return $this->hasMany('App\SubjectAssign', 'user_id')->where('session', now()->year);
+    }
+
     public function getFeesAssignedAttribute()
     {
         if (!$this->relationLoaded('feesAssigned'))

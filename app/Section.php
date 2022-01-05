@@ -55,6 +55,23 @@ class Section extends Model
         )->where('session', now()->year);
     }
 
+    public function subjects()
+    {
+        return $this->hasManyDeep(
+            'App\Subject', ['App\Myclass', 'App\SubjectClass'],
+            [
+                'id', // Section FK on Class
+                'class_id', // Class FK on SubjectClass
+                'id', // SubjectClass FK on Subject
+            ],
+            [
+                'class_id', // LK on Section
+                'id', // LK on Class
+                'subject_id' // LK on SubjectClass
+            ]
+        )->where('subjects.active', 1);
+    }
+
     public function assigned()
     {
         return $this->hasManyDeep(
