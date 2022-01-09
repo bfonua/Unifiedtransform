@@ -17,7 +17,7 @@ class allFinanceTranListExport implements FromView
     public function view(): View
     {
         // $data = \App\StudentInfo::where('session', now()->year)->get();
-        $transactions = \App\Payment::where('session', now()->year)->get();
+        $transactions = \App\Payment::with('user.studentInfo.section.class', 'fees.fee_type')->where('session', $this->year)->get();
         return view('exports.transactions', [
             // 'students' => $data,
             'transactions' => $transactions

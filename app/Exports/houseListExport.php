@@ -86,11 +86,12 @@ class houseListExport implements WithEvents, WithTitle
                 $groupsOrder = implode(',', $groups);
 
 
-                $reslist = \App\StudentInfo::where('session', now()->year)
+                $reslist = \App\StudentInfo::with('student', 'house', 'section.class')->where('session', now()->year)
                     ->where('house_id', $this->house_id)
                     // ->orderBy('form_id', 'desc')
                     // ->orderByRaw(\DB::raw("CASE WHEN group = 'Head Prefect' THEN group END ASC"))
                     ->get();
+
                 $row = 3; 
                 $count = 1;
                 foreach($reslist as $res){

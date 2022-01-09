@@ -13,11 +13,11 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 
 class formsListExport implements WithEvents, WithTitle
 {
-    private $form_id;
 
     public function __construct(int $section_id)
     {
         $this->section_id = $section_id;
+        // $this->students = $students;
     }
 
     public function split_name($name)
@@ -79,11 +79,11 @@ class formsListExport implements WithEvents, WithTitle
                     ->setCellValue('C2', 'Name')
                     ->setCellValue('D2', 'House');
                 $sheet->getStyle('A2:D2')->applyFromArray($heading_style);
-                $reslist = \App\StudentInfo::where('form_id', $this->section_id)
+                $reslist = \App\StudentInfo::with('student', 'house', 'section.class')->where('form_id', $this->section_id)
                     ->where('session', now()->year)
                     // ->where('session', "2020")
                     ->orderBy('form_num', 'asc')->get();
-                $formList = array();
+                // $formList = array();
                 $row = 3;
                 $count = 1;
                 foreach ($reslist as $res) {

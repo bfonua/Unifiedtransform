@@ -165,7 +165,7 @@ class UploadController extends Controller {
         return Excel::download(new allRegStudentsExport(now()->year), date('Y').'-students.xlsx');
     }
 
-    public function export_tctFinanceTranList(){
-        return Excel::download(new allFinanceTranListExport(now()->year), 'TCT Transactions '.date("Y").'.xlsx');
+    public function export_tctFinanceTranList($session){
+        return Excel::download(new allFinanceTranListExport($session), 'TCT Transactions '.$session.'.xlsx');
     }
 }

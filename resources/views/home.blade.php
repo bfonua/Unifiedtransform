@@ -216,7 +216,7 @@
                                                             <a class="btn btn-sm btn-block btn-primary" href="{{url('students/export/house')}}"> <i class="material-icons">import_export</i> Export House Lists</a><br>                                                            
                                                             
 
-                                                            <a class="btn btn-sm btn-block btn-info" href="#"><i class="material-icons">price_check</i> Finance Summary</a><br>
+                                                            <a class="btn btn-sm btn-block btn-info disabled" href="#"><i class="material-icons">price_check</i> Finance Summary</a><br>
                                                             
                                                             {{-- <a data-toggle="tooltip" data-placement="bottom" title="Please search Student ID to register">
                                                                 Register Old Students
