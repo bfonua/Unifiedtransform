@@ -430,9 +430,6 @@ class UserController extends Controller
         foreach ($years as $session) {
             $subjectList[$session] = $subID->where('session', $session)->pluck('option')->toArray();
         }
-        
-        // return $class['id'];
-        // return $user->studentInfo;
         if($user->studentInfo->section != NULL){
             $optionSubs = \App\SubjectClass::whereHas('subject', function ($q) {
                 $q->where('active', 1);
@@ -441,6 +438,12 @@ class UserController extends Controller
                 'active' => 1,
             ])->pluck('subject_id')->toArray();
         } else{
+            // For records previously updated with NULL values for their class to transfer to TVET19 as quick qorkaround
+            $studentInfo = \App\StudentInfo::find($user->studentInfo->id);
+            $studentInfo->form_id = 63; 
+            $studentInfo->save();
+            $user->section_id = 63;
+            $user->save();
             $optionSubs = [];
         }
         return view('profile.user', compact('user', 'assignedCount', 'feeList', 'sessions', 'fees_assigned', 'optionSubs', 'subjectList'));
@@ -523,12 +526,9 @@ class UserController extends Controller
      */
     public function tct_administration_update(Request $request)
     {
-        // print($request);
         $tb = User::find($request->user_id)->studentInfo;
         $tb2 = User::find($request->user_id);
-
         if ($tb->form_id != $request->section) {
-            $tb2 = User::find($request->user_id);
             $tb->form_id = $request->section;
             $tb->form_num = $this->userService->getMaxFormNumber($request->section);
             $tb2->section_id = $request->section;
@@ -541,7 +541,6 @@ class UserController extends Controller
         $tb->session = $request->session;
         $tb->reg_notes = $request->notes;
         $tb->save();
-
         return redirect("/user/$tb2->student_code");
     }
 
@@ -550,7 +549,6 @@ class UserController extends Controller
         // print($request);
         $tb = User::find($request->user_id)->studentInfo;
         $tb2 = User::find($request->user_id);
-
         $tb2->lst_name = $request->lst_name;
         $tb2->given_name = $request->given_name;
         $tb->birthday = $request->birthday;

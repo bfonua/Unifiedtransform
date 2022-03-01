@@ -29,7 +29,7 @@
                             <select id="section" class="form-control" name="section" 
                                 @if($user->studentInfo->session < date("Y")) 
                                     readonly>
-                                    <option>{{$user->studentInfo->section->class->class_number}}{{$user->studentInfo->section->section_number}}
+                                    <option value="{{$user->studentInfo->form_id}}">{{$user->studentInfo->section->class->class_number}}{{$user->studentInfo->section->section_number}}
                                         (#{{$user->studentInfo->form_num}})</option>
                                      </select>
                                 @else
@@ -58,7 +58,7 @@
                             <select id="form_num" class="form-control" name="form_num"
                                 @if($user->studentInfo->session < date("Y")) 
                                     readonly>
-                                    <option>{{$user->studentInfo->form_num}}</option>
+                                    <option value="{{$user->studentInfo->form_num}}">{{$user->studentInfo->form_num}}</option>
                                     </select>
                                 @else
                                     @php

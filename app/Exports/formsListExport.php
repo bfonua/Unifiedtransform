@@ -87,24 +87,26 @@ class formsListExport implements WithEvents, WithTitle
                 $row = 3;
                 $count = 1;
                 foreach ($reslist as $res) {
-                    $class_num = $res->form_num;
-                    while ($count < $class_num) {
-                        $sheet->setCellValue('B' . $row, $count);
-                        $count++;
-                        $row++;
-                    }
-                    $name = $this->split_name($res->student->given_name)[0] . " " . $this->split_name($res->student->given_name)[1] . " " . $res->student->lst_name;
-                    if ($res->group == "Head Prefect") {
-                        $name .= ' (HP)';
-                    } elseif (ucfirst($res->group) == "Prefect") {
-                        $name .= " (P)";
-                    }
-                    $sheet->setCellValue('A' . $row, $res->tct_id)
-                        ->setCellValue('B' . $row, $res->form_num)
-                        ->setCellValue('C' . $row, $name)
-                        ->setCellValue('D' . $row, $res->house->house_abbrv);
-                    if ($res->student->active == '0') {
-                        $sheet->getStyle("A" . $row . ":D" . $row)->applyFromArray($inactiveStyle);
+                    if($res->student){
+                       $class_num = $res->form_num;
+                        while ($count < $class_num) {
+                            $sheet->setCellValue('B' . $row, $count);
+                            $count++;
+                            $row++;
+                        }
+                        $name = ($res->student)?$this->split_name($res->student->given_name)[0] . " " . $this->split_name($res->student->given_name)[1] . " " . $res->student->lst_name : "-";
+                        if ($res->group == "Head Prefect") {
+                            $name .= ' (HP)';
+                        } elseif (ucfirst($res->group) == "Prefect") {
+                            $name .= " (P)";
+                        }
+                        $sheet->setCellValue('A' . $row, $res->tct_id)
+                            ->setCellValue('B' . $row, $res->form_num)
+                            ->setCellValue('C' . $row, $name)
+                            ->setCellValue('D' . $row, $res->house->house_abbrv);
+                        if ($res->student->active == '0') {
+                            $sheet->getStyle("A" . $row . ":D" . $row)->applyFromArray($inactiveStyle);
+                        }
                     }
                     $row++;
                     $count++;
