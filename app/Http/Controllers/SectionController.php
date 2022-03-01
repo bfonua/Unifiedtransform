@@ -202,6 +202,8 @@ class SectionController extends Controller
     public function sectionByYear()
     {
         $years = Regrecord::groupBy('session')->orderBy('session', 'desc')->pluck('session')->toArray();
+        // return $q = Regrecord::with('section.class')->orderBy('session', 'desc')->groupBy('form_id')->groupBy('session')->orderBy('form_id', 'desc')->groupBy('session')->get();
+        // return $q->groupBy('session')[2020]->groupBy('form_id');
         $list = [];
         foreach ($years as $year) {
             $sections = Regrecord::where('session', $year)->groupBy('form_id')->orderBy('form_id', 'desc')->pluck('form_id')->toArray();
@@ -209,7 +211,6 @@ class SectionController extends Controller
                 'sections' => $sections,
             ];
         }
-        // dd($list);
         return view('school.sections-year', [
             'list' => $list,
         ]);

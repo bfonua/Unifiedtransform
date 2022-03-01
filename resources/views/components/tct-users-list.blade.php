@@ -57,7 +57,7 @@
                     </small>
                 </td>
             @endif
-            <td class="text-center"><small>{{$user->studentInfo->section->class->class_number}}{{$user->studentInfo->section->section_number}}</small></td>
+            <td class="text-center"><small>{{ ($user->studentInfo->form_id)?$user->studentInfo->section->class->class_number.$user->studentInfo->section->section_number:"-"}}</small></td>
             <td class="text-center"><small>{{$user->studentInfo->form_num}}</small></td>
             <td class="text-center" style="white-space: nowrap;"><small>{{$user->studentInfo->house->house_name}}</small></td>
         </tr>

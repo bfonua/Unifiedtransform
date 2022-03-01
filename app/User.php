@@ -46,7 +46,7 @@ class User extends Model implements
 
     public function section()
     {
-        return $this->belongsTo('App\Section');
+        return $this->belongsTo('App\Section', 'form_id');
     }
 
     public function school()
@@ -89,6 +89,10 @@ class User extends Model implements
 
     public function feesAssigned(){
         return $this->hasMany('App\Assign', 'user_id');
+    }
+
+    public function payments(){
+        return $this->hasMany('App\Payment', 'user_id');
     }
 
     public function subjectAssigned(){

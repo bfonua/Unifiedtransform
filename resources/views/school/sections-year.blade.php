@@ -74,7 +74,7 @@
                                                     @endphp
                                                     <tr>
                                                         <td class="text-center">
-                                                            {{ $sectionReg->class->class_number }}{{ $sectionReg->section_number }}
+                                                            {{ ($sectionReg)?$sectionReg->class->class_number.$sectionReg->section_number : '' }}
                                                         </td>
                                                         <td class="text-center">
                                                             -

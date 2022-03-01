@@ -14,7 +14,7 @@
         'librarian'))?Auth::user()->school->name:config('app.name') }}</title>
 
     <link rel="stylesheet" href="{{ url('css/loader.css') }}">
-
+    <link rel="shortcut icon" href="{{ asset('images/logo.ico') }}">
     <script src="{{ url('js/vendors.js') }}"></script>
     {{-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script> --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>

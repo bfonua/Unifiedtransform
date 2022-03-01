@@ -48,6 +48,10 @@
             <div class="row text-center">
                 @include('layouts.master.edit-details-form')
             </div>
+            <br>
+            <div class="text-center">
+                <a role="button" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure? This will delete the student and ALL related records')" href="{{url('tct_delete_student/'.$user->id)}}"><i class="material-icons">delete</i> @lang('Delete Record')</a>
+            </div>
         </div>
     @endif
     <div class="col-md-10" id="main-container">

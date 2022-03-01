@@ -17,14 +17,13 @@ class Regrecord extends Model
 
     public function section()
     {
-        return $this->belongsTo('App\Section');
+        return $this->belongsTo('App\Section', 'form_id');
     }
 
     public function house()
     {
         return $this->belongsTo('App\House');
     }
-
 
     public function channel()
     {

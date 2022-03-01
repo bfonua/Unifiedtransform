@@ -300,6 +300,20 @@ class UserController extends Controller
         return redirect('register/tct_student')->with('status', __('Saved'));
     }
 
+    public function tct_delete_student($id)
+    {
+        $user = User::findOrFail($id);
+        $user->payments()->delete();
+        $user->subjectAssigned()->delete();
+        $user->feesAssigned()->delete();
+        $user->reinstate()->delete();
+        $user->inactive()->delete();
+        $user->regrecord()->delete();
+        $user->studentInfo->firstorFail()->delete();
+        $user->delete();
+        return redirect('home')->with('status', __('Deleted succesfully'));
+    }
+
     /**
      * @param CreateAdminRequest $request
      * @return \Illuminate\Http\RedirectResponse
@@ -417,66 +431,20 @@ class UserController extends Controller
             $subjectList[$session] = $subID->where('session', $session)->pluck('option')->toArray();
         }
         
-        $class = $user->studentInfo->section->class;
         // return $class['id'];
-        $optionSubs = \App\SubjectClass::whereHas('subject', function ($q) {
-            $q->where('active', 1);
-        })->where([
-            'class_id' => $class['id'],
-            'active' => 1,
-        ])->pluck('subject_id')->toArray();
-
-        // return $optionSubs;
-        // return $subjectList;
-
-
+        // return $user->studentInfo;
+        if($user->studentInfo->section != NULL){
+            $optionSubs = \App\SubjectClass::whereHas('subject', function ($q) {
+                $q->where('active', 1);
+            })->where([
+                'class_id' => $user->studentInfo->section->class_id,
+                'active' => 1,
+            ])->pluck('subject_id')->toArray();
+        } else{
+            $optionSubs = [];
+        }
         return view('profile.user', compact('user', 'assignedCount', 'feeList', 'sessions', 'fees_assigned', 'optionSubs', 'subjectList'));
     }
-
-    // public function migrationTest()
-    // {
-    //     return view('home');
-    //     $toMigrate = DB::table('assignMigrate')->get()->slice(3000);
-    //     $types = [
-    //         'term1' => 1, 'term2' => 2, 'term3' => 3, 'term4' => 4, 'late' => 5, 'pta' => 6,
-    //         'magazine' => 7,
-    //         'bazaar' => 9,
-    //     ];
-    //     $main = [];
-    //     $count = 1;
-    //     try {
-    //         foreach ($toMigrate as $assignOld) {
-    //             foreach ($types as $type => $type_id) {
-    //                 if ($assignOld->{$type} > 0) {
-    //                     $assign = new \App\Assign;
-    //                     $assign->user_id = \App\User::where('student_code', $assignOld->tct_id)->first()->id;
-    //                     if ($type_id == 9 && $assignOld->{$type} < 100) {
-    //                         $tbType = 8;
-    //                     } else {
-    //                         $tbType = $type_id;
-    //                     }
-    //                     if ($assignOld->fee_id < 50) {
-    //                         $tbChannel = $assignOld->fee_id;
-    //                     } elseif ($assignOld->fee_id < 63) {
-    //                         $tbChannel = $assignOld->fee_id - 1;
-    //                     } else {
-    //                         $tbChannel = $assignOld->fee_id - 2;
-    //                     }
-    //                     $assign->fee_id = \App\Fee::where([
-    //                         'session' => $assignOld->session_id + 2015,
-    //                         'fee_type_id' => $tbType,
-    //                         'fee_channel_id' => $tbChannel,
-    //                     ])->first()->id;
-    //                     $assign->session = $assignOld->session_id + 2015;
-    //                     $count++;
-    //                     echo ("COUNT" . $count);
-    //                 }
-    //             }
-    //         }
-    //     } catch (\Exception $e) {
-    //     }
-    // }
-
 
     /**
      * Show the form for editing the specified resource.
