@@ -18,7 +18,7 @@ class allRegStudentsExport implements FromView
     
     public function view(): View
     {
-        $data = \App\StudentInfo::where('session', now()->year)->get();
+        $data = \App\StudentInfo::with('student', 'house', 'section.class')->where('session', now()->year)->get();
         return view('exports.regStudents', [
             'students' => $data
         ]);

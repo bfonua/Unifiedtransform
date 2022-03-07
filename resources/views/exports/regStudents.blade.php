@@ -29,33 +29,34 @@
     </thead>
     <tbody>
         @foreach ($students as $stu)
-            <tr>
-                <td>{{$stu->tct_id}}</td>
-                <td>{{$stu->student->lst_name}}</td>
-                <td>{{$stu->student->given_name}}</td>
-                <td>{{$stu->student->given_name}} {{$stu->student->lst_name}}</td>
-                <td>{{$stu->birthday}}</td>
-                <td>{{$stu->category_id}}</td>
-                <td>{{ucfirst($stu->group)}}</td>
-                <td>{{$stu->section->class->class_number}}{{$stu->section->section_number}}</td>
-                <td>{{$stu->form_num}}</td>
-                <td>{{$stu->house->house_abbrv}}</td>
-                <td>{{$stu->religion}}</td>
-                <td>{{$stu->student->village}}</td>
-                <td>{{$stu->student->nationality}}</td>
-                <td>{{$stu->student->phone_number}}</td>
-                <td>{{$stu->student->health_conditions}}</td>
-                <td>{{$stu->updated_at}}</td>
-                <td>{{$stu->reg_notes}}</td>
-                <td>{{$stu->previous_form}}</td>
-                <td>{{$stu->previous_school}}</td>
-                <td>{{$stu->father_name}}</td>
-                <td>{{$stu->mother_name}}</td>
-                <td>{{$stu->father_phone_number}}</td>
-                {{-- <td>{{$stu->assigned}}</td> --}}
-                <td>{{$stu->student->active}}</td>
-
-            </tr>
+            @if($stu->student)
+                <tr>
+                    <td>{{$stu->tct_id}}</td>
+                    <td>{{$stu->student->lst_name}}</td>
+                    <td>{{$stu->student->given_name}}</td>
+                    <td>{{$stu->student->given_name}} {{$stu->student->lst_name}}</td>
+                    <td>{{$stu->birthday}}</td>
+                    <td>{{$stu->category_id}}</td>
+                    <td>{{ucfirst($stu->group)}}</td>
+                    <td>{{$stu->section->class->class_number}}{{$stu->section->section_number}}</td>
+                    <td>{{$stu->form_num}}</td>
+                    <td>{{$stu->house->house_abbrv}}</td>
+                    <td>{{$stu->religion}}</td>
+                    <td>{{$stu->student->village}}</td>
+                    <td>{{$stu->student->nationality}}</td>
+                    <td>{{$stu->student->phone_number}}</td>
+                    <td>{{$stu->student->health_conditions}}</td>
+                    <td>{{$stu->updated_at}}</td>
+                    <td>{{$stu->reg_notes}}</td>
+                    <td>{{$stu->previous_form}}</td>
+                    <td>{{$stu->previous_school}}</td>
+                    <td>{{$stu->father_name}}</td>
+                    <td>{{$stu->mother_name}}</td>
+                    <td>{{$stu->father_phone_number}}</td>
+                    {{-- <td>{{$stu->assigned}}</td> --}}
+                    <td>{{$stu->student->active}}</td>
+                </tr>
+            @endif
         @endforeach
     </tbody>
 </table>
