@@ -35,25 +35,27 @@
                         </thead>
                         <tbody>
                             @foreach($unassigned as $unassign)
-                                <tr>
-                                    <td class="text-center">{{$loop->iteration}}</td>
-                                    <td class="text-center">{{$unassign->student->student_code}}</td>
-                                    <td>
-                                        <a href="{{url('user/'.$unassign->student->student_code)}}">{{($unassign->student->name == '')?$unassign->student->given_name.' '.$unassign->student->lst_name:$unassign->student->name}}</a>
-                                    </td>
-                                    <td class="text-center">{{$unassign->category_id}}</td>
-                                    <td>{{($unassign->student->active)?'Active / '.ucfirst($unassign->group):'Inactive'}}</td>
-                                    <td class="text-center">{{$unassign->section->class->class_number}}{{$unassign->section->section_number}} (#{{$unassign->form_num}})</td>
-                                    <td class="text-center">{{$unassign->house->house_abbrv}}</td>
-                                    <td class="text-center">
-                                        <form class="form-horizontal" action="{{url('fees/reassignForm')}}" method="post">
-                                            {{csrf_field()}}
-                                            <input type="hidden" value="{{$unassign->student->id}}" name="user_id">
-                                            <input type="hidden" value="{{$unassign->session}}" name="session">
-                                            <button type="submit" class="btn btn-primary btn-sm data-to"><i class="material-icons">assignment_returned</i> Assign</button>
-                                        </form>
-                                    </td>
-                                </tr>
+                                @if ($unassign->student)
+                                    <tr>
+                                        <td class="text-center">{{$loop->iteration}}</td>
+                                        <td class="text-center">{{$unassign->student->student_code}}</td>
+                                        <td>
+                                            <a href="{{url('user/'.$unassign->student->student_code)}}">{{($unassign->student->name == '')?$unassign->student->given_name.' '.$unassign->student->lst_name:$unassign->student->name}}</a>
+                                        </td>
+                                        <td class="text-center">{{$unassign->category_id}}</td>
+                                        <td>{{($unassign->student->active)?'Active / '.ucfirst($unassign->group):'Inactive'}}</td>
+                                        <td class="text-center">{{$unassign->section->class->class_number}}{{$unassign->section->section_number}} (#{{$unassign->form_num}})</td>
+                                        <td class="text-center">{{$unassign->house->house_abbrv}}</td>
+                                        <td class="text-center">
+                                            <form class="form-horizontal" action="{{url('fees/reassignForm')}}" method="post">
+                                                {{csrf_field()}}
+                                                <input type="hidden" value="{{$unassign->student->id}}" name="user_id">
+                                                <input type="hidden" value="{{$unassign->session}}" name="session">
+                                                <button type="submit" class="btn btn-primary btn-sm data-to"><i class="material-icons">assignment_returned</i> Assign</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endif
                             @endforeach
                         </tbody>
                     </table>

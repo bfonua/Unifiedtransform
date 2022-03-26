@@ -101,7 +101,8 @@ class financeAssignListExport implements WithEvents, WithTitle
                     ->setCellValue('I2', 'Late')
                     ->setCellValue('J2', 'Total');
                 $sheet->getStyle('A2:J2')->applyFromArray($heading_style);
-                $reslist = \App\StudentInfo::where('form_id', $this->section_id)
+                // QUERY
+                $reslist = \App\StudentInfo::with('student','house', 'section.class')->where('form_id', $this->section_id)
                     ->where('session', now()->year)
                     ->orderBy('form_num', 'asc')->get();
 
@@ -109,53 +110,55 @@ class financeAssignListExport implements WithEvents, WithTitle
                 $row = 3;
                 $count = 1;
                 foreach($reslist as $res){
-                    $class_num = $res->form_num;
-                    while($count < $class_num){
-                        $sheet->setCellValue('B'.$row, $count);
-                        $count++;
-                        $row++;
-                    }
-                    $name = $this->split_name($res->student->given_name)[0]." ". $this->split_name($res->student->given_name)[1]." ".$res->student->lst_name;
-                    if($res->group == "Head Prefect"){
-                        $name .= ' (HP)';
-                    } elseif(ucfirst($res->group) == "Prefect"){
-                        $name .= " (P)";
-                    }
-                    $sheet->setCellValue('A'.$row, $res->tct_id)
-                        ->setCellValue('B'.$row, $res->form_num)
-                        ->setCellValue('C'.$row, $name)
-                        ->setCellValue('D'.$row, $res->house->house_abbrv);
-                    if($res->assigned == "0"){
-                        $sheet->setCellValue('E'.$row, '-');
-                        $sheet->setCellValue('F'.$row, '-');
-                        $sheet->setCellValue('G'.$row, '-');
-                        $sheet->setCellValue('H'.$row, '-');
-                        $sheet->setCellValue('I'.$row, '-');
-                        $sheet->setCellValue('J'.$row, '-');
-                        $sheet->getStyle("E".$row.":J".$row)->applyFromArray($unassigned_style);
-                    } else{
-                        $assigned = \App\Assign::where('session', now()->year)
-                            ->where('user_id', $res->student->id)->pluck('fee_id')->toArray();
-                        $feeList = [];
-                        $total = 0;
-                        foreach($assigned as $fee_id){
-                            $feeName = \App\Fee::find($fee_id)->fee_type->name;
-                            $feeList[$feeName] = \App\Fee::find($fee_id)->amount;
-                            $total += $feeList[$feeName];
+                    if($res->student){
+                        $class_num = $res->form_num;
+                        while($count < $class_num){
+                            $sheet->setCellValue('B'.$row, $count);
+                            $count++;
+                            $row++;
                         }
-                        $sheet->setCellValue('E'.$row, (isset($feeList['Term 1']))?$feeList['Term 1']:'-')
-                            ->setCellValue('F'.$row, (isset($feeList['Term 2']))?$feeList['Term 2']:'-')
-                            ->setCellValue('G'.$row, (isset($feeList['Term 3']))?$feeList['Term 3']:'-')
-                            ->setCellValue('H'.$row, (isset($feeList['Term 4']))?$feeList['Term 4']:'-')
-                            ->setCellValue('I'.$row, (isset($feeList['Late Registration']))?$feeList['Late Registration']:'-')
-                            ->setCellValue('J'.$row, $total);
-                        $sheet->getStyle("E".$row.":J".$row)->applyFromArray($center);
-                    }
-                        if($res->student->active == '0'){
-                            $sheet->getStyle("A".$row.":J".$row)->applyFromArray($inactiveStyle);
+                        $name = $this->split_name($res->student->given_name)[0]." ". $this->split_name($res->student->given_name)[1]." ".$res->student->lst_name;
+                        if($res->group == "Head Prefect"){
+                            $name .= ' (HP)';
+                        } elseif(ucfirst($res->group) == "Prefect"){
+                            $name .= " (P)";
                         }
+                        $sheet->setCellValue('A'.$row, $res->tct_id)
+                            ->setCellValue('B'.$row, $res->form_num)
+                            ->setCellValue('C'.$row, $name)
+                            ->setCellValue('D'.$row, $res->house->house_abbrv);
+                        if($res->assigned == "0"){
+                            $sheet->setCellValue('E'.$row, '-');
+                            $sheet->setCellValue('F'.$row, '-');
+                            $sheet->setCellValue('G'.$row, '-');
+                            $sheet->setCellValue('H'.$row, '-');
+                            $sheet->setCellValue('I'.$row, '-');
+                            $sheet->setCellValue('J'.$row, '-');
+                            $sheet->getStyle("E".$row.":J".$row)->applyFromArray($unassigned_style);
+                        } else{
+                            $assigned = \App\Assign::where('session', now()->year)
+                                ->where('user_id', $res->student->id)->pluck('fee_id')->toArray();
+                            $feeList = [];
+                            $total = 0;
+                            foreach($assigned as $fee_id){
+                                $feeName = \App\Fee::find($fee_id)->fee_type->name;
+                                $feeList[$feeName] = \App\Fee::find($fee_id)->amount;
+                                $total += $feeList[$feeName];
+                            }
+                            $sheet->setCellValue('E'.$row, (isset($feeList['Term 1']))?$feeList['Term 1']:'-')
+                                ->setCellValue('F'.$row, (isset($feeList['Term 2']))?$feeList['Term 2']:'-')
+                                ->setCellValue('G'.$row, (isset($feeList['Term 3']))?$feeList['Term 3']:'-')
+                                ->setCellValue('H'.$row, (isset($feeList['Term 4']))?$feeList['Term 4']:'-')
+                                ->setCellValue('I'.$row, (isset($feeList['Late Registration']))?$feeList['Late Registration']:'-')
+                                ->setCellValue('J'.$row, $total);
+                            $sheet->getStyle("E".$row.":J".$row)->applyFromArray($center);
+                        }
+                            if($res->student->active == '0'){
+                                $sheet->getStyle("A".$row.":J".$row)->applyFromArray($inactiveStyle);
+                            }
                         $row++;
                         $count++;
+                    }
                 }
                 $last_row = $row - 1;
                 $last_border = $last_row;

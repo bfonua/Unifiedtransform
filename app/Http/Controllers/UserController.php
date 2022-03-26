@@ -397,6 +397,9 @@ class UserController extends Controller
     public function show($user_code)
     {
         $user = $this->userService->getUserByUserCode($user_code);
+        if(!$user){
+            return view('profile.no-user');
+        }
         $sessions = \App\Assign::where('user_id', $user->id)->orderBy('session', 'desc')->groupBy('session')->pluck('session')->toArray();
 
         $feeList = [];

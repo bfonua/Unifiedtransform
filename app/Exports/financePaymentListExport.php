@@ -100,13 +100,14 @@ class financePaymentListExport implements WithEvents, WithTitle
                     ->setCellValue('I2', 'Late')
                     ->setCellValue('J2', 'Total');
                 $sheet->getStyle('A2:J2')->applyFromArray($heading_style);
-                $reslist = \App\StudentInfo::where('form_id', $this->section_id)
+                $reslist = \App\StudentInfo::with('student','house', 'section.class')->where('form_id', $this->section_id)
                     ->where('session', now()->year)
                     ->orderBy('form_num', 'asc')->get();
                 // $formList = array();
                 $row = 3;
                 $count = 1;
                 foreach($reslist as $res){
+                    if($res->student){
                     $class_num = $res->form_num;
                     while($count < $class_num){
                         $sheet->setCellValue('B'.$row, $count);
@@ -159,6 +160,7 @@ class financePaymentListExport implements WithEvents, WithTitle
                     }
                     $row++;
                     $count++;
+                    }
                 }
                 $last_row = $row - 1;
                 $last_border = $last_row;

@@ -49,7 +49,7 @@
                     {{($user->active)?'Graduated / '.ucfirst($user->studentInfo->group):'Inactive'}}
                 @endif
             </td>
-            <td><small><a href="{{url('user/'.$user->student_code)}}">{{($user->name == '')?$user->given_name.' '.$user->lst_name:$user->name}}</a></small></td>
+            <td><small><a href="{{url('user/'.$user->student_code)}}">{{($user->given_name == '')?$user->name:$user->given_name.' '.$user->lst_name}}</a></small></td>
             @if($type != 'registered')
                 <td class="text-center">
                     <small>
