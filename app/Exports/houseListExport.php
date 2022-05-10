@@ -95,22 +95,28 @@ class houseListExport implements WithEvents, WithTitle
                 $row = 3; 
                 $count = 1;
                 foreach($reslist as $res){
-                    $name = $this->split_name($res->student->given_name)[0]." ". $this->split_name($res->student->given_name)[1]." ".$res->student->lst_name;
-                    if($res->group == "Head Prefect"){
-                        $name .= ' (HP)';
-                    }
-                    elseif($res->group == "prefect"){
-                        $name .= ' (P)';
-                    }
-                    $role = (ucfirst($res->group) == "Head Prefect")? 'HP': ucfirst($res->group);
-                        
-                    $sheet->setCellValue('A'.$row, $res->tct_id)
-                    ->setCellValue('B'.$row, $count)
-                    ->setCellValue('C'.$row, $role)
-                    ->setCellValue('D'.$row, $name)
-                    ->setCellValue('E'.$row, $res->section->class->class_number.$res->section->section_number);
-                    if($res->student->active == 0){
-                        $sheet->getStyle("A".$row.":E".$row)->applyFromArray($inactiveStyle);
+                    if($res->student){
+                        $name = $this->split_name($res->student->given_name)[0]." ". $this->split_name($res->student->given_name)[1]." ".$res->student->lst_name;
+                        if($res->group == "Head Prefect"){
+                            $name .= ' (HP)';
+                        }
+                        elseif($res->group == "prefect"){
+                            $name .= ' (P)';
+                        }
+                        $role = (ucfirst($res->group) == "Head Prefect")? 'HP': ucfirst($res->group);
+                            
+                        $sheet->setCellValue('A'.$row, $res->tct_id)
+                        ->setCellValue('B'.$row, $count)
+                        ->setCellValue('C'.$row, $role)
+                        ->setCellValue('D'.$row, $name)
+                        ->setCellValue('E'.$row, $res->section->class->class_number.$res->section->section_number);
+                        if($res->student->active == 0){
+                            $sheet->getStyle("A".$row.":E".$row)->applyFromArray($inactiveStyle);
+                        }
+                    } else{
+                        $sheet->setCellValue('A'.$row, $res->tct_id)
+                        ->setCellValue('B'.$row, $count)
+                        ->setCellValue('E'.$row, $res->section->class->class_number.$res->section->section_number);
                     }
                     $row++;
                     $count++;
