@@ -100,17 +100,6 @@ class HomeController extends Controller
                 $inactiveOutput[$type] = $inactive;
             }
 
-            // $classes = \App\Myclass::bySchool(\Auth::user()->school->id)
-            //     ->get();
-            // $classIDs = \App\Myclass::bySchool(\Auth::user()->school->id)
-            //     ->pluck('id')
-            //     ->toArray();
-            // $sections = \App\Section::whereIn('class_id', $classIDs)
-            //     ->where('active', 1)
-            //     ->orderBy('class_id')
-            //     ->orderBy('section_number', 'asc')
-            //     ->get();
-
             $sections = \App\Section::with('class')->withCount('students')
                 ->where('active', 1)
                 ->orderBy('class_id')
@@ -128,16 +117,7 @@ class HomeController extends Controller
             $studentCountList = [];
             $count = 0;
             foreach ($sections as $section) {
-                // $studentCount = \App\StudentInfo::where('form_id', $section->id)
-                //     ->where('session', now()->year)
-                //     ->count('id');
                 $studentCountList['total'][$section->id] = $section->students_count;
-
-                // $studentCountActive = \App\User::whereHas("studentInfo", function ($q) use ($section) {
-                //     $q->where("session", now()->year)
-                //         ->where('form_id', $section->id);
-                // })->where("active", 1)
-                //     ->count();
                 $studentCountList['active'][$section->id] = $sectionsActive[$count]->students_count;
                 $count++;
             }

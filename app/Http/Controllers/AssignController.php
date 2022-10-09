@@ -6,7 +6,6 @@ use App\Assign;
 use Illuminate\Http\Request;
 use App\Services\User\UserService;
 use App\User;
-// use App\Services\User\UserService;
 
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
@@ -37,9 +36,6 @@ class AssignController extends Controller
             ->orderBy('class_id')
             ->orderBy('section_number', 'asc')
             ->get();
-            
-        // return $sections->where('id', '38')->first()->total_paid_amount->aggregate;
-
         return view('finance.assigned', compact('classes', 'sections', 'school'));
     }
 
@@ -47,14 +43,12 @@ class AssignController extends Controller
     {
         $students = $this->userService->getTCTSectionStudentsWithFinance($request->id);
         $section = \App\Section::find($request->id);
-
         $studentFees = [];
         $feeTypes = \App\FeeType::withCount(['fees' => function($q) {
                 $q->where('session', now()->year);
         }])
             ->where('fee_types.active', 1)
             ->get();
-
         foreach ($students as $student) {
             $assign =  $payment = $remain = [];
             foreach ($feeTypes as $type) {

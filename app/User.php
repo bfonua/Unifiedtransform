@@ -167,8 +167,8 @@ class User extends Model implements
             ]
         )->where('payments.session', now()->year)
         ->where('fee_types.active', 1)
-        ->selectRaw('fee_types.id, sum(fees.amount) as aggregate')
-        ->groupBy('payments.fee_id', 'payments.user_id');
+        ->selectRaw('fee_types.id, sum(payments.amount) as aggregate')
+        ->groupBy('fee_types.id', 'payments.user_id');
     }
 
     public function getFeeTypesPaidAttribute()
@@ -217,7 +217,7 @@ class User extends Model implements
                 'fee_id' // LK on Payment
             ]
         )->where('payments.session', now()->year)
-        ->selectRaw('sum(fees.amount) as aggregate')
+        ->selectRaw('sum(payments.amount) as aggregate')
         ->groupBy('payments.user_id');
     }
     

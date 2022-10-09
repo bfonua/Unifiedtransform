@@ -17,14 +17,10 @@ class allFinanceRemainListExport implements WithMultipleSheets
             ->orderBy('class_id', 'asc')
             ->orderBy('section_number', 'asc')
             ->pluck('id');
-
         foreach($sections as $id){
-            $sheets[] = new financeRemainListExport($id);
+            $sheets[] = new financeRemainListExport2($id);
         }
-
-        // TESTING SECOND VERSION
-
-        return $sections = Section::with('class', 'students')
+        $sections = Section::with('class', 'students')
             ->where('active', 1)
             ->orderBy('class_id', 'asc')
             ->orderBy('section_number', 'asc')
