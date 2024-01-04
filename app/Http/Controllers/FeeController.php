@@ -60,7 +60,7 @@ class FeeController extends Controller
     {
 
         $request->validate([
-            'name' => 'required',
+            // 'name' => 'required',
             'session' => 'required',
         ]);
         $fee =  \App\Fee::firstOrNew(
@@ -71,13 +71,8 @@ class FeeController extends Controller
                 'session' => $request->session,
             ]
         );
-        // $fee->fee_name = $request->name;
-        // $fee->school_id = \Auth::user()->school_id;
         $fee->user_id = \Auth::user()->id;
-        // $fee->fee_channel_id = $request->channel;
-        // $fee->fee_type_id = $request->type;
         $fee->amount = $request->amount;
-        // $fee->amount = $request->session;
         $fee->active = $request->active;
         $fee->save();
         return back()->with('status', __('Saved'));

@@ -32,11 +32,11 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="channel" class="col-sm-4 control-label">@lang('Fee Channel')</label>
+            <label for="channel" class="col-sm-4 control-label">@lang('Fee Channel (# of fees)')</label>
             <div class="col-sm-8">
                 <select id="channel" class="form-control" name="channel">
                     @foreach ($feeChannels as $channel)
-                        <option value="{{$channel->id}}">{{ucfirst($channel->name)}}</option>
+                        <option value="{{$channel->id}}">{{ucfirst($channel->name)." (".$channel->fees->count().")"}}</option>
                     @endforeach
                 </select>
             </div>
