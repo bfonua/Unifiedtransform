@@ -136,10 +136,12 @@ class UserService
     public function getFormNumbersArray($sections)
     {
         $form_nums = [];
+        $session = date("Y");
+        $studentInfos = \App\StudentInfo::where('session', $session)->get();
         foreach ($sections as $section) {
             $section_id = $section->id;
-            $session = date("Y");
-            $max_form = DB::table('student_infos')->where(['session' => $session, 'form_id' => $section_id])->max('form_num');
+            // $max_form = DB::table('student_infos')->where(['session' => $session, 'form_id' => $section_id])->max('form_num');
+            $max_form = $studentInfos->where('form_id', $section_id)->max('form_num');
             $max_form_num = ($max_form == NULL) ? 1 : $max_form + 1;
             $form_nums[$section_id] = $max_form_num;
         }

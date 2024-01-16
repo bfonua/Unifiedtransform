@@ -357,16 +357,20 @@
                                                                                     </div>
                                                                                 </div>
                                                                                 <hr>
-                                                                                @foreach ($feeList[$session]['fee_id'] as $id)
+                                                                                @php
+                                                                                    $feeListIDs = \App\Fee::find($feeList[$session]['fee_id']);
+                                                                                @endphp
+                                                                                @foreach ($feeListIDs as $feeListID)
                                                                                     @php
-                                                                                    if($userSer->paymentExists($user->id, $id, $session)->first()){
+                                                                                    $paymentsMade = $userSer->paymentExists($user->id, $feeListID->id, $session);
+                                                                                    if($paymentsMade->first()){
                                                                                         $text = 1;
-                                                                                        $assignAm = \App\Fee::find($id)->amount;
-                                                                                        $paymentAm = $userSer->paymentExists($user->id, $id, $session)->sum('amount');
+                                                                                        $assignAm = $feeListID->amount;
+                                                                                        $paymentAm = $paymentsMade->sum('amount');
                                                                                         $remainAm = $assignAm - $paymentAm;
                                                                                     } else{ 
                                                                                         $text = 0;
-                                                                                        $remainAm = \App\Fee::find($id)->amount;
+                                                                                        $remainAm = $feeListID->amount;
                                                                                     }
                                                                                     @endphp
                                                                                     <div class="row form-group">
@@ -575,6 +579,10 @@
                                     <tbody>
 
                                     {{-- CURRENT SESSIONS --}}
+                                    @php
+                                        $feeIDs = $feeList[$session]['fee_id'];
+                                        $feeQuery = \App\Fee::with('fee_type')->find($feeIDs);
+                                    @endphp
                                     @foreach($allPay as $pay)
                                         <tr>
                                             <td class="text-center">{{$loop->iteration}}</td>
@@ -613,11 +621,11 @@
                                                                 <div class="row form-group">
                                                                 <label for="type" class="col-sm-3 control-label">Fee Type</label>
                                                                 <div class="col-sm-4">
-                                                                    @php $feeIDs = $feeList[$pay->session]['fee_id']; @endphp
                                                                     {{-- <input id = "type" name="type" class="form-control" value="{{$pay->fees->fee_type->name}}" readonly> --}}
                                                                     <select id="type" class="form-control" name="type">   
                                                                         @foreach ($feeIDs as $feeID)
-                                                                            <option value="{{\App\Fee::find($feeID)->fee_type->id}}">{{\App\Fee::find($feeID)->fee_type->name}}</option>
+                                                                            {{-- <option value="{{\App\Fee::find($feeID)->fee_type->id}}">{{\App\Fee::find($feeID)->fee_type->name}}</option> --}}
+                                                                            <option value="{{$feeQuery->find($feeID)->fee_type->id}}">{{$feeQuery->find($feeID)->fee_type->name}}</option>
                                                                          @endforeach
                                                                     </select>
                                                                 </div>
@@ -832,8 +840,11 @@
                                                                                 <div class="col-sm-5">
                                                                                     <select id="option{{$i+1}}" class="form-control" name="option{{$i+1}}">
                                                                                         <option value="">N/A</option>
-                                                                                        @foreach ($optionSubs as $sub)
-                                                                                            <option value="{{$sub}}">{{\App\Subject::find($sub)->name}}</option>
+                                                                                        @php
+                                                                                            $subjects = \App\Subject::find($optionSubs);
+                                                                                        @endphp
+                                                                                        @foreach ($subjects as $sub)
+                                                                                            <option value="{{$sub->id}}">{{$sub->name}}</option>
                                                                                         @endforeach
                                                                                     </select>
                                                                                 </div>

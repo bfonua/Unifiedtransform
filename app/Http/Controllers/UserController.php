@@ -409,12 +409,18 @@ class UserController extends Controller
         $years = range(now()->year, $firstYear);
 
         if ($assignedCount = $user->fees_assigned_count > 0) {
+            $all_fees_assigned = \App\Assign::with('fees.fee_type')
+                ->where('user_id', $user->id)
+                ->whereIn('session', $sessions)
+                ->groupBy('fee_id')
+                ->get();
             foreach ($sessions as $session) {
-                $fees_assigned = \App\Assign::withCount('fees')
-                    ->where('user_id', $user->id)
-                    ->where('session', $session)
-                    ->groupBy('fee_id')
-                    ->get();
+                // $fees_assigned = \App\Assign::with('fees.fee_type')
+                //     ->where('user_id', $user->id)
+                //     ->where('session', $session)
+                //     ->groupBy('fee_id')
+                //     ->get();
+                $fees_assigned = $all_fees_assigned->where('session', $session);
                 if ($fees_assigned->first()) {
                     $feeList[$session]['year'] = $session;
                     $feeIDs = $fees_assigned->pluck('fee_id')->toArray();
