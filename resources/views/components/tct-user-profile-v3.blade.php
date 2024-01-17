@@ -358,7 +358,7 @@
                                                                                 </div>
                                                                                 <hr>
                                                                                 @php
-                                                                                    $feeListIDs = \App\Fee::find($feeList[$session]['fee_id']);
+                                                                                    $feeListIDs = \App\Fee::with('fee_type')->find($feeList[$session]['fee_id']);
                                                                                 @endphp
                                                                                 @foreach ($feeListIDs as $feeListID)
                                                                                     @php
@@ -376,7 +376,7 @@
                                                                                     <div class="row form-group">
                                                                                         <label for="type" class="col-sm-3 control-label">Fee Type</label>
                                                                                         <div class="col-sm-4">
-                                                                                            <input id = "type" name="typePaid" class="form-control" value="{{\App\Fee::find($id)->fee_type->name}}" readonly>
+                                                                                            <input id = "type" name="typePaid" class="form-control" value="{{$feeListID->fee_type->name}}" readonly>
                                                                                         </div>
                                                                                     </div>
                                                                                     <div class="row form-group">
@@ -623,9 +623,9 @@
                                                                 <div class="col-sm-4">
                                                                     {{-- <input id = "type" name="type" class="form-control" value="{{$pay->fees->fee_type->name}}" readonly> --}}
                                                                     <select id="type" class="form-control" name="type">   
-                                                                        @foreach ($feeIDs as $feeID)
+                                                                        @foreach ($feeQuery as $fee)
                                                                             {{-- <option value="{{\App\Fee::find($feeID)->fee_type->id}}">{{\App\Fee::find($feeID)->fee_type->name}}</option> --}}
-                                                                            <option value="{{$feeQuery->find($feeID)->fee_type->id}}">{{$feeQuery->find($feeID)->fee_type->name}}</option>
+                                                                            <option value="{{$fee->fee_type->id}}">{{$fee->fee_type->name}}</option>
                                                                          @endforeach
                                                                     </select>
                                                                 </div>
