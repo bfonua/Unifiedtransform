@@ -359,10 +359,13 @@
                                                                                 <hr>
                                                                                 @php
                                                                                     $feeListIDs = \App\Fee::with('fee_type')->find($feeList[$session]['fee_id']);
+                                                                                    Log::info($feeListIDs);
                                                                                 @endphp
                                                                                 @foreach ($feeListIDs as $feeListID)
                                                                                     @php
                                                                                     $paymentsMade = $userSer->paymentExists($user->id, $feeListID->id, $session);
+                                                                                    $id = $feeListID->id;
+                                                                                    // Log::info($paymentsMade);
                                                                                     if($paymentsMade->first()){
                                                                                         $text = 1;
                                                                                         $assignAm = $feeListID->amount;
@@ -446,7 +449,6 @@
                                                                                 @foreach($assignFeeIDs as $id)
                                                                                     @php 
                                                                                         $type = \App\Fee::find($id)->fee_type->name;
-                                                                                        // echo $type;
                                                                                         if(in_array($session, [2018, 2019]) and in_array($type, ['Term 1', 'Term 2', 'Term 3', 'Term 4'])){
                                                                                             if(!$schoolFeesDone){
                                                                                                 $assignAm = $userSer->getSchoolassigned($user->id, $session);
@@ -566,157 +568,159 @@
                                     $count = 1;
                                 @endphp
                                 {{-- {{$oldPay}} --}}
-                                <table class="table">
-                                    <thead>
-                                        <th class="text-center">#</th>
-                                        <th class="text-center">Receipt</th>
-                                        <th class="text-center">Type</th>
-                                        <th class="text-center">Amount</th>
-                                        <th class="text-center">Session</th>
-                                        <th class="text-center">Date</th>
-                                        <th class="text-center">Edit</th>
-                                    </thead>
-                                    <tbody>
+                                @if($allPay->first())
+                                    <table class="table">
+                                        <thead>
+                                            <th class="text-center">#</th>
+                                            <th class="text-center">Receipt</th>
+                                            <th class="text-center">Type</th>
+                                            <th class="text-center">Amount</th>
+                                            <th class="text-center">Session</th>
+                                            <th class="text-center">Date</th>
+                                            <th class="text-center">Edit</th>
+                                        </thead>
+                                        <tbody>
 
-                                    {{-- CURRENT SESSIONS --}}
-                                    @php
-                                        $feeIDs = $feeList[$session]['fee_id'];
-                                        $feeQuery = \App\Fee::with('fee_type')->find($feeIDs);
-                                    @endphp
-                                    @foreach($allPay as $pay)
-                                        <tr>
-                                            <td class="text-center">{{$loop->iteration}}</td>
-                                            <td class="text-center">{{$pay->receipt}}</td>
-                                            <td class="text-center">{{$pay->fees->fee_type->name}}</td>
-                                            <td class="text-right">{{$pay->amount}}</td>
-                                            <td class="text-center">{{$pay->session}}</td>
-                                            <td class="text-center">{{$pay->pay_date}}</td>
-                                            <td class="text-center">
-                                                <div class="text-center">
-                                                    @component('components.fee-type-form', [
-                                                        'buttonTitle' => '',
-                                                        'modal_name' => 'payment'.$pay->id,
-                                                        'title' => 'Edit',
-                                                        'put_method' => method_field('PUT'),
-                                                        'url' => url('fees/tct_payment/'.$pay->id),
-                                                    ])
-                                                        @slot('buttonType')
-                                                            <button type="button" class="btn btn-xs" data-toggle="modal" data-target="#payment{{$pay->id}}"><i class="material-icons">edit</i>  
-                                                        @endslot
-                                                        @slot('form_content')
-                                                            <input type="hidden" value="{{$user->id}}" name="user_id">
-                                                            <input type="hidden" value="{{$user->studentInfo->channel_id}}" name="channel_id">
-                                                            <div class="row form-group">
-                                                                <label for="receipt" class="col-sm-3 control-label">@lang('Receipt #')</label>
-                                                                <div class="col-sm-5">
-                                                                    <input id = "receipt" name="receipt" class="form-control" value="{{$pay->receipt}}">
-                                                                </div>
-                                                            </div>
-                                                            <div class="row form-group">
-                                                                <label for="payment_date" class="col-sm-3 control-label">@lang('Date')</label>
-                                                                <div class="col-sm-4">
-                                                                    <input id = "payment_date" name="payment_date" class="form-control"  value="{{$pay->pay_date}}">
-                                                                </div>
-                                                            </div>
+                                        {{-- CURRENT SESSIONS --}}
+                                        @foreach($allPay as $pay)
+                                            <tr>
+                                                <td class="text-center">{{$loop->iteration}}</td>
+                                                <td class="text-center">{{$pay->receipt}}</td>
+                                                <td class="text-center">{{$pay->fees->fee_type->name}}</td>
+                                                <td class="text-right">{{$pay->amount}}</td>
+                                                <td class="text-center">{{$pay->session}}</td>
+                                                <td class="text-center">{{$pay->pay_date}}</td>
+                                                <td class="text-center">
+                                                    <div class="text-center">
+                                                        @component('components.fee-type-form', [
+                                                            'buttonTitle' => '',
+                                                            'modal_name' => 'payment'.$pay->id,
+                                                            'title' => 'Edit',
+                                                            'put_method' => method_field('PUT'),
+                                                            'url' => url('fees/tct_payment/'.$pay->id),
+                                                        ])
+                                                            @slot('buttonType')
+                                                                <button type="button" class="btn btn-xs" data-toggle="modal" data-target="#payment{{$pay->id}}"><i class="material-icons">edit</i>  
+                                                            @endslot
+                                                            @slot('form_content')
+                                                                <input type="hidden" value="{{$user->id}}" name="user_id">
+                                                                <input type="hidden" value="{{$user->studentInfo->channel_id}}" name="channel_id">
                                                                 <div class="row form-group">
-                                                                <label for="type" class="col-sm-3 control-label">Fee Type</label>
-                                                                <div class="col-sm-4">
-                                                                    {{-- <input id = "type" name="type" class="form-control" value="{{$pay->fees->fee_type->name}}" readonly> --}}
-                                                                    <select id="type" class="form-control" name="type">   
-                                                                        @foreach ($feeQuery as $fee)
-                                                                            {{-- <option value="{{\App\Fee::find($feeID)->fee_type->id}}">{{\App\Fee::find($feeID)->fee_type->name}}</option> --}}
-                                                                            <option value="{{$fee->fee_type->id}}">{{$fee->fee_type->name}}</option>
-                                                                         @endforeach
-                                                                    </select>
+                                                                    <label for="receipt" class="col-sm-3 control-label">@lang('Receipt #')</label>
+                                                                    <div class="col-sm-5">
+                                                                        <input id = "receipt" name="receipt" class="form-control" value="{{$pay->receipt}}">
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="row form-group">
-                                                                <label for="session" class="col-sm-3 control-label">Session</label>
-                                                                <div class="col-sm-4">
-                                                                    <input id = "session" name="session" class="form-control" value="{{$pay->session}}">
-                                                                </div>
-                                                            </div>
-                                                            <div class="row form-group">
-                                                                <label for="amount" class="col-sm-3 control-label">Payment</label>
-                                                                <div class="col-sm-6">
-                                                                    <input id = "amount" name="amount" class="form-control" value="{{$pay->amount}}">
-                                                                </div>
-                                                            </div>
-                                                        @endslot
-                                                    @endcomponent
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        @php $count++ @endphp
-                                    @endforeach
-                                    {{-- OLD PAY --}}
-                                    @foreach($oldPayments as $oldPay)
-                                        <tr>
-                                            <td class="text-center">{{$count}}</td>
-                                            <td class="text-center">{{$oldPay->receipt_num}}</td>
-                                            <td class="text-center">{{$oldPay->fee_type}}</td>
-                                            <td class="text-right">{{$oldPay->amount}}</td>
-                                            <td class="text-center">{{$oldPay->year}}</td>
-                                            <td class="text-center">{{$oldPay->pay_date}}</td>
-                                            <td class="text-center">
-                                                <div class="text-center">
-                                                    @component('components.fee-type-form', [
-                                                        'buttonTitle' => '',
-                                                        'modal_name' => 'paymentMigrate'.$oldPay->pay_id,
-                                                        'title' => 'Edit',
-                                                        'put_method' => method_field('PUT'),
-                                                        'url' => url('fees/tct_paymentMigrate/'.$oldPay->pay_id),
-                                                    ])
-                                                        @slot('buttonType')
-                                                            <button type="button" class="btn btn-xs" data-toggle="modal" data-target="#paymentMigrate{{$oldPay->pay_id}}"><i class="material-icons">edit</i>  
-                                                        @endslot
-                                                        @slot('form_content')
-                                                            <input type="hidden" value="{{$oldPay->tct_id}}" name="user_id">
-                                                            {{-- <input type="hidden" value="{{$user->studentInfo->channel_id}}" name="channel_id"> --}}
-                                                            <div class="row form-group">
-                                                                <label for="receipt" class="col-sm-3 control-label">@lang('Receipt #')</label>
-                                                                <div class="col-sm-5">
-                                                                    <input id = "receipt" name="receipt" class="form-control" value="{{$oldPay->receipt_num}}">
-                                                                </div>
-                                                            </div>
-                                                            <div class="row form-group">
-                                                                <label for="payment_date" class="col-sm-3 control-label">@lang('Date')</label>
-                                                                <div class="col-sm-4">
-                                                                    <input id = "payment_date" name="payment_date" class="form-control"  value="{{$oldPay->pay_date}}">
-                                                                </div>
-                                                            </div>
                                                                 <div class="row form-group">
-                                                                <label for="type" class="col-sm-3 control-label">Fee Type</label>
-                                                                <div class="col-sm-4">
-                                                                    @php $feeType = \App\PaymentMigrate::where('year', $oldPay->year)->groupBy('fee_type')->pluck('fee_type')->toArray();  @endphp
-                                                                    <select id="type" class="form-control" name="type">   
-                                                                        @foreach ($feeType as $type)
-                                                                            <option value="{{$type}}" {{($type==$oldPay->fee_type)?"selected = 'seclected'":""}}>{{$type}}</option>
-                                                                        @endforeach
-                                                                    </select>
+                                                                    <label for="payment_date" class="col-sm-3 control-label">@lang('Date')</label>
+                                                                    <div class="col-sm-4">
+                                                                        <input id = "payment_date" name="payment_date" class="form-control"  value="{{$pay->pay_date}}">
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="row form-group">
-                                                                <label for="session" class="col-sm-3 control-label">Session</label>
-                                                                <div class="col-sm-4">
-                                                                    <input id = "session" name="session" class="form-control" value="{{$oldPay->year}}">
+                                                                    <div class="row form-group">
+                                                                    <label for="type" class="col-sm-3 control-label">Fee Type</label>
+                                                                    <div class="col-sm-4">
+                                                                        {{-- <input id = "type" name="type" class="form-control" value="{{$pay->fees->fee_type->name}}" readonly> --}}
+                                                                        <select id="type" class="form-control" name="type">   
+                                                                            @php
+                                                                                $feeIDs = $feeList[$pay->session]['fee_id'];
+                                                                                $feeQuery = \App\Fee::with('fee_type')->find($feeIDs);
+                                                                            @endphp
+                                                                            @foreach ($feeQuery as $fee)
+                                                                                {{-- <option value="{{\App\Fee::find($feeID)->fee_type->id}}">{{\App\Fee::find($feeID)->fee_type->name}}</option> --}}
+                                                                                <option value="{{$fee->fee_type->id}}">{{$fee->fee_type->name}}</option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="row form-group">
-                                                                <label for="amount" class="col-sm-3 control-label">Payment</label>
-                                                                <div class="col-sm-6">
-                                                                    <input id = "amount" name="amount" class="form-control" value="{{$oldPay->amount}}">
+                                                                <div class="row form-group">
+                                                                    <label for="session" class="col-sm-3 control-label">Session</label>
+                                                                    <div class="col-sm-4">
+                                                                        <input id = "session" name="session" class="form-control" value="{{$pay->session}}">
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                        @endslot
-                                                    @endcomponent
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        @php $count++ @endphp
-                                    @endforeach
-                                    </tbody>
-                                </table>
+                                                                <div class="row form-group">
+                                                                    <label for="amount" class="col-sm-3 control-label">Payment</label>
+                                                                    <div class="col-sm-6">
+                                                                        <input id = "amount" name="amount" class="form-control" value="{{$pay->amount}}">
+                                                                    </div>
+                                                                </div>
+                                                            @endslot
+                                                        @endcomponent
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            @php $count++ @endphp
+                                        @endforeach
+                                        {{-- OLD PAY --}}
+                                        @foreach($oldPayments as $oldPay)
+                                            <tr>
+                                                <td class="text-center">{{$count}}</td>
+                                                <td class="text-center">{{$oldPay->receipt_num}}</td>
+                                                <td class="text-center">{{$oldPay->fee_type}}</td>
+                                                <td class="text-right">{{$oldPay->amount}}</td>
+                                                <td class="text-center">{{$oldPay->year}}</td>
+                                                <td class="text-center">{{$oldPay->pay_date}}</td>
+                                                <td class="text-center">
+                                                    <div class="text-center">
+                                                        @component('components.fee-type-form', [
+                                                            'buttonTitle' => '',
+                                                            'modal_name' => 'paymentMigrate'.$oldPay->pay_id,
+                                                            'title' => 'Edit',
+                                                            'put_method' => method_field('PUT'),
+                                                            'url' => url('fees/tct_paymentMigrate/'.$oldPay->pay_id),
+                                                        ])
+                                                            @slot('buttonType')
+                                                                <button type="button" class="btn btn-xs" data-toggle="modal" data-target="#paymentMigrate{{$oldPay->pay_id}}"><i class="material-icons">edit</i>  
+                                                            @endslot
+                                                            @slot('form_content')
+                                                                <input type="hidden" value="{{$oldPay->tct_id}}" name="user_id">
+                                                                {{-- <input type="hidden" value="{{$user->studentInfo->channel_id}}" name="channel_id"> --}}
+                                                                <div class="row form-group">
+                                                                    <label for="receipt" class="col-sm-3 control-label">@lang('Receipt #')</label>
+                                                                    <div class="col-sm-5">
+                                                                        <input id = "receipt" name="receipt" class="form-control" value="{{$oldPay->receipt_num}}">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row form-group">
+                                                                    <label for="payment_date" class="col-sm-3 control-label">@lang('Date')</label>
+                                                                    <div class="col-sm-4">
+                                                                        <input id = "payment_date" name="payment_date" class="form-control"  value="{{$oldPay->pay_date}}">
+                                                                    </div>
+                                                                </div>
+                                                                    <div class="row form-group">
+                                                                    <label for="type" class="col-sm-3 control-label">Fee Type</label>
+                                                                    <div class="col-sm-4">
+                                                                        @php $feeType = \App\PaymentMigrate::where('year', $oldPay->year)->groupBy('fee_type')->pluck('fee_type')->toArray();  @endphp
+                                                                        <select id="type" class="form-control" name="type">   
+                                                                            @foreach ($feeType as $type)
+                                                                                <option value="{{$type}}" {{($type==$oldPay->fee_type)?"selected = 'seclected'":""}}>{{$type}}</option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row form-group">
+                                                                    <label for="session" class="col-sm-3 control-label">Session</label>
+                                                                    <div class="col-sm-4">
+                                                                        <input id = "session" name="session" class="form-control" value="{{$oldPay->year}}">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row form-group">
+                                                                    <label for="amount" class="col-sm-3 control-label">Payment</label>
+                                                                    <div class="col-sm-6">
+                                                                        <input id = "amount" name="amount" class="form-control" value="{{$oldPay->amount}}">
+                                                                    </div>
+                                                                </div>
+                                                            @endslot
+                                                        @endcomponent
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            @php $count++ @endphp
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                @endif
                             </div>
                         </div>
                     </div>
