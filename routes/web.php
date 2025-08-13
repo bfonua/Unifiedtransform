@@ -29,6 +29,12 @@ Route::middleware(['auth', 'master'])->group(function () {
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/queryTest', 'UserController@queryTest');
 
+// TCT Test Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/tct-test', 'TestController@index')->name('test.index');
+    Route::post('/tct-test/custom', 'TestController@customQuery')->name('test.custom');
+});
+
 Route::middleware(['auth'])->group(function () {
     Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
     // Route::get('/view-attendance/section/{section_id}',function($section_id){

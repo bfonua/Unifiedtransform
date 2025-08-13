@@ -28,6 +28,7 @@ use App\Events\UserRegistered;
 use App\Events\StudentInfoUpdateRequested;
 use App\Events\TCTStudentInfoUpdateRequested;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use App\Services\User\UserService;
 
 /**
@@ -66,32 +67,12 @@ class UserController extends Controller
 
     public function tct_index($school_code, $student_code, $teacher_code)
     {
-        // session()->forget('section-attendance');
-
-        if ($this->userService->isListOfStudents($school_code, $student_code))
-            return $this->userService->indexTCTView('list.tct-student-list', $this->userService->getTCTStudents(), 'registered');
-        else
-            return view('home');
+        return $this->userService->indexTCTView('list.tct-student-list', $this->userService->getTCTStudents(), 'registered');
     }
 
     public function tct_list_archive()
     {
         return $this->userService->indexTCTView('list.tct-student-list', $this->userService->getTCTArchive(), 'archived');
-    }
-
-    /**
-     * @param $school_code
-     * @param $role
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function indexOther($school_code, $role)
-    {
-        if ($this->userService->isAccountant($role))
-            return $this->userService->indexOtherView('accounts.accountant-list', $this->userService->getAccountants());
-        else if ($this->userService->isLibrarian($role))
-            return $this->userService->indexOtherView('library.librarian-list', $this->userService->getLibrarians());
-        else
-            return view('home');
     }
 
     /**
@@ -143,6 +124,9 @@ class UserController extends Controller
         // return redirect()->route('tct_register');
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function showTCTRegistrationForm()
     {
         return view('auth.tct_register');
@@ -311,6 +295,12 @@ class UserController extends Controller
         $user->regrecord()->delete();
         $user->studentInfo->firstorFail()->delete();
         $user->delete();
+        $school_id = auth()->user()->school_id;
+        Cache::forget('studentQuery-' . $school_id);
+        Cache::forget('sections-' . $school_id);
+        Cache::forget('sectionsActive-' . $school_id);
+        Cache::forget('sectionsActive-' . $school_id);
+        Cache::forget('houses-' . $school_id);
         return redirect('home')->with('status', __('Deleted succesfully'));
     }
 
@@ -397,7 +387,7 @@ class UserController extends Controller
     public function show($user_code)
     {
         $user = $this->userService->getUserByUserCode($user_code);
-        if(!$user){
+        if (!$user) {
             return view('profile.no-user');
         }
         $sessions = \App\Assign::where('user_id', $user->id)->orderBy('session', 'desc')->groupBy('session')->pluck('session')->toArray();
@@ -415,11 +405,6 @@ class UserController extends Controller
                 ->groupBy('fee_id')
                 ->get();
             foreach ($sessions as $session) {
-                // $fees_assigned = \App\Assign::with('fees.fee_type')
-                //     ->where('user_id', $user->id)
-                //     ->where('session', $session)
-                //     ->groupBy('fee_id')
-                //     ->get();
                 $fees_assigned = $all_fees_assigned->where('session', $session);
                 if ($fees_assigned->first()) {
                     $feeList[$session]['year'] = $session;
@@ -434,28 +419,41 @@ class UserController extends Controller
             $fees_assigned = "";
         }
 
+        $allFeeIds = collect($feeList)->pluck('fee_id')->flatten()->unique()->filter()->all();
+        $feesWithChannels = \App\Fee::with('fee_channel')->whereIn('id', $allFeeIds)->get()->keyBy('id');
+        $feeChannels = [];
+        foreach ($feeList as $session => $fees) {
+            $firstFeeID = $fees['fee_id'][0] ?? null;
+            if ($firstFeeID && isset($feesWithChannels[$firstFeeID])) {
+                $fee = $feesWithChannels[$firstFeeID];
+                $feeChannels[$session] = $fee->fee_channel ? $fee->fee_channel->name : 'No Channel Assigned';
+            } else {
+                $feeChannels[$session] = 'No Fees Assigned';
+            }
+        }
+
         $subID = \App\SubjectAssign::where(['user_id' => $user->id])->get();
 
         foreach ($years as $session) {
             $subjectList[$session] = $subID->where('session', $session)->pluck('option')->toArray();
         }
-        if($user->studentInfo->section != NULL){
+        if ($user->studentInfo->section != NULL) {
             $optionSubs = \App\SubjectClass::whereHas('subject', function ($q) {
                 $q->where('active', 1);
             })->where([
                 'class_id' => $user->studentInfo->section->class_id,
                 'active' => 1,
             ])->pluck('subject_id')->toArray();
-        } else{
-            // For records previously updated with NULL values for their class to transfer to TVET19 as quick qorkaround
+        } else {
+            // For records previously updated with NULL values for their class to transfer to section'TVET19' as quick workaround
             $studentInfo = \App\StudentInfo::find($user->studentInfo->id);
-            $studentInfo->form_id = 63; 
+            $studentInfo->form_id = 63;
             $studentInfo->save();
             $user->section_id = 63;
             $user->save();
             $optionSubs = [];
         }
-        return view('profile.user', compact('user', 'assignedCount', 'feeList', 'sessions', 'fees_assigned', 'optionSubs', 'subjectList'));
+        return view('profile.user', compact('user', 'assignedCount', 'feeList', 'sessions', 'fees_assigned', 'optionSubs', 'subjectList', 'feeChannels'));
     }
 
     /**
@@ -613,6 +611,12 @@ class UserController extends Controller
         $tb2->assigned = 0;
         $tb2->channel_id = '';
         $tb2->save();
+        $school_id = auth()->user()->school_id;
+        Cache::forget('studentQuery-' . $school_id);
+        Cache::forget('sections-' . $school_id);
+        Cache::forget('sectionsActive-' . $school_id);
+        Cache::forget('sectionsActive-' . $school_id);
+        Cache::forget('houses-' . $school_id);
 
         return redirect("/user/$user->student_code");
     }
@@ -709,38 +713,5 @@ class UserController extends Controller
 
         // return $villages;
         return view('profile.student-tct-other', compact('churches', 'villages', 'countries'));
-    }
-
-    public function functionTesting()
-    {
-        // TESTING SECTION FINANCE RELATIONSHIPS
-
-        return date_default_timezone_get();
-        $sections = \App\Section::with('class', 'totalPaidAmount', 'totalAssignedAmount')
-        ->withCount(['students' => function ($q) {
-            $q->where('active', 1);
-        }])
-            ->where('active', 1)
-            ->orderBy('class_id')
-            ->orderBy('section_number', 'asc')
-            ->get();
-
-        // return view('test', compact('sections'));
-
-
-
-        // TESTING USER FINANCE RELATIONSHIPS
-
-        // return $user = \App\User::find('108')->with('totalFeeTypesAssigned')->get();
-        // return $user = \App\User::find('108')->feeTypesAssigned()->get();
-
-        $userTest = User::with('totalFeesAssigned', 'feeTypesAssigned')->whereHas("studentInfo", function ($q){
-            $q->where('session', now()->year);
-            // ->orderBy('form_num', 'asc');
-        })->get();
-
-        return view('test', compact('sections','userTest'));
-
-
     }
 }

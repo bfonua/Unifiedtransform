@@ -50,8 +50,18 @@ a:focus {
     background-color: #28a745 !important;
 }
 
+.badge-soft-success {
+    background-color: #e6f4ea !important;
+    color: #198754 !important;
+}
+
 .bg-danger {
     background-color: #dc3545 !important;
+}
+
+.badge-soft-danger {
+    background-color: #ffffff !important;
+    color: #dc3545 !important;
 }
 
 .bg-warning {

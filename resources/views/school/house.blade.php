@@ -11,15 +11,14 @@
         </div>
 
         <div class="col-md-10" id="main-container">
-            <h4>@lang('All Houses')</h4>
             <br>
+            <h4>@lang('All Houses')</h4>
             <a href="{{url('students/export/house')}}" class="btn btn-sm btn-success"><i class="material-icons">import_export</i> Export all houses</a>
             @include('layouts.master.add-house-form') <!--NEW HOUSE BUTTON -->
             <hr>
             @if ($errors->any())
                 @foreach ($errors->all() as $error)
                     <div>{{$error}}</div>
-                    {{-- <span class="error">{{ $error}}</span> --}}
                 @endforeach
                 <br>
             @endif

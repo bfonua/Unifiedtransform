@@ -225,10 +225,12 @@
                                         $firstYear = "20".substr($user->studentInfo->tct_id,0,2);
                                         $years = range(now()->year, $firstYear);
                                     @endphp
+                                    
                                     @foreach ($years as $session) 
                                         @if(isset($feeList[$session]))
                                             <div class="text-center">
-                                                <h4>{{$session}}<small> - Channel: {{\App\Fee::find($feeList[$session]['fee_id'])->first()->fee_channel->name}}</small></h4>
+                                                {{-- <h4>{{$session}}<small> - Channel: {{\App\Fee::find($feeList[$session]['fee_id'])->first()->fee_channel->name}}</small></h4> --}}
+                                                <h4>{{$session}} <small> - Channel: {{ $feeChannels[$session] ?? '' }}</small></h4>
                                             </div>
                                             <table class="table">
                                                 @if(in_array($session, $sessions))
@@ -256,7 +258,6 @@
                                                             $schoolFeesAccrue = 0;
                                                         }                                                                                      
                                                         @endphp
-                                                        {{-- Session is {{$schoolAmountPaid}} --}}
                                                         @foreach ($feeList[$session]['fee_id'] as $id)
                                                             <tr>
                                                                 <th scope="row" class="text-center">{{$type = \App\Fee::find($id)->fee_type->name}}</th>
@@ -359,7 +360,7 @@
                                                                                 <hr>
                                                                                 @php
                                                                                     $feeListIDs = \App\Fee::with('fee_type')->find($feeList[$session]['fee_id']);
-                                                                                    Log::info($feeListIDs);
+                                                                                    // Log::info($feeListIDs);
                                                                                 @endphp
                                                                                 @foreach ($feeListIDs as $feeListID)
                                                                                     @php

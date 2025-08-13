@@ -46,7 +46,7 @@
                     <form class="form-horizontal" method="POST" id="registerForm" action="{{ url('register/'.session('register_role_action')) }}">
                         {{ csrf_field() }}
                         <!-- LAST NAME -->
-                        <div class="form-group{{ $errors->has('lst_name') ? ' has-err  or' : '' }}">
+                        <div class="form-group{{ $errors->has('lst_name') ? ' has-error  or' : '' }}">
                             <label for="lst_name" class="col-md-4 control-label">* @lang('Last Name')</label>
                             <div class="col-md-6">
                                 <input id="lst_name" type="text" class="form-control" name="lst_name" value="{{ old('lst_name') }}" placeholder="e.g. Lolohea"
@@ -107,7 +107,7 @@
                         <div class="form-group{{ $errors->has('birthday') ? ' has-error' : '' }}">
                             <label for="birthday" class="col-md-4 control-label">* @lang('Date of Birth')</label>
                             <div class="col-md-6">
-                                <input id="birthday" type="text" class="form-control" name="birthday" value="{{old('birthday')}}" placeholder="yyyy/mm/dd"
+                                <input id="birthday" type="date" class="form-control" name="birthday" value="{{old('birthday')}}" placeholder="yyyy/mm/dd"
                                     required>
                                 @if ($errors->has('birthday'))
                                 <span class="help-block">
@@ -320,19 +320,6 @@
                                 @endif
                             </div>
                         </div>         
-                        <!-- GROUPS -->
-                        {{-- <div class="form-group{{ $errors->has('group') ? ' has-error' : '' }}">
-                            <label for="group" class="col-md-4 control-label">@lang('Group (Optional)')</label>
-                            <div class="col-md-6">
-                                <input id="group" type="text" class="form-control" name="group" value="{{ old('group') }}"
-                                    placeholder="@lang('Academy, Sports, etc.')">
-                                @if ($errors->has('group'))
-                                <span class="help-block">
-                                    <strong>{{ $errors->first('group') }}</strong>
-                                </span>
-                                @endif
-                            </div>
-                        </div>                 --}}
                         <hr>
                         @endif
                         @if(session('register_role', 'teacher') == 'teacher')
@@ -488,15 +475,6 @@
 
                         @endif
                         <hr>
-                        <div class="form-group">
-                            <label class="col-md-4 control-label">@lang('Upload Profile Picture')</label>
-                            <div class="col-md-6">
-                                <input type="hidden" id="picPath" name="pic_path">
-                                @component('components.file-uploader',['upload_type'=>'profile'])
-                                @endcomponent
-                            </div>
-                        </div>
-
                         <div class="form-group">
                             <div class="col-md-6 col-md-offset-4">
                                 <button type="submit" id="registerBtn" class="btn btn-primary">

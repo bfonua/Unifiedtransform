@@ -24,7 +24,6 @@
             <div class="col-md-10" id="main-container">
                 <br>
                 <h4>@lang('Active Departments & Classes')</h4>
-                {{-- <br> --}}
                 <a href="{{url('students/export/tct')}}" class="btn btn-sm btn-success"><i class="material-icons">import_export</i> Export Class List</a>
                 <a href="{{url('students/all_reg')}}" class="btn btn-sm btn-primary"><i class="material-icons">import_export</i> Export Reg Info</a>
                 @include('layouts.master.add-class-form') <!--NEW FORM BUTTON -->
@@ -52,11 +51,8 @@
                                             </div>
                                             <div class="col-md-3">
                                                 @php
-                                                    // $output = $class->active_sections()->count('id');
                                                     $output = $class->sections_count;
                                                     $msg = (($output == 0)? '-': (($output == 1)? '1 section': $output.' sections'));
-                                                    // $active = $class->sections()->where('active', 1)->count('id');
-                                                    // ({{$active}} / {{$output - $active}})
                                                 @endphp
                                                 <h6 class='text-center'>{{$msg}} </h6>
                                             </div>
@@ -75,10 +71,10 @@
                                                 <tr>
                                                     <th class="text-center">@lang('Section Name')</th>
                                                     @if(isset($_GET['att']) && $_GET['att'] == 1)
-                                                    <th class="text-center">@lang('View Today\'s Attendance')</th>
-                                                    <th class="text-center">@lang('View Each Student\'s Attendance')</th>
-                                                    <th class="text-center">@lang('Give Attendance')</th>
-                                                    {{-- <th class="text-center">@lang('Edit')</th> --}}
+                                                        <th class="text-center">@lang('View Today\'s Attendance')</th>
+                                                        <th class="text-center">@lang('View Each Student\'s Attendance')</th>
+                                                        <th class="text-center">@lang('Give Attendance')</th>
+                                                        {{-- <th class="text-center">@lang('Edit')</th> --}}
                                                     @endif
                                                     @if(isset($_GET['course']) && $_GET['course'] == 1)
                                                     <th class="text-center">@lang('Active')</th>

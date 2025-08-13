@@ -11,55 +11,42 @@
         <th scope="col" class="text-center">@lang('Form')</th>
         <th scope="col" class="text-center">@lang('Form #')</th>
         <th scope="col" class="text-center">@lang('House')</th>
+        <th scope="col" class="text-center">@lang('Church')</th>
     </tr>
   </thead>
   <tbody>
-    {{-- @foreach ($users as $key=>$user)
-    <tr>
-        <td class="text-center"><small>{{$user->student_code}}</small></td>
-        <td class="text-center">
-            @if($type == 'registered')
-                {{($user->active)?''.ucfirst($user->studentInfo->group):'Inactive'}}
-            @elseif($type == 'archived')
-                {{($user->active)?'Graduated / '.ucfirst($user->studentInfo->group):'Inactive'}}
-            @endif
-            </td>
-        <td><small><a href="{{url('user/'.$user->student_code)}}">{{($user->name == '')?$user->given_name.' '.$user->lst_name:$user->name}}</a></small></td>
-        @if($type != 'registered')
-            <td class="text-center">
-                <small>
-                    {{$user->studentInfo['session']}}
-                </small>
-            </td>
-        @endif
-        {{Log::info($user->studentInfo->id)}}
-        <td class="text-center"><small>{{$user->studentInfo->section->class->class_number}}{{$user->studentInfo->section->section_number}}</small></td>
-        <td class="text-center"><small>{{$user->studentInfo->form_num}}</small></td>
-        <td  class="text-center" style="white-space: nowrap;"><small>{{$user->studentInfo->house->house_name}}</small></td>
-    </tr>
-    @endforeach --}}
-
     @foreach ($users as $user)
         <tr class="bg-">
-            <td class="text-center"><small>{{$user->student_code}}</small></td>
+            <td class="text-center"><small>{{ $user->student_code }}</small></td>
             <td class="text-center">
                 @if($type == 'registered')
-                    {{($user->active)?''.ucfirst($user->studentInfo->group):'Inactive'}}
+                    {{ ($user->active && optional($user->studentInfo)->group) ? ucfirst($user->studentInfo->group) : 'Inactive' }}
                 @elseif($type == 'archived')
-                    {{($user->active)?'Graduated / '.ucfirst($user->studentInfo->group):'Inactive'}}
+                    {{ ($user->active && optional($user->studentInfo)->group) ? 'Graduated / ' . ucfirst($user->studentInfo->group) : 'Inactive' }}
                 @endif
             </td>
-            <td><small><a href="{{url('user/'.$user->student_code)}}">{{($user->given_name == '')?$user->name:$user->given_name.' '.$user->lst_name}}</a></small></td>
+            <td>
+                <small>
+                    <a href="{{ url('user/' . $user->student_code) }}">
+                        {{ $user->given_name == '' ? $user->name : $user->given_name . ' ' . $user->lst_name }}
+                    </a>
+                </small>
+            </td>
             @if($type != 'registered')
                 <td class="text-center">
-                    <small>
-                        {{$user->studentInfo['session']}}
-                    </small>
+                    <small>{{ optional($user->studentInfo)->session }}</small>
                 </td>
             @endif
-            <td class="text-center"><small>{{ ($user->studentInfo->form_id)?$user->studentInfo->section->class->class_number.$user->studentInfo->section->section_number:"-"}}</small></td>
-            <td class="text-center"><small>{{$user->studentInfo->form_num}}</small></td>
-            <td class="text-center" style="white-space: nowrap;"><small>{{$user->studentInfo->house->house_name}}</small></td>
+            <td class="text-center">
+                <small>
+                    {{ optional(optional(optional($user->studentInfo)->section)->class)->class_number ?? '-' }}{{ optional($user->studentInfo->section)->section_number ?? '' }}
+                </small>
+            </td>
+            <td class="text-center"><small>{{ optional($user->studentInfo)->form_num }}</small></td>
+            <td class="text-center" style="white-space: nowrap;">
+                <small>{{ optional($user->studentInfo->house)->house_name }}</small>
+            </td>
+            <td class="text-center"><small>{{ optional($user->studentInfo)->church }}</small></td>
         </tr>
     @endforeach
   </tbody>
@@ -70,9 +57,11 @@
     <script>
         $(document).ready(function($){
             $('#myTable').DataTable({
-                paging: false,
-                dom: 'Bfrtip',
-                // pagingType: 'simple',
+                "pageLength": 50, // Show 50 records per page instead of default 10
+                "lengthMenu": [10, 25, 50, 100, 200, -1], // Allow user to choose page size, -1 means "All"
+                "lengthChange": true, // Show the page length selector dropdown
+                // paging: false, // Uncomment this line if you want to disable paging entirely
+                dom: 'Blfrtip', // Added 'l' for length menu
                 buttons: [
                     'copy', 'excel', 'pdf'
                 ]

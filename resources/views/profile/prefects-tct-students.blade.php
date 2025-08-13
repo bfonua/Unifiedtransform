@@ -16,16 +16,14 @@
             <div class="panel panel-default">
                 @if($prefects->first())
                     <div class="panel panel-default">
-                        <table id="myTable" class="table table-bordered">
+                        <table id="myTable" class="table table-condensed table-bordered table-striped table-hover">
                             <thead>
                             <tr>
                                 <th class="text-center" scope="col">@lang('#')</th>
                                 <th class="text-center" scope="col">@lang('TCT ID')</th>
-                                {{-- <th class="text-center" scope="col">@lang('Status')</th> --}}
                                 <th class="text-center" scope="col">@lang('Student Name')</th>
                                 <th class="text-center" scope="col">@lang('Form')</th>
                                 <th class="text-center" scope="col">@lang('House')</th>
-                                {{-- <th scope="col">@lang('Grade History')</th> --}}
                             </tr>
                             </thead>
                             <tbody>
@@ -36,16 +34,16 @@
                                         {{$student->tct_id}}
                                     </td>
                                     <td>
-                                        <a href="{{url('user/'.$student->student->student_code)}}">{{$student->student->given_name.' '.$student->student->lst_name}}</a>
+                                        <a href="{{url('user/'.$student->student->student_code)}}">{{$student->student->given_name ?? ''}} {{$student->student->lst_name ?? ''}}</a>
                                             @if($student->group == "Head Prefect")
-                                                - Head Prefect
+                                                <span class="badge bg-success ms-2">Head Prefect</span>
                                             @endif
                                     </td>
                                     <td class="text-center">
-                                        {{$student->section->class->class_number.$student->section->section_number}}
+                                        {{$student->section->class->class_number ?? ''}}{{$student->section->section_number ?? ''}}
                                     </td>
                                     <td class="text-center">
-                                        {{$student->house->house_abbrv}}
+                                        {{$student->house->house_abbrv ?? ''}}
                                     </td>
                                 </tr>
                             @endforeach
@@ -57,9 +55,6 @@
                         @lang('No Related Data Found.')
                     </div>
                 @endif
-
-
-
             </div>
         </div>
     </div>

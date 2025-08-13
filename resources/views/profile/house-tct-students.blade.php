@@ -15,9 +15,8 @@
             </h4>
             <div class="panel panel-default">
               @if($students->first())
-                {{-- {{$students}} --}}
-                <div class="panel-body">
-                    <table id= "myTable" class="table table-bordered">
+                <div class="panel-body table-responsive">
+                    <table id="myTable" class="table table-bordered">
                         <thead>
                         <tr>
                             <th class="text-center" scope="col">@lang('#')</th>
@@ -25,7 +24,6 @@
                             <th class="text-center" scope="col">@lang('Status')</th>
                             <th class="text-center" scope="col">@lang('Student Name')</th>
                             <th class="text-center" scope="col">@lang('Form')</th>
-                            {{-- <th scope="col">@lang('Grade History')</th> --}}
                         </tr>
                         </thead>
                         <tbody>
@@ -34,7 +32,14 @@
                                     <td class="text-center">{{$loop->iteration}}</td>
                                     <td class="text-center">{{$student->tct_id}}</td>
                                     <td class="text-center">
-                                        {{($student->student->active)? ucfirst($student->group):'Inactive / '.ucfirst($student->student->inactiveNow($student->session)->first()->type)}}  
+                                        @if(optional($student->student)->active)
+                                            <span class="badge bg-success">{{ ucfirst($student->group ?? '') }}</span>
+                                        @else
+                                            <span class="badge bg-secondary">
+                                                @lang('Inactive') /
+                                                {{ ucfirst(optional($student->student)->inactiveNow($student->session)->first()->type ?? '') }}
+                                            </span>
+                                        @endif
                                     </td>
                                     <td>
                                         <a href="{{url('user/'.$student->student->student_code)}}">{{$student->student->given_name.' '.$student->student->lst_name}}</a>

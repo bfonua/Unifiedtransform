@@ -12,8 +12,8 @@
             @include('layouts.leftside-menubar')
         </div>
         <div class="col-md-7 container" id="main-container">
-            <h4>@lang('Assignments and Payments')</h4>
             <br>
+            <h4>@lang('Assignments and Payments')</h4>
             <a href="{{url('fees/exportAssign')}}" class="btn btn-sm btn-primary"><i class="material-icons">import_export</i> Export Assigned</a>
             <a href="{{url('fees/exportPayment')}}" class="btn btn-sm btn-danger"><i class="material-icons">monetization_on</i> Export Payment</a>
             <a href="{{url('fees/exportRemain')}}" class="btn btn-sm btn-success"><i class="material-icons">monetization_on</i> Export Remaining</a>

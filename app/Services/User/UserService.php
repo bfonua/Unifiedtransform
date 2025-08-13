@@ -8,6 +8,7 @@ use App\Inactive;
 use Illuminate\Support\Facades\DB;
 use Mavinoo\Batch\Batch;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class UserService
 {
@@ -269,10 +270,8 @@ class UserService
                 'fee_id' => $fee_id,
             ])
                 ->sum('amount');
-
             // get amount from previous assigned channels
             $feeType = \App\Fee::find($fee_id)->fee_type;
-            // echo ($fee_id . " " . $feeType);
             $payAmountOld = \App\Payment::whereHas("fees", (function ($q) use ($feeType) {
                 $q->where('fee_type_id', $feeType->id);
             }))
@@ -397,15 +396,6 @@ class UserService
         });
     }
 
-    public function isAccountant($role)
-    {
-        return $role == 'accountant';
-    }
-
-    public function isLibrarian($role)
-    {
-        return $role == 'librarian';
-    }
 
     public function indexOtherView($view, $users)
     {
@@ -426,27 +416,24 @@ class UserService
             ->paginate(50);
     }
 
-    // Loads and view registered students for the school year
     public function getTCTStudents()
     {
-        return User::with('studentInfo.house', 'studentInfo.section.class')->whereHas('studentInfo', function ($q){
-            $q->where("session", now()->year);
-        })->get();
+        // Loads and view current students for the school year
+        // This method retrieves all students currently enrolled in the school for the current session.
+        return User::with('studentInfo.house', 'studentInfo.section.class')
+            ->whereHas('studentInfo', function ($q) {
+                $q->where("session", now()->year);
+            })
+            ->get();
     }
 
     public function getTCTArchive()
     {
-        // ini_set('memory_limit', '-1');
-        // return User::whereHas("studentInfo", function ($q) {
-        //     $q->where("session", ">", 2018)
-        //         ->where("session", "<", now()->year);
-        // })->where('role', 'student')
-        //     ->get();
-
-        return User::with('studentInfo.house', 'studentInfo.section.class')->whereHas('studentInfo', function($q) {
-            $q->whereBetween('session', [2018, now()->year-1]);
+        // Loads and view archived students for the school year
+        return User::with('studentInfo.house', 'studentInfo.section.class')->whereHas('studentInfo', function ($q) {
+            $q->whereBetween('session', [2018, now()->year - 1]);
         })->where('role', 'student')
-        ->get();
+            ->get();
     }
 
     public function getTeachers()
@@ -454,26 +441,6 @@ class UserService
         return $this->user->with(['section', 'school'])
             ->where('code', auth()->user()->school->code)
             ->where('role', 'teacher')
-            ->where('active', 1)
-            ->orderBy('name', 'asc')
-            ->paginate(50);
-    }
-
-    public function getAccountants()
-    {
-        return $this->user->with('school')
-            ->where('code', auth()->user()->school->code)
-            ->where('role', 'accountant')
-            ->where('active', 1)
-            ->orderBy('name', 'asc')
-            ->paginate(50);
-    }
-
-    public function getLibrarians()
-    {
-        return $this->user->with('school')
-            ->where('code', auth()->user()->school->code)
-            ->where('role', 'librarian')
             ->where('active', 1)
             ->orderBy('name', 'asc')
             ->paginate(50);
@@ -500,20 +467,34 @@ class UserService
 
     public function getTCTSectionStudentsWithSubject($section_id)
     {
-        return \App\User::with('studentInfo', 'subjectAssigned.subject')->whereHas("studentInfo", function ($q) use ($section_id) {
-            $q->where('session', now()->year)
-                ->where('form_id', $section_id)
-                ->orderBy('form_num', 'asc');
-        })->get();
+        // This method retrieves students in a specific section with their associated subjects.
+        return \App\User::with('studentInfo.house')
+            ->whereHas('studentInfo', function ($q) use ($section_id) {
+                $q->where('session', now()->year)
+                    ->where('form_id', $section_id);
+            })
+            ->join('student_infos', 'users.id', '=', 'student_infos.student_id')
+            ->orderBy('student_infos.form_num', 'asc')
+            ->select('users.*')
+            ->get();
     }
 
     public function getTCTSectionStudentsWithFinance($section_id)
     {
-        return \App\User::with('studentInfo', 'fees', 'totalFeesAssigned', 'totalFeesPaid', 'feeTypesAssigned', 'feeTypesPaid')->whereHas("studentInfo", function ($q) use ($section_id) {
-            $q->where('session', now()->year)
-                ->where('form_id', $section_id)
-                ->orderBy('form_num', 'asc');
-        })->get();
+        // return \App\User::with('studentInfo', 'fees', 'totalFeesAssigned', 'totalFeesPaid', 'feeTypesAssigned', 'feeTypesPaid')->whereHas("studentInfo", function ($q) use ($section_id) {
+        //     $q->where('session', now()->year)
+        //         ->where('form_id', $section_id)
+        //         ->orderBy('form_num', 'asc');
+        // })->get();
+        return \App\User::with('studentInfo', 'fees', 'totalFeesAssigned', 'totalFeesPaid', 'feeTypesAssigned', 'feeTypesPaid')
+            ->whereHas('studentInfo', function ($q) use ($section_id) {
+                $q->where('session', now()->year)
+                    ->where('form_id', $section_id);
+            })
+            ->join('student_infos', 'users.id', '=', 'student_infos.student_id')
+            ->orderBy('student_infos.form_num', 'asc')
+            ->select('users.*')
+            ->get();
     }
 
     public function getSectionStudentsWithStudentInfo($request, $section_id)
@@ -572,31 +553,34 @@ class UserService
         $tb->save();
         return $tb;
     }
-    // TCT Registration for new students
     public function storeTCTStudent($request)
     {
+        // This method is used to register a new student using the TCT registration form.
         $tb = new $this->user;
         $tb->lst_name = $request->lst_name; // LAST NAME
-        $tb->given_name = $request->given_name; // GIVEN ANME
+        $tb->given_name = $request->given_name; // GIVEN NAME
         $tb->name = $request->lst_name . ' ' . $request->given_name; // FULL NAME
-        // $tb->email = (!empty($request->email)) ? $request->email : ''; 
-        // $tb->password = bcrypt($request->password); 
         $tb->role = 'student';
         $tb->active = 1;
         $tb->school_id = auth()->user()->school_id;
         $tb->code = auth()->user()->code; // School Code
         $tb->student_code = $request->tct_id;
-        $tb->gender = 'male';
+        $tb->gender = 'male'; // Default, all-boys school
         $tb->blood_group = $request->blood_group;
-        $tb->nationality = (!empty($request->nationality)) ? $request->nationality : '';
-        // $tb->phone_number = $request->phone_number;
-        $tb->village = (!empty($request->village)) ? $request->village : '';
-        $tb->notes = (!empty($request->notes)) ? $request->notes : '';
-        $tb->pic_path = (!empty($request->pic_path)) ? $request->pic_path : '';
+        $tb->nationality = $request->nationality ?? '';
+        $tb->village = $request->village ?? '';
+        $tb->notes = $request->notes ?? '';
+        $tb->pic_path = $request->pic_path ?? '';
         $tb->verified = 1;
         $tb->section_id = $request->section;
-        $tb->health_conditions = ($request->health_condition) ? $request->health_condition : '';
+        $tb->health_conditions = $request->health_condition ?? '';
         $tb->save();
+        // Invalidate relevant cache keys
+        $school_id = auth()->user()->school_id;
+        Cache::forget('studentQuery-' . $school_id);
+        Cache::forget('sections-' . $school_id);
+        Cache::forget('sectionsActive-' . $school_id);
+        Cache::forget('houses-' . $school_id);
         return $tb;
     }
     // Original query - registration for student

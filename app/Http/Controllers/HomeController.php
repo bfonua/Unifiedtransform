@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -24,59 +27,50 @@ class HomeController extends Controller
     public function index()
     {
 
-        if (\Auth::user()->role != 'master') {
-            $minutes = 1440; // 24 hours = 1440 minutes
-            $school_id = \Auth::user()->school->id;
-            $classes = \Cache::remember('classes-' . $school_id, $minutes, function () use ($school_id) {
+        if (Auth::user()->role != 'master') {
+            $minutes = 120; // 24 hours = 1440 minutes
+            $school_id = Auth::user()->school->id;
+            $classes = Cache::remember('classes-' . $school_id, $minutes, function () use ($school_id) {
                 return \App\Myclass::bySchool($school_id)
                     ->pluck('id')
                     ->toArray();
             });
-            // $totalStudents = \Cache::remember('totalStudents-'.$school_id, $minutes, function () use($school_id) {
-            //   return \App\User::bySchool($school_id)
-            //     ->where('role','student')
-            // ->studentInfo()
-            // ->where('session', now()->year)
-            // ->where('active', 1)
-            //     ->count();
-            // });
-
-            $totalTeachers = \Cache::remember('totalTeachers-' . $school_id, $minutes, function () use ($school_id) {
+                 $totalTeachers = Cache::remember('totalTeachers-' . $school_id, $minutes, function () use ($school_id) {
                 return \App\User::bySchool($school_id)
                     ->where('role', 'teacher')
                     ->where('active', 1)
                     ->count();
             });
-            $totalBooks = \Cache::remember('totalBooks-' . $school_id, $minutes, function () use ($school_id) {
+            $totalBooks = Cache::remember('totalBooks-' . $school_id, $minutes, function () use ($school_id) {
                 return \App\Book::bySchool($school_id)->count();
             });
-            $totalClasses = \Cache::remember('totalClasses-' . $school_id, $minutes, function () use ($school_id) {
+            $totalClasses = Cache::remember('totalClasses-' . $school_id, $minutes, function () use ($school_id) {
                 return \App\Myclass::bySchool($school_id)->count();
             });
-            $totalSections = \Cache::remember('totalSections-' . $school_id, $minutes, function () use ($classes) {
+            $totalSections = Cache::remember('totalSections-' . $school_id, $minutes, function () use ($classes) {
                 return \App\Section::whereIn('class_id', $classes)->count();
             });
-            $notices = \Cache::remember('notices-' . $school_id, $minutes, function () use ($school_id) {
+            $notices = Cache::remember('notices-' . $school_id, $minutes, function () use ($school_id) {
                 return \App\Notice::bySchool($school_id)
                     ->where('active', 1)
                     ->get();
             });
-            $events = \Cache::remember('events-' . $school_id, $minutes, function () use ($school_id) {
+            $events = Cache::remember('events-' . $school_id, $minutes, function () use ($school_id) {
                 return \App\Event::bySchool($school_id)
                     ->where('active', 1)
                     ->get();
             });
-            $routines = \Cache::remember('routines-' . $school_id, $minutes, function () use ($school_id) {
+            $routines = Cache::remember('routines-' . $school_id, $minutes, function () use ($school_id) {
                 return \App\Routine::bySchool($school_id)
                     ->where('active', 1)
                     ->get();
             });
-            $syllabuses = \Cache::remember('syllabuses-' . $school_id, $minutes, function () use ($school_id) {
+            $syllabuses = Cache::remember('syllabuses-' . $school_id, $minutes, function () use ($school_id) {
                 return \App\Syllabus::bySchool($school_id)
                     ->where('active', 1)
                     ->get();
             });
-            $exams = \Cache::remember('exams-' . $school_id, $minutes, function () use ($school_id) {
+            $exams = Cache::remember('exams-' . $school_id, $minutes, function () use ($school_id) {
                 return \App\Exam::bySchool($school_id)
                     ->where('active', 1)
                     ->get();
@@ -84,84 +78,88 @@ class HomeController extends Controller
 
             // TCT functions
 
-            $studentQuery = \App\User::withCount('studentInfo')->whereHas("studentInfo", function ($q) {
-                $q->where("session", now()->year);
-            })->get();
+            // Cache studentQuery and related counts
+            $studentQuery = Cache::remember('studentQuery-' . $school_id, $minutes, function () {
+                return \App\User::withCount('studentInfo')->whereHas("studentInfo", function ($q) {
+                    $q->where("session", now()->year);
+                })->get();
+            });
             $totalStudents = $studentQuery->count();
             $totalActive = $studentQuery->where('active', 1)->count();
 
-            $inactiveType = ["withdrawn", "removed", "suspended", "expelled"];
-            $inactiveOutput = [];
-            foreach ($inactiveType as $type) {
-                $inactive = \App\Inactive::where('session', now()->year)
-                    ->where('type', $type)
-                    ->distinct('user_id')
-                    ->count();
-                $inactiveOutput[$type] = $inactive;
-            }
+            // Cache inactiveOutput
+            $inactiveOutput = Cache::remember('inactiveOutput-' . $school_id, $minutes, function () {
+                $inactiveType = ["withdrawn", "removed", "suspended", "expelled"];
+                $output = [];
+                foreach ($inactiveType as $type) {
+                    $inactive = \App\Inactive::where('session', now()->year)
+                        ->where('type', $type)
+                        ->distinct('user_id')
+                        ->count();
+                    $output[$type] = $inactive;
+                }
+                return $output;
+            });
 
-            $sections = \App\Section::with('class')->withCount('students')
-                ->where('active', 1)
-                ->orderBy('class_id')
-                ->orderBy('section_number', 'asc')
-                ->get();
+            // Cache sections and sectionsActive
+            $sections = Cache::remember('sections-' . $school_id, $minutes, function () {
+                return \App\Section::with('class')->withCount('students')
+                    ->where('active', 1)
+                    ->orderBy('class_id')
+                    ->orderBy('section_number', 'asc')
+                    ->get();
+            });
+            $sectionsActive = Cache::remember('sectionsActive-' . $school_id, $minutes, function () {
+                return \App\Section::withCount(['students' => function ($q) {
+                    $q->where('active', 1);
+                }])
+                    ->where('active', 1)
+                    ->orderBy('class_id')
+                    ->orderBy('section_number', 'asc')
+                    ->get();
+            });
+            // Build studentCountList - associative array with section IDs to student counts
+            $studentCountList = [
+                'total' => $sections->pluck('students_count', 'id')->toArray(),
+                'active' => $sectionsActive->pluck('students_count', 'id')->toArray(),
+            ];
 
-            $sectionsActive = \App\Section::withCount(['students' => function ($q) {
-                $q->where('active', 1);
-            }])
-                ->where('active', 1)
-                ->orderBy('class_id')
-                ->orderBy('section_number', 'asc')
-                ->get();
-
-            $studentCountList = [];
-            $count = 0;
-            foreach ($sections as $section) {
-                $studentCountList['total'][$section->id] = $section->students_count;
-                $studentCountList['active'][$section->id] = $sectionsActive[$count]->students_count;
-                $count++;
-            }
-
-
-            $houses = \App\House::withCount(['users' => function($q){
-                $q->where('active', 1);
-            },'students'])
-                ->where('active', 1)
-                ->get();
+            // Cache houses and housesCount
+            $houses = Cache::remember('houses-' . $school_id, $minutes, function () {
+                return \App\House::withCount(['users' => function ($q) {
+                    $q->where('active', 1);
+                }, 'students'])
+                    ->where('active', 1)
+                    ->get();
+            });
             $housesCount = $houses->count();
 
+            // Build studentCountHouse - associative array with house IDs to student counts
+            $studentCountHouse = $houses->pluck('users_count', 'id')->toArray();
 
-            $studentCountHouse = [];
-            foreach ($houses as $house) {
-                // $studentCount = \App\StudentInfo::where('house_id', $house->id)
-                //     ->where('session', now()->year)
-                //     ->count('id');
+            // Get the current session year
+            $session = now()->year;
 
-                $studentCountHouse[$house->id] = $house->users_count;
-            }
-            $feeArr = $feeAss = $feePay = $feeRemain = [];
-
+            // Get all assigns and payments for the session, eager load fees
+            $assigns = DB::table('assigns')
+                ->join('fees', 'assigns.fee_id', '=', 'fees.id')
+                ->where('assigns.session', $session)
+                ->select('fees.fee_type_id', 'fees.amount')
+                ->get();
+            $payments = DB::table('payments')
+                ->join('fees', 'payments.fee_id', '=', 'fees.id')
+                ->where('payments.session', $session)
+                ->select('fees.fee_type_id', 'payments.amount')
+                ->get();
             $feeTypes = \App\FeeType::where('active', 1)->get();
-            foreach($feeTypes as $feeType){
-            // for ($i = 1; $i <= count($feeTypes); $i++) {
-                $feeName = $feeType->name;
-                $totalAssign = \DB::table('assigns')
-                    ->join('fees', 'assigns.fee_id', '=', 'fees.id')
-                    ->where('assigns.session', now()->year)
-                    ->where('fees.fee_type_id', $feeType->id)
-                    ->sum('fees.amount');
-                $feeAss[$feeName] = $totalAssign;
-
-                $totalPay = \DB::table('payments')
-                    ->join('fees', 'payments.fee_id', '=', 'fees.id')
-                    ->where('payments.session', now()->year)
-                    ->where('fees.fee_type_id', $feeType->id)
-                    ->sum('payments.amount');
-                $feePay[$feeName] = $totalPay;
-
-                $feeRemain[$feeName] = $totalAssign - $totalPay;
+            $feeAss = $feePay = $feeRemain = [];
+            foreach ($feeTypes as $feeType) {
+                $assigned = $assigns->where('fee_type_id', $feeType->id)->sum('amount');
+                $paid = $payments->where('fee_type_id', $feeType->id)->sum('amount');
+                $feeAss[$feeType->name] = $assigned;
+                $feePay[$feeType->name] = $paid;
+                $feeRemain[$feeType->name] = $assigned - $paid;
             }
-
             $feeAss['total'] = array_sum($feeAss);
             $feePay['total'] = array_sum($feePay);
             $feeRemain['total'] = $feeAss['total'] - $feePay['total'];
@@ -170,12 +168,8 @@ class HomeController extends Controller
                 'Payment' => $feePay,
                 'Remain' => $feeRemain,
             ];
-            // return $feeArr;
 
-            // if(\Auth::user()->role == 'student')
-            //   $messageCount = \App\Notification::where('student_id',\Auth::user()->id)->count();
-            // else
-            //   $messageCount = 0;
+
             return view('home', [
                 'totalStudents' => $totalStudents,
                 'totalActive' => $totalActive,

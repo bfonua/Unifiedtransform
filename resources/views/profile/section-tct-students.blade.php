@@ -24,22 +24,30 @@
                             <th class="text-center" scope="col">@lang('Status')</th>
                             <th class="text-center" scope="col">@lang('Student Name')</th>
                             <th class="text-center" scope="col">@lang('House')</th>
-                            {{-- <th scope="col">@lang('Grade History')</th> --}}
                         </tr>
                         </thead>
                         <tbody>
                         @foreach($students as $student)
                             <tr>
-                                <td class="text-center">{{$student->studentInfo->form_num}}</td>
-                                <td class="text-center">{{$student->student_code}}</td>
+                                <td class="text-center" scope="row">{{$student->studentInfo->form_num ?? '-'}}</td>
+                                <td class="text-center">{{$student->student_code ?? '-'}}</td>
                                 <td class="text-center">
-                                    {{($student->active =="1")?ucfirst($student->studentInfo->group):'Inactive / '.ucfirst($student->inactiveNow($student->studentInfo->session)->first()->type)}}  
+                                    @if($student->active == "1")
+                                        <span class="badge bg-success">{{ ucfirst($student->studentInfo->group ?? '') }}</span>
+                                    @else
+                                        <span class="badge bg-secondary">
+                                            @lang('Inactive') /
+                                            {{ ucfirst(optional($student->inactiveNow($student->studentInfo->session)->first())->type) }}
+                                        </span>
+                                    @endif
                                 </td>
                                 <td>
-                                    <a href="{{url('user/'.$student->student_code)}}">{{$student->given_name.' '.$student->lst_name}}</a>
+                                    <a href="{{ url('user/'.$student->student_code) }}">
+                                        {{ $student->given_name.' '.$student->lst_name }}
+                                    </a>
                                 </td>
                                 <td class="text-center">
-                                    {{$student->studentInfo->house->house_abbrv}}
+                                    {{$student->studentInfo->house->house_abbrv ?? '-'}}
                                 </td>
                             </tr>
                         @endforeach
@@ -61,7 +69,8 @@
     <script>
         $(document).ready(function($){
             $('#myTable').DataTable({
-                paging: false,
+                paging: false, // Enable paging for large lists
+                searching: true, // Enable search box
                 dom: 'Bfrtip',
                 buttons: [
                     'copy', 'excel', 'pdf'

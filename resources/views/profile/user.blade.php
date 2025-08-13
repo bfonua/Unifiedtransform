@@ -27,6 +27,7 @@
                         'fees_assigned' => $fees_assigned,
                         'optionSubs' => $optionSubs,
                         'subjectList' => $subjectList,
+                        'feeChannels' => $feeChannels,
                     ])
                     @endcomponent
                 </div>

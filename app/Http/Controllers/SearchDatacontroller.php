@@ -28,15 +28,20 @@ class SearchDatacontroller extends Controller
 
     public function find(Request $request)
     {
-        return \App\User::where('name', 'LIKE', "%{$request->get('q')}%")
-            ->orWhere('lst_name', 'LIKE', "%{$request->get('q')}%")
-            ->orWhere('given_name', 'LIKE', "%{$request->get('q')}%")
-            ->orWhere('student_code', 'LIKE', "%{$request->get('q')}%")
+        $q = $request->get('q');
+        return \App\User::where(function($query) use ($q) {
+                $query->where('name', 'LIKE', "%{$q}%")
+                    ->orWhere('lst_name', 'LIKE', "%{$q}%")
+                    ->orWhere('given_name', 'LIKE', "%{$q}%")
+                    ->orWhere('student_code', 'LIKE', "%{$q}%")
+                    // Add support for "lastname firstname"
+                    ->orWhereRaw("CONCAT(lst_name, ' ', given_name) LIKE ?", ["%{$q}%"])
+                    // Add support for "firstname lastname"
+                    ->orWhereRaw("CONCAT(given_name, ' ', lst_name) LIKE ?", ["%{$q}%"]);
+            })
             ->where('role', 'student')
             ->orderBy('student_code', 'desc')
             ->get();
-        
-        // search($request->get('q'), null, true)->get();
     }
 
     /**
