@@ -203,8 +203,75 @@
                         <div class="container col-md-5">
                             <table class="table">
                                 <tr>
-                                    <td colspan="4" class="bg-dark text-white text-center">Enrollment History</td>
+                                    <td colspan="6" class="bg-dark text-white text-center">Enrollment History</td>
                                 </tr>
+                                <thead>
+                                    <tr class="bg-secondary text-white">
+                                        <th class="text-center">Session</th>
+                                        <th class="text-center">Form</th>
+                                        <th class="text-center">#</th>
+                                        <th class="text-center">House</th>
+                                        <th class="text-center">Status</th>
+                                        <th class="text-center">Channel</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if(isset($enrollmentHistory) && count($enrollmentHistory) > 0)
+                                        @foreach($enrollmentHistory as $index => $record)
+                                            @php
+                                                $isCurrent = $record->session == $user->studentInfo->session;
+                                                $isUnavailable = $record->status === 'Unavailable';
+                                            @endphp
+                                            <tr class="{{ $isCurrent ? 'bg-light' : ($isUnavailable ? 'text-muted' : '') }}">
+                                                <td class="text-center">
+                                                    @if($isCurrent)<strong>@endif
+                                                    {{$record->session}}
+                                                    @if($isCurrent)</strong>@endif
+                                                </td>
+                                                @if($isUnavailable)
+                                                    <td colspan="5" class="text-center">
+                                                        Not Available
+                                                    </td>
+                                                @else
+                                                    <td class="text-center">
+                                                        @if($isCurrent)<strong>@endif
+                                                        {{$record->form_name}}
+                                                        @if($isCurrent)</strong>@endif
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if($isCurrent)<strong>@endif
+                                                        {{$record->form_num}}
+                                                        @if($isCurrent)</strong>@endif
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if($isCurrent)<strong>@endif
+                                                        {{$record->house_name}}
+                                                        @if($isCurrent)</strong>@endif
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if($isCurrent)<strong>@endif
+                                                        {{$record->status}}
+                                                        @if($isCurrent)</strong>@endif
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if($isCurrent)<strong>@endif
+                                                        {{$record->channel_name}}
+                                                        @if($isCurrent)</strong>@endif
+                                                    </td>
+                                                @endif
+                                            </tr>
+                                            @if($record->notes)
+                                                <tr class="{{ $isCurrent ? 'bg-light' : '' }}">
+                                                    <td colspan="6" class="text-muted"><small><strong>Notes:</strong> {{$record->notes}}</small></td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="6" class="text-center">No enrollment history available.</td>
+                                        </tr>
+                                    @endif
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -243,25 +310,27 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        @php $total = ['assign' => 0,'pay' => 0,'remain' => 0]; 
-                                                        if($session < "2020"){
-                                                            $schoolType = ['Term 1', 'Term 2', 'Term 3', 'Term 4'];
-                                                            $typeIDs = \App\FeeType::whereIn('name', $schoolType)->pluck('id')->toArray();
-                                                            $allUserFees = \App\Assign::where('user_id', $user->id)
-                                                                ->where('session', $session)
-                                                                ->pluck('fee_id')->toArray();
-                                                            $schoolAssign = \App\Fee::find($allUserFees)->whereIn('fee_type_id', $typeIDs)->sum('amount');
-                                                            $schoolFees = ['School Fees','term1', 'term2', 'term3', 'term4'];
-                                                            $schoolAmountPaid = \App\PaymentMigrate::where('tct_id', $user->studentInfo->tct_id)
-                                                                ->where('year', $session)
-                                                                ->whereIn('fee_type', $schoolFees)->sum('amount');
-                                                            $schoolFeesAccrue = 0;
-                                                        }                                                                                      
+                                                        @php 
+                                                        $total = ['assign' => 0,'pay' => 0,'remain' => 0];
+                                                        $schoolType = ['Term 1', 'Term 2', 'Term 3', 'Term 4'];
+                                                        $typeIDs = isset($schoolFeeData[$session]) ? $schoolFeeData[$session]['typeIDs'] : [];
+                                                        $schoolAssign = isset($schoolFeeData[$session]) ? $schoolFeeData[$session]['schoolAssign'] : 0;
+                                                        $schoolFees = ['School Fees','term1', 'term2', 'term3', 'term4'];
+                                                        $schoolAmountPaid = isset($oldPayments[$session]) ? $oldPayments[$session]->whereIn('fee_type', $schoolFees)->sum('amount') : 0;
+                                                        $schoolFeesAccrue = 0;
                                                         @endphp
                                                         @foreach ($feeList[$session]['fee_id'] as $id)
+                                                            @php
+                                                                $currentFee = $feesWithChannels[$id] ?? null;
+                                                            @endphp
+                                                            @if($currentFee && isset($currentFee->fee_type) && $currentFee->fee_type)
+                                                            @php
+                                                                $type = $currentFee->fee_type->name;
+                                                                $assign = $currentFee->amount;
+                                                            @endphp
                                                             <tr>
-                                                                <th scope="row" class="text-center">{{$type = \App\Fee::find($id)->fee_type->name}}</th>
-                                                                <td class="text-center">{{$userSer->numberformat($assign = \App\Fee::find($id)->amount)}}</td>
+                                                                <th scope="row" class="text-center">{{$type}}</th>
+                                                                <td class="text-center">{{$userSer->numberformat($assign)}}</td>
                                                                 {{-- Checks if Session is before 2020 - to use old Payments table --}}
                                                                 @if($session < "2020")
                                                                     {{-- Checks if fee is a school tpye --}}
@@ -277,11 +346,18 @@
                                                                         @endif
                                                                         @php $schoolFeesAccrue += $payment; @endphp
                                                                     @else
-                                                                        @php $payment = $userSer->getPayment($user->id, $session, $id, 0, $type) @endphp
+                                                                        @php 
+                                                                        // Use pre-loaded old payment amounts for pre-2020
+                                                                        $payment = $oldPaymentAmounts[$session][$type] ?? 0;
+                                                                        @endphp
                                                                         <td class="text-center">{{$userSer->numberformat($payment)}}</td>
                                                                     @endif
                                                                 @else
-                                                                    @php $payment = $userSer->getPayment($user->id, $session, $id) @endphp
+                                                                    @php 
+                                                                    // Use pre-loaded payments
+                                                                    $paymentKey = $id . '_' . $session;
+                                                                    $payment = isset($allPayments[$paymentKey]) ? $allPayments[$paymentKey]->sum('amount') : 0;
+                                                                    @endphp
                                                                     <td class="text-center">{{$userSer->numberformat($payment)}}</td>
                                                                 @endif
                                                                 <td class="text-center">{{$userSer->numberformat($remain = $assign - $payment)}}</td>
@@ -291,6 +367,7 @@
                                                                     $total['remain'] += $remain;
                                                                 @endphp
                                                             </tr>
+                                                            @endif
                                                         @endforeach
                                                         <style>
                                                             .tr-total{
@@ -340,7 +417,7 @@
                                                                                     <label for="channel" class="col-sm-3 control-label">@lang('Fee Channel')</label>
                                                                                     <div class="col-sm-5">
                                                                                         @php
-                                                                                            $payValue = ($session == now()->year)? $user->studentInfo->channel->name: \App\Assign::where('session', $session)->where('user_id', $user->id)->first()->fees->fee_type->name;
+                                                                                            $payValue = $feeChannels[$session] ?? 'No Channel Assigned';
                                                                                         @endphp
                                                                                         <input name="fee_channel" class="form-control" value="{{$payValue}}" readonly>
                                                                                     </div>
@@ -359,15 +436,16 @@
                                                                                 </div>
                                                                                 <hr>
                                                                                 @php
-                                                                                    $feeListIDs = \App\Fee::with('fee_type')->find($feeList[$session]['fee_id']);
+                                                                                    $feeListIDs = collect($feeList[$session]['fee_id'])->map(fn($id) => $feesWithChannels[$id] ?? null)->filter();
                                                                                     // Log::info($feeListIDs);
                                                                                 @endphp
                                                                                 @foreach ($feeListIDs as $feeListID)
                                                                                     @php
-                                                                                    $paymentsMade = $userSer->paymentExists($user->id, $feeListID->id, $session);
                                                                                     $id = $feeListID->id;
+                                                                                    $paymentKey = $id . '_' . $session;
+                                                                                    $paymentsMade = $allPayments[$paymentKey] ?? collect([]);
                                                                                     // Log::info($paymentsMade);
-                                                                                    if($paymentsMade->first()){
+                                                                                    if($paymentsMade->count() > 0){
                                                                                         $text = 1;
                                                                                         $assignAm = $feeListID->amount;
                                                                                         $paymentAm = $paymentsMade->sum('amount');
@@ -426,7 +504,7 @@
                                                                                 <div class="row form-group">
                                                                                     <label for="channel" class="col-sm-3 control-label">@lang('Fee Channel')</label>
                                                                                     <div class="col-sm-5">
-                                                                                        @php $payValue = ($session == now()->year)? $user->studentInfo->channel->name: \App\Assign::where('session', $session)->where('user_id', $user->id)->first()->fees->fee_channel->name; @endphp
+                                                                                        @php $payValue = $feeChannels[$session] ?? 'No Channel Assigned'; @endphp
                                                                                         <input name="fee_channel" class="form-control" value="{{$payValue}}" readonly>
                                                                                     </div>
                                                                                 </div>
@@ -449,20 +527,23 @@
                                                                                 @endphp
                                                                                 @foreach($assignFeeIDs as $id)
                                                                                     @php 
-                                                                                        $type = \App\Fee::find($id)->fee_type->name;
+                                                                                        $currentFee = $feesWithChannels[$id] ?? null;
+                                                                                    @endphp
+                                                                                    @if($currentFee && isset($currentFee->fee_type) && $currentFee->fee_type)
+                                                                                    @php
+                                                                                        $type = $currentFee->fee_type->name;
                                                                                         if(in_array($session, [2018, 2019]) and in_array($type, ['Term 1', 'Term 2', 'Term 3', 'Term 4'])){
                                                                                             if(!$schoolFeesDone){
-                                                                                                $assignAm = $userSer->getSchoolassigned($user->id, $session);
-                                                                                                $paymentAm = \App\PaymentMigrate::where('tct_id', $user->studentInfo->tct_id)
-                                                                                                    ->where('year', $session)
-                                                                                                    ->whereIn('fee_type', ['School Fees','term1', 'term2', 'term3', 'term4'])
-                                                                                                    ->sum('amount');
+                                                                                                $assignAm = $schoolFeeData[$session]['schoolAssign'] ?? 0;
+                                                                                                $schoolFees = ['School Fees','term1', 'term2', 'term3', 'term4'];
+                                                                                                $paymentAm = isset($oldPayments[$session]) ? $oldPayments[$session]->whereIn('fee_type', $schoolFees)->sum('amount') : 0;
                                                                                                 $schoolFeesDone = 1;
                                                                                                 $type = "School Fees";
                                                                                             }
                                                                                         } else{
-                                                                                            $assignAm = \App\Fee::find($id)->amount;
-                                                                                            $paymentAm = $userSer->getPayment($user->id, $session, $id, 0, $type);
+                                                                                            $assignAm = $currentFee->amount;
+                                                                                            // Use pre-loaded old payment amounts
+                                                                                            $paymentAm = $oldPaymentAmounts[$session][$type] ?? 0;
                                                                                             // echo($type." ".$assignAm." ".$paymentAm);
                                                                                         }
                                                                                         $remainAm = $assignAm - $paymentAm
@@ -492,6 +573,7 @@
                                                                                                 <textarea id = "notes{{$id}}" name="notes[{{$id}}]" class="form-control"></textarea>
                                                                                             </div>
                                                                                         </div>
+                                                                                    @endif
                                                                                     @endif        
                                                                                 @endforeach
                                                                             @endslot
@@ -564,8 +646,7 @@
                             </div>
                             <div class="col-xs-6 container">
                                 @php 
-                                    $allPay = \App\Payment::where('user_id', $user->id)->orderBy('pay_date', 'desc')->get();
-                                    $oldPayments = \App\PaymentMigrate::where('tct_id', $user->studentInfo->tct_id)->orderBy('pay_date', 'desc')->get();
+                                    $allPay = $allPayForDisplay;
                                     $count = 1;
                                 @endphp
                                 {{-- {{$oldPay}} --}}
@@ -625,11 +706,14 @@
                                                                         <select id="type" class="form-control" name="type">   
                                                                             @php
                                                                                 $feeIDs = $feeList[$pay->session]['fee_id'];
-                                                                                $feeQuery = \App\Fee::with('fee_type')->find($feeIDs);
                                                                             @endphp
-                                                                            @foreach ($feeQuery as $fee)
-                                                                                {{-- <option value="{{\App\Fee::find($feeID)->fee_type->id}}">{{\App\Fee::find($feeID)->fee_type->name}}</option> --}}
-                                                                                <option value="{{$fee->fee_type->id}}">{{$fee->fee_type->name}}</option>
+                                                                            @foreach ($feeIDs as $feeID)
+                                                                                @if(isset($feesWithChannels[$feeID]))
+                                                                                    @php
+                                                                                        $fee = $feesWithChannels[$feeID];
+                                                                                    @endphp
+                                                                                    <option value="{{$fee->fee_type->id}}">{{$fee->fee_type->name}}</option>
+                                                                                @endif
                                                                             @endforeach
                                                                         </select>
                                                                     </div>
@@ -692,7 +776,7 @@
                                                                     <div class="row form-group">
                                                                     <label for="type" class="col-sm-3 control-label">Fee Type</label>
                                                                     <div class="col-sm-4">
-                                                                        @php $feeType = \App\PaymentMigrate::where('year', $oldPay->year)->groupBy('fee_type')->pluck('fee_type')->toArray();  @endphp
+                                                                        @php $feeType = $oldPaymentFeeTypes[$oldPay->year] ?? [];  @endphp
                                                                         <select id="type" class="form-control" name="type">   
                                                                             @foreach ($feeType as $type)
                                                                                 <option value="{{$type}}" {{($type==$oldPay->fee_type)?"selected = 'seclected'":""}}>{{$type}}</option>
@@ -759,11 +843,12 @@
                                                 @foreach(range(0,$user->studentInfo->section->class->optionCount-1) as $i)
                                                     <tr>
                                                         <td class="text-center">Option {{$i+1}}</td>
-                                                        <td class="text-center"> {{ (in_array($i+1, $chosenOptions))? \App\SubjectAssign::where([
-                                                            'user_id'=> $user->id,
-                                                            'session' => $session,
-                                                            'option' => $i+1,
-                                                        ])->first()->subject->name : "-" }}</td>
+                                                        <td class="text-center"> 
+                                                            @php
+                                                                $subjectAssignment = $subID->where('session', $session)->where('option', $i+1)->first();
+                                                            @endphp
+                                                            {{ (in_array($i+1, $chosenOptions) && $subjectAssignment)? $subjectAssignment->subject->name : "-" }}
+                                                        </td>
                                                     </tr>
                                                 @endforeach
                                                 <tr>
@@ -791,17 +876,13 @@
                                                                                 @foreach ($optionSubs as $sub)
                                                                                     <option value="{{$sub}}"
                                                                                         @php
-                                                                                            $selectedOption = \App\SubjectAssign::where([
-                                                                                                'user_id' => $user->id,
-                                                                                                'option' => $i+1,
-                                                                                                'subject_id' => $sub,
-                                                                                            ])->get();
+                                                                                            $selectedOption = $subID->where('session', $session)->where('option', $i+1)->where('subject_id', $sub);
                                                                                         @endphp
                                                                                         @if($selectedOption->first())
                                                                                             selected = "selected"
                                                                                         @endif
                                                                                         >
-                                                                                        {{\App\Subject::find($sub)->name}}
+                                                                                        {{$allSubjects[$sub]->name}}
                                                                                     </option>
                                                                                 @endforeach
                                                                             </select>
@@ -845,10 +926,7 @@
                                                                                 <div class="col-sm-5">
                                                                                     <select id="option{{$i+1}}" class="form-control" name="option{{$i+1}}">
                                                                                         <option value="">N/A</option>
-                                                                                        @php
-                                                                                            $subjects = \App\Subject::find($optionSubs);
-                                                                                        @endphp
-                                                                                        @foreach ($subjects as $sub)
+                                                                                        @foreach ($allSubjects as $sub)
                                                                                             <option value="{{$sub->id}}">{{$sub->name}}</option>
                                                                                         @endforeach
                                                                                     </select>

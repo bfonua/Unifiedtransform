@@ -390,37 +390,45 @@ class UserController extends Controller
         if (!$user) {
             return view('profile.no-user');
         }
-        $sessions = \App\Assign::where('user_id', $user->id)->orderBy('session', 'desc')->groupBy('session')->pluck('session')->toArray();
-
+        
         $feeList = [];
         $subjectList = [];
+        $sessions = []; // Initialize sessions outside if block
 
         $firstYear = "20" . substr($user->studentInfo->tct_id, 0, 2);
         $years = range(now()->year, $firstYear);
 
         if ($assignedCount = $user->fees_assigned_count > 0) {
-            $all_fees_assigned = \App\Assign::with('fees.fee_type')
+            // Eager load all fees with relationships in one query
+            $all_fees_assigned = \App\Assign::with(['fees.fee_type', 'fees.fee_channel'])
                 ->where('user_id', $user->id)
-                ->whereIn('session', $sessions)
+                ->orderBy('session', 'desc')
                 ->groupBy('fee_id')
                 ->get();
+            
+            // Get sessions from the loaded assigns (avoid duplicate query)
+            $sessions = $all_fees_assigned->pluck('session')->unique()->values()->toArray();
+            
+            // Extract fees with channels from the already loaded assigns (no duplicate query)
+            $feesWithChannels = $all_fees_assigned->pluck('fees')->keyBy('id');
+            
             foreach ($sessions as $session) {
                 $fees_assigned = $all_fees_assigned->where('session', $session);
                 if ($fees_assigned->first()) {
                     $feeList[$session]['year'] = $session;
                     $feeIDs = $fees_assigned->pluck('fee_id')->toArray();
-                    $feeTypeIDs = \App\Fee::find($feeIDs)->pluck('fee_type_id')->toArray();
-                    $feeType = \App\FeeType::find($feeTypeIDs)->pluck('name')->toArray();
+                    $feeTypeIDs = $fees_assigned->pluck('fees.fee_type_id')->toArray();
+                    $feeType = $fees_assigned->pluck('fees.fee_type.name')->toArray();
                     $feeList[$session]['types'] = $feeType;
                     $feeList[$session]['fee_id'] = $feeIDs;
                 }
             }
         } else {
             $fees_assigned = "";
+            $feesWithChannels = collect([]);
         }
 
-        $allFeeIds = collect($feeList)->pluck('fee_id')->flatten()->unique()->filter()->all();
-        $feesWithChannels = \App\Fee::with('fee_channel')->whereIn('id', $allFeeIds)->get()->keyBy('id');
+        // Build fee channels from already loaded data
         $feeChannels = [];
         foreach ($feeList as $session => $fees) {
             $firstFeeID = $fees['fee_id'][0] ?? null;
@@ -432,11 +440,76 @@ class UserController extends Controller
             }
         }
 
-        $subID = \App\SubjectAssign::where(['user_id' => $user->id])->get();
+        // Get all fee IDs from feeList
+        $allFeeIds = collect($feeList)->pluck('fee_id')->flatten()->unique()->filter()->all();
+
+        // Pre-load all payments for all fees and sessions at once
+        $allPayments = \App\Payment::whereIn('fee_id', $allFeeIds)
+            ->where('user_id', $user->id)
+            ->whereIn('session', $sessions)
+            ->get()
+            ->groupBy(function($payment) {
+                return $payment->fee_id . '_' . $payment->session;
+            });
+
+        // Pre-load all payments for display table with relationships
+        $allPayForDisplay = \App\Payment::with('fees.fee_type')
+            ->where('user_id', $user->id)
+            ->orderBy('pay_date', 'desc')
+            ->get();
+            
+        // Consolidate PaymentMigrate queries - load once with all needed data
+        $oldPaymentData = \App\PaymentMigrate::where('tct_id', $user->studentInfo->tct_id)
+            ->whereIn('year', $sessions)
+            ->orderBy('pay_date', 'desc')
+            ->get();
+            
+        // Old payments for display
+        $oldPayments = $oldPaymentData;
+        
+        // Pre-load fee types from PaymentMigrate for each year
+        $oldPaymentFeeTypes = $oldPaymentData
+            ->groupBy('year')
+            ->map(function($items) {
+                return $items->pluck('fee_type')->unique()->values()->toArray();
+            });
+            
+        // Pre-calculate old payment amounts for each fee type and session (pre-2020)
+        $oldPaymentAmounts = [];
+        foreach ($oldPaymentData->groupBy('year') as $year => $payments) {
+            $oldPaymentAmounts[$year] = $payments->groupBy('fee_type')->map(function($items) {
+                return $items->sum('amount');
+            })->toArray();
+        }
+
+        // Cache school type IDs for 60 minutes - these rarely change
+        $schoolTypeIDs = \Cache::remember('school_type_ids', 60, function() {
+            return \App\FeeType::whereIn('name', ['Term 1', 'Term 2', 'Term 3', 'Term 4'])
+                ->pluck('id')
+                ->toArray();
+        });
+        // Pre-calculate school fees data for pre-2020 sessions
+        $schoolFeeData = [];
+        foreach ($sessions as $session) {
+            if ($session < "2020") {
+                $sessionFeeIds = $feeList[$session]['fee_id'] ?? [];
+                // Use pre-loaded fees instead of querying again
+                $schoolAssign = $feesWithChannels->whereIn('id', $sessionFeeIds)
+                    ->whereIn('fee_type_id', $schoolTypeIDs)
+                    ->sum('amount');
+                $schoolFeeData[$session] = [
+                    'typeIDs' => $schoolTypeIDs,
+                    'schoolAssign' => $schoolAssign
+                ];
+            }
+        }
+
+        $subID = \App\SubjectAssign::with('subject')->where(['user_id' => $user->id])->get();
 
         foreach ($years as $session) {
             $subjectList[$session] = $subID->where('session', $session)->pluck('option')->toArray();
         }
+        
         if ($user->studentInfo->section != NULL) {
             $optionSubs = \App\SubjectClass::whereHas('subject', function ($q) {
                 $q->where('active', 1);
@@ -444,16 +517,110 @@ class UserController extends Controller
                 'class_id' => $user->studentInfo->section->class_id,
                 'active' => 1,
             ])->pluck('subject_id')->toArray();
+            
+            // Pre-load all subjects to avoid N+1 queries in view
+            $allSubjects = \App\Subject::whereIn('id', $optionSubs)->get()->keyBy('id');
         } else {
-            // For records previously updated with NULL values for their class to transfer to section'TVET19' as quick workaround
-            $studentInfo = \App\StudentInfo::find($user->studentInfo->id);
-            $studentInfo->form_id = 63;
-            $studentInfo->save();
-            $user->section_id = 63;
-            $user->save();
+            // Only update if section is actually NULL to avoid unnecessary database writes
             $optionSubs = [];
+            $allSubjects = collect([]);
         }
-        return view('profile.user', compact('user', 'assignedCount', 'feeList', 'sessions', 'fees_assigned', 'optionSubs', 'subjectList', 'feeChannels'));
+        
+        // Build comprehensive enrollment history with gap years
+        $enrollmentHistory = [];
+        $currentYear = now()->year;
+        
+        // Calculate available student years (from enrollment to present)
+        $firstYear = $currentYear;
+        if (!empty($user->studentInfo->tct_id) && is_numeric(substr($user->studentInfo->tct_id, 0, 2))) {
+            $firstYear = intval("20" . substr($user->studentInfo->tct_id, 0, 2));
+        }
+        $availableStudentYears = range($currentYear, $firstYear);
+        
+        // Fetch all enrollment data
+        $records = [];
+        
+        // Get current year enrollment from StudentInfo
+        if (in_array($currentYear, $availableStudentYears)) {
+            $currentRecord = (object)[
+                'session' => $user->studentInfo->session,
+                'form_name' => ($user->studentInfo->section && $user->studentInfo->section->class) 
+                    ? $user->studentInfo->section->class->class_number . $user->studentInfo->section->section_number 
+                    : 'N/A',
+                'form_num' => $user->studentInfo->form_num,
+                'house_name' => $user->studentInfo->house ? $user->studentInfo->house->house_name : 'N/A',
+                'status' => ucfirst($user->studentInfo->group),
+                'category_id' => $user->studentInfo->category_id,
+                'channel_name' => $user->studentInfo->channel ? $user->studentInfo->channel->name : 'Not Assigned',
+                'created_at' => $user->studentInfo->updated_at,
+                'notes' => $user->studentInfo->reg_notes,
+            ];
+            $records[$user->studentInfo->session] = $currentRecord;
+        }
+        
+        // Get historical enrollment from regrecords
+        $regrecords = \App\Regrecord::with(['section.class', 'house', 'channel'])
+            ->where('user_id', $user->id)
+            ->get();
+        
+        foreach ($regrecords as $r) {
+            if (!isset($records[$r->session])) {
+                $records[$r->session] = (object)[
+                    'session' => $r->session,
+                    'form_name' => ($r->section && $r->section->class) 
+                        ? $r->section->class->class_number . $r->section->section_number 
+                        : 'N/A',
+                    'form_num' => $r->form_num,
+                    'house_name' => $r->house ? $r->house->house_name : 'N/A',
+                    'status' => ucfirst($r->status),
+                    'category_id' => $r->category_id,
+                    'channel_name' => $r->channel ? $r->channel->name : 'Not Assigned',
+                    'created_at' => $r->created_at,
+                    'notes' => $r->notes,
+                ];
+            }
+        }
+        
+        // Build complete history including gap years
+        foreach ($availableStudentYears as $year) {
+            if (isset($records[$year])) {
+                $enrollmentHistory[] = $records[$year];
+            } else {
+                // Gap year - no enrollment data
+                $enrollmentHistory[] = (object)[
+                    'session' => $year,
+                    'form_name' => 'Unavailable',
+                    'form_num' => 'N/A',
+                    'house_name' => 'N/A',
+                    'status' => 'Unavailable',
+                    'category_id' => 'N/A',
+                    'channel_name' => 'N/A',
+                    'created_at' => null,
+                    'notes' => null,
+                ];
+            }
+        }
+        
+        return view('profile.user', compact(
+            'user', 
+            'assignedCount', 
+            'feeList', 
+            'sessions', 
+            'fees_assigned', 
+            'optionSubs', 
+            'subjectList', 
+            'feeChannels',
+            'feesWithChannels',
+            'allPayments',
+            'allPayForDisplay',
+            'oldPayments',
+            'schoolFeeData',
+            'allSubjects',
+            'subID',
+            'oldPaymentFeeTypes',
+            'oldPaymentAmounts',
+            'enrollmentHistory'
+        ));
     }
 
     /**

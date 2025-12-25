@@ -28,6 +28,16 @@
                         'optionSubs' => $optionSubs,
                         'subjectList' => $subjectList,
                         'feeChannels' => $feeChannels,
+                        'feesWithChannels' => $feesWithChannels,
+                        'allPayments' => $allPayments,
+                        'allPayForDisplay' => $allPayForDisplay,
+                        'oldPayments' => $oldPayments,
+                        'schoolFeeData' => $schoolFeeData,
+                        'allSubjects' => $allSubjects,
+                        'subID' => $subID,
+                        'oldPaymentFeeTypes' => $oldPaymentFeeTypes,
+                        'oldPaymentAmounts' => $oldPaymentAmounts,
+                        'enrollmentHistory' => $enrollmentHistory,
                     ])
                     @endcomponent
                 </div>
