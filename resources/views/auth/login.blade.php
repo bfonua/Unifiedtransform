@@ -20,15 +20,29 @@
                     </div>
                 @endif
 
+                @if (session('status'))
+                    <div class="alert alert-success">
+                        {{ session('status') }}
+                    </div>
+                @endif
+
                 <div class="panel-body">
-                    <form class="form-horizontal" method="POST" action="{{ route('login') }}">
+                    <form class="form-horizontal" method="POST" action="{{ route('login') }}" id="loginForm">
                         {{ csrf_field() }}
 
                         <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
                             <label for="email" class="col-md-4 control-label">@lang('E-Mail Or Phone Number')</label>
 
                             <div class="col-md-6">
-                                <input id="email" type="text" class="form-control" name="email" value="{{ old('email') }}" required autofocus>
+                                <input id="email" 
+                                       type="text" 
+                                       class="form-control" 
+                                       name="email" 
+                                       value="{{ old('email') }}" 
+                                       required 
+                                       autofocus
+                                       autocomplete="username"
+                                       maxlength="100">
 
                                 @if ($errors->has('email'))
                                     <span class="help-block">
@@ -42,16 +56,26 @@
                             <label for="password" class="col-md-4 control-label">@lang('Password')</label>
 
                             <div class="col-md-6">
-                                <input id="password" type="password" class="form-control" name="password" required>
+                                <input id="password" 
+                                       type="password" 
+                                       class="form-control" 
+                                       name="password" 
+                                       required
+                                       autocomplete="current-password"
+                                       minlength="6"
+                                       maxlength="255">
 
                                 @if ($errors->has('password'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('password') }}</strong>
                                     </span>
                                 @endif
+                                <small class="help-block text-muted">
+                                    @lang('Minimum 6 characters')
+                                </small>
                             </div>
                         </div>
-                        {{--
+                        
                         <div class="form-group">
                             <div class="col-md-6 col-md-offset-4">
                                 <div class="checkbox">
@@ -61,10 +85,10 @@
                                 </div>
                             </div>
                         </div>
-                        --}}
+                        
                         <div class="form-group">
                             <div class="col-md-8 col-md-offset-4">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" id="loginBtn">
                                     @lang('Login')
                                 </button>
                                 {{--
@@ -74,10 +98,36 @@
                                 --}}
                             </div>
                         </div>
+
+                        <div class="form-group">
+                            <div class="col-md-8 col-md-offset-4">
+                                <small class="text-muted">
+                                    <i class="fa fa-shield"></i> @lang('Your connection is secure and encrypted')
+                                </small>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// Prevent multiple form submissions
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    var btn = document.getElementById('loginBtn');
+    if (btn.disabled) {
+        e.preventDefault();
+        return false;
+    }
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> @lang("Logging in...")';
+});
+
+// Clear sensitive data on page unload
+window.addEventListener('beforeunload', function() {
+    document.getElementById('password').value = '';
+});
+</script>
 @endsection

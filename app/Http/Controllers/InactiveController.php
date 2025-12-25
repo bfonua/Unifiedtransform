@@ -23,7 +23,10 @@ class InactiveController extends Controller
         // })
         // ->get();
 
-        $inactive = Inactive::with('users.studentInfo')
+        $inactive = Inactive::with([
+            'users.studentInfo.section.class',
+            'users.studentInfo.house'
+        ])
         ->where('session', $maxSession)
         ->distinct('user_id')
         ->get();

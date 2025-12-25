@@ -34,7 +34,7 @@
                                         <h2>
                                             @if (Auth::user()->school->name == 'Tupou College')
                                                 TCTIMS Summary Dashboard
-                                            @elsep
+                                            @else
                                                 {{ Auth::user()->school->name }}
                                             @endif
                                         </h2>

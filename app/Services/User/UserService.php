@@ -237,7 +237,7 @@ class UserService
         $feeList['Bazaar (New)'] = 'Bazaar (New)';
         $feeList['bazaar'] = 'bazaar';
         $feeList['Late Registration'] = 'late';
-        return $feeList[$type];
+        return $feeList[$type] ?? $type;
     }
 
     public function getOldFees($session)
@@ -338,23 +338,28 @@ class UserService
 
     public function getAdminDetails()
     {
-        $classes = \App\Myclass::with('sections')->where('school_id', \Auth::user()->school->id)->get();
-        $classes_id = \App\Myclass::with('sections')->where('school_id', \Auth::user()->school->id)->pluck('id');
-        $sections = \App\Section::with('class')
-            ->whereIn('class_id', $classes_id)
-            ->where('active', 1)
-            ->orderBy('class_id')
-            ->orderBy('section_number', 'asc')
-            ->get();
-        $form_nums = $this->getFormNumbersArray($sections);
-        $houses = \App\House::all();
-        return array(
-            'classes' => $classes,
-            'classes_id' => $classes_id,
-            'sections' => $sections,
-            'form_nums' => $form_nums,
-            'houses' => $houses,
-        );
+        $school_id = \Auth::user()->school->id;
+        
+        // Cache for 30 minutes - classes/sections don't change often
+        return Cache::remember("admin_details_{$school_id}", 30, function () use ($school_id) {
+            $classes = \App\Myclass::with('sections')->where('school_id', $school_id)->get();
+            $classes_id = $classes->pluck('id');
+            $sections = \App\Section::with('class')
+                ->whereIn('class_id', $classes_id)
+                ->where('active', 1)
+                ->orderBy('class_id')
+                ->orderBy('section_number', 'asc')
+                ->get();
+            $form_nums = $this->getFormNumbersArray($sections);
+            $houses = \App\House::all();
+            return array(
+                'classes' => $classes,
+                'classes_id' => $classes_id,
+                'sections' => $sections,
+                'form_nums' => $form_nums,
+                'houses' => $houses,
+            );
+        });
     }
 
     public function promoteSectionStudentsView($students, $classes, $section_id)
@@ -527,7 +532,11 @@ class UserService
 
     public function getUserByUserCode($user_code)
     {
-        return $this->user->with('studentInfo.section.class', 'feesAssigned.fees.fee_type')->withCount('feesAssigned')
+        return $this->user->with([
+            'studentInfo.section.class',
+            'studentInfo.channel'
+        ])
+            ->withCount('feesAssigned')
             ->where('student_code', $user_code)
             //   ->where('active', 1)
             ->first();
