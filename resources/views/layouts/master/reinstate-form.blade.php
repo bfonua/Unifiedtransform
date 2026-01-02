@@ -13,11 +13,11 @@
                 <form class="form-horizontal" action="{{url('/school/reinstate')}}" method="post">
                     {{csrf_field()}}
                     <input type="hidden" value="{{$user->id}}" name="user_id">
-                    <input type="hidden" value="{{$userSer->getInactiveRequest($user)->id}}" name="inactive_id">
+                    <input type="hidden" value="{{$inactiveRequest ? $inactiveRequest->id : ''}}" name="inactive_id">
                     {{-- <div class="form-group">
                         <label for="type" class="col-sm-4 control-label">@lang('Inactive Details')</label>
                         <div class="col-sm-8">
-                            <p>{{Carbon\Carbon::parse($userSer->getInactiveRequest($user)->created_at)->format('d/m/Y')}}  - {{ucfirst($userSer->getInactiveRequest($user)->type)}} </p>
+                            <p>{{$inactiveRequest ? Carbon\Carbon::parse($inactiveRequest->created_at)->format('d/m/Y') : ''}}  - {{$inactiveRequest ? ucfirst($inactiveRequest->type) : ''}} </p>
                         </div>
                     </div> --}}
                     <div class="form-group">

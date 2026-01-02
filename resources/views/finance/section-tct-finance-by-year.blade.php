@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('Course Students'))
+@section('title', __('Course Students - ' . $year))
 
 @section('content')
 <div class="container-fluid">
@@ -11,8 +11,10 @@
         <div class="col-md-8" id="main-container">
             <br>
             <h4>
-                @lang('Form') {{$section->class->class_number}}{{$section->section_number}}
+                @lang('Form') {{$section->class->class_number}}{{$section->section_number}} - {{ $year }}
             </h4>
+            <a href="{{url('fees/assigned/'.$year)}}" class="btn btn-sm btn-info"><i class="material-icons">arrow_back</i> @lang('Back to') {{ $year }} @lang('Summary')</a>
+            <br>
             <br>
             <ul class="nav nav-tabs">
                 <li class="nav-item">
@@ -41,6 +43,7 @@
                                         <th class="text-center" scope="col">@lang('#')</th>
                                         <th class="text-center" scope="col">@lang('TCT ID')</th>
                                         <th class="text-center" scope="col">@lang('Student Name')</th>
+                                        <th class="text-center" scope="col">@lang('Status')</th>
                                         <th class="text-center" scope="col">Total Assigned</th>
                                         <th class="text-center" scope="col">Total Payments</th>
                                         <th class="text-center" scope="col">Remaining</th>
@@ -48,16 +51,31 @@
                                     </thead>
                                     <tbody>
                                     @foreach($students as $student)
-                                        {{-- <tr @if(!$student->studentInfo->assigned) class="danger" @endif> --}}
+                                        @php
+                                            // Get form_num and group from either student_info or regrecord
+                                            $studentInfo = $student->studentInfo()->where('session', $year)->first();
+                                            $regrecord = $student->regrecord()->where('session', $year)->first();
+                                            $formNum = $studentInfo ? $studentInfo->form_num : ($regrecord ? $regrecord->form_num : 'N/A');
+                                            $group = $studentInfo ? $studentInfo->group : null;
+                                        @endphp
                                         <tr>
-                                            <td class="text-center">{{$student->studentInfo->form_num}}</td>
+                                            <td class="text-center">{{ $formNum }}</td>
                                             <td class="text-center">{{$student->student_code}}</td>
                                             <td>
-                                                <a href="{{url('user/'.$student->student_code)}}">{{$student->given_name.' '.$student->lst_name}}
-                                                @if(!$student->studentInfo->assigned)
-                                                    <i class="material-icons pull-right">warning</i> 
+                                                <a href="{{url('user/'.$student->student_code)}}">{{$student->given_name.' '.$student->lst_name}}</a>
+                                            </td>
+                                            <td class="text-center">
+                                                @if($student->active)
+                                                    <span class="badge bg-success">{{ ucfirst($group ?? 'Graduated') }}</span>
+                                                @else
+                                                    @php
+                                                        $inactiveRecord = $student->inactive->first();
+                                                        $inactiveType = $inactiveRecord ? $inactiveRecord->type : 'Inactive';
+                                                    @endphp
+                                                    <span class="badge bg-secondary">
+                                                        @lang('Inactive') / {{ ucfirst($inactiveType) }}
+                                                    </span>
                                                 @endif
-                                                </a>
                                             </td>
                                             <td class="text-center">{{$studentFees[$student->id]['assign']['total']}}</td>
                                             <td class="text-center">{{$studentFees[$student->id]['payment']['total']}}</td>
@@ -86,6 +104,7 @@
                                     <th class="text-center" scope="col">@lang('#')</th>
                                     <th class="text-center" scope="col">@lang('TCT ID')</th>
                                     <th class="text-center" scope="col">@lang('Student Name')</th>
+                                    <th class="text-center" scope="col">@lang('Status')</th>
                                     @if(count($feeTypes))
                                         @foreach($feeTypes as $type)
                                             <th class="text-center">{{$type->name}}</th>
@@ -95,15 +114,30 @@
                                 </thead>
                                 <tbody>
                                 @foreach($students as $student)
+                                    @php
+                                        $studentInfo = $student->studentInfo()->where('session', $year)->first();
+                                        $regrecord = $student->regrecord()->where('session', $year)->first();
+                                        $formNum = $studentInfo ? $studentInfo->form_num : ($regrecord ? $regrecord->form_num : 'N/A');
+                                        $group = $studentInfo ? $studentInfo->group : null;
+                                    @endphp
                                     <tr>
-                                        <td class="text-center">{{$student->studentInfo->form_num}}</td>
+                                        <td class="text-center">{{ $formNum }}</td>
                                         <td class="text-center">{{$student->student_code}}</td>
                                         <td>
-                                            <a href="{{url('user/'.$student->student_code)}}">{{$student->given_name.' '.$student->lst_name}}
-                                            @if(!$student->studentInfo->assigned)
-                                                <i class="material-icons pull-right">warning</i> 
+                                            <a href="{{url('user/'.$student->student_code)}}">{{$student->given_name.' '.$student->lst_name}}</a>
+                                        </td>
+                                        <td class="text-center">
+                                            @if($student->active)
+                                                <span class="badge bg-success">{{ ucfirst($group ?? 'Graduated') }}</span>
+                                            @else
+                                                @php
+                                                    $inactiveRecord = $student->inactive->first();
+                                                    $inactiveType = $inactiveRecord ? $inactiveRecord->type : 'Inactive';
+                                                @endphp
+                                                <span class="badge bg-secondary">
+                                                    @lang('Inactive') / {{ ucfirst($inactiveType) }}
+                                                </span>
                                             @endif
-                                            </a>
                                         </td>
                                         @if(count($feeTypes))
                                             @foreach($feeTypes as $type)  
@@ -132,9 +166,8 @@
                                 <tr>
                                     <th class="text-center" scope="col">@lang('#')</th>
                                     <th class="text-center" scope="col">@lang('TCT ID')</th>
-                                    {{-- <th class="text-center" scope="col">@lang('Status')</th> --}}
                                     <th class="text-center" scope="col">@lang('Student Name')</th>
-                                    {{-- <th class="text-center" scope="col">@lang('House')</th> --}}
+                                    <th class="text-center" scope="col">@lang('Status')</th>
                                     @if(count($feeTypes))
                                         @foreach($feeTypes as $type)
                                             <th class="text-center">{{$type->name}}</th>
@@ -144,15 +177,30 @@
                                 </thead>
                                 <tbody>
                                 @foreach($students as $student)
+                                    @php
+                                        $studentInfo = $student->studentInfo()->where('session', $year)->first();
+                                        $regrecord = $student->regrecord()->where('session', $year)->first();
+                                        $formNum = $studentInfo ? $studentInfo->form_num : ($regrecord ? $regrecord->form_num : 'N/A');
+                                        $group = $studentInfo ? $studentInfo->group : null;
+                                    @endphp
                                     <tr>
-                                        <td class="text-center">{{$student->studentInfo->form_num}}</td>
+                                        <td class="text-center">{{ $formNum }}</td>
                                         <td class="text-center">{{$student->student_code}}</td>
                                         <td>
-                                            <a href="{{url('user/'.$student->student_code)}}">{{$student->given_name.' '.$student->lst_name}}
-                                            @if(!$student->studentInfo->assigned)
-                                                <i class="material-icons pull-right">warning</i> 
+                                            <a href="{{url('user/'.$student->student_code)}}">{{$student->given_name.' '.$student->lst_name}}</a>
+                                        </td>
+                                        <td class="text-center">
+                                            @if($student->active)
+                                                <span class="badge bg-success">{{ ucfirst($group ?? 'Graduated') }}</span>
+                                            @else
+                                                @php
+                                                    $inactiveRecord = $student->inactive->first();
+                                                    $inactiveType = $inactiveRecord ? $inactiveRecord->type : 'Inactive';
+                                                @endphp
+                                                <span class="badge bg-secondary">
+                                                    @lang('Inactive') / {{ ucfirst($inactiveType) }}
+                                                </span>
                                             @endif
-                                            </a>
                                         </td>
                                         @if(count($feeTypes))
                                             @foreach($feeTypes as $type)  
@@ -181,9 +229,8 @@
                                 <tr>
                                     <th class="text-center" scope="col">@lang('#')</th>
                                     <th class="text-center" scope="col">@lang('TCT ID')</th>
-                                    {{-- <th class="text-center" scope="col">@lang('Status')</th> --}}
                                     <th class="text-center" scope="col">@lang('Student Name')</th>
-                                    {{-- <th class="text-center" scope="col">@lang('House')</th> --}}
+                                    <th class="text-center" scope="col">@lang('Status')</th>
                                     @if(count($feeTypes))
                                         @foreach($feeTypes as $type)
                                             <th class="text-center">{{$type->name}}</th>
@@ -193,15 +240,30 @@
                                 </thead>
                                 <tbody>
                                 @foreach($students as $student)
+                                    @php
+                                        $studentInfo = $student->studentInfo()->where('session', $year)->first();
+                                        $regrecord = $student->regrecord()->where('session', $year)->first();
+                                        $formNum = $studentInfo ? $studentInfo->form_num : ($regrecord ? $regrecord->form_num : 'N/A');
+                                        $group = $studentInfo ? $studentInfo->group : null;
+                                    @endphp
                                     <tr>
-                                        <td class="text-center">{{$student->studentInfo->form_num}}</td>
+                                        <td class="text-center">{{ $formNum }}</td>
                                         <td class="text-center">{{$student->student_code}}</td>
                                         <td>
-                                            <a href="{{url('user/'.$student->student_code)}}">{{$student->given_name.' '.$student->lst_name}}
-                                            @if(!$student->studentInfo->assigned)
-                                                <i class="material-icons pull-right">warning</i> 
+                                            <a href="{{url('user/'.$student->student_code)}}">{{$student->given_name.' '.$student->lst_name}}</a>
+                                        </td>
+                                        <td class="text-center">
+                                            @if($student->active)
+                                                <span class="badge bg-success">{{ ucfirst($group ?? 'Graduated') }}</span>
+                                            @else
+                                                @php
+                                                    $inactiveRecord = $student->inactive->first();
+                                                    $inactiveType = $inactiveRecord ? $inactiveRecord->type : 'Inactive';
+                                                @endphp
+                                                <span class="badge bg-secondary">
+                                                    @lang('Inactive') / {{ ucfirst($inactiveType) }}
+                                                </span>
                                             @endif
-                                            </a>
                                         </td>
                                         @if(count($feeTypes))
                                             @foreach($feeTypes as $type)  
@@ -232,13 +294,12 @@
                     @if($sections->count())
                         <div class="list-group">
                             @foreach($sections as $s)
-                                <a href="{{ url('fees/section/' . $s->id) }}" 
+                                <a href="{{ url('fees/section/' . $s->id . '/year/' . $year) }}" 
                                    class="list-group-item {{ $s->id == $section->id ? 'active' : '' }}" 
                                    style="padding: 10px 15px; font-size: 14px; display: flex; justify-content: space-between; align-items: center;">
                                     <span>{{ $s->class->class_number . $s->section_number }}</span>
                                     <span class="badge {{ $s->id == $section->id ? 'badge-light' : 'badge-primary' }}">
-                                        {{ $studentCountList['total'][$s->id] ?? 0 }} ({{ $studentCountList['active'][$s->id] ?? 0 }})
-                                    </span>
+                                        {{ $studentCountList['total'][$s->id] ?? 0 }}
                                 </a>
                             @endforeach
                         </div>

@@ -15,7 +15,11 @@ class HouseController extends Controller
     public function index()
     {
         $school = \Auth::user()->school;
-        $houses = House::all();
+        $houses = House::withCount([
+            'students as current_session_students_count' => function ($query) {
+                $query->where('session', now()->year);
+            }
+        ])->get();
         return view('school.house',
             [
                 'houses'=>$houses,
@@ -90,7 +94,6 @@ class HouseController extends Controller
         $tb->house_name_ton = ($request->house_name_ton) ? $request->house_name_ton : '';
         $tb->house_abbrv = $request->house_code;
         $tb->active = $request->house_active;
-        // echo($tb);
         $tb->save();
         return redirect('/school/houses');
     }

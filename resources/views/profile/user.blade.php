@@ -38,6 +38,9 @@
                         'oldPaymentFeeTypes' => $oldPaymentFeeTypes,
                         'oldPaymentAmounts' => $oldPaymentAmounts,
                         'enrollmentHistory' => $enrollmentHistory,
+                        'inactiveRequest' => $inactiveRequest,
+                        'reinstateRequest' => $reinstateRequest,
+                        'hasReinstate' => $hasReinstate,
                     ])
                     @endcomponent
                 </div>

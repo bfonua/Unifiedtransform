@@ -34,7 +34,7 @@
             <th scope="col">@lang('Courses')</th>
           @endif
           @endif
-        @elseif($user->role == 'accountant' || $user->role == 'librarian')
+        @elseif($user->role == 'accountant')
           @if (!Session::has('section-attendance'))
           <th scope="col">@lang('Email')</th>
           @endif

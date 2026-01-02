@@ -26,10 +26,17 @@ class HomeController extends Controller
      */
     public function index()
     {
-
-        if (Auth::user()->role != 'master') {
-            $minutes = 120; // 24 hours = 1440 minutes
+        // For master users, use session school_id or redirect to masters page
+        if (Auth::user()->role == 'master') {
+            if (!session()->has('master_school_id')) {
+                return redirect('/masters');
+            }
+            $school_id = session('master_school_id');
+        } else {
             $school_id = Auth::user()->school->id;
+        }
+
+        $minutes = 120; // 24 hours = 1440 minutes
             $classes = Cache::remember('classes-' . $school_id, $minutes, function () use ($school_id) {
                 return \App\Myclass::bySchool($school_id)
                     ->pluck('id')
@@ -193,8 +200,5 @@ class HomeController extends Controller
                 'feeArr' => $feeArr,
                 //'messageCount'=>$messageCount,
             ]);
-        } else {
-            return redirect('/masters');
-        }
     }
 }

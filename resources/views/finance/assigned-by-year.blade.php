@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', __('Fee Summary - Sections '))
+@section('title', __('Fee Summary - Sections (' . $year . ')'))
 @section('content')
 <style>
     #cls-sec .panel{
@@ -13,21 +13,14 @@
         </div>
         <div class="col-md-7 container" id="main-container">
             <br>
-            <h4>@lang('Fee Summary by Form - '.now()->year)</h4>
-            @if(Auth::user()->role == 'admin' || Auth::user()->role == 'master' || Auth::user()->role == 'accountant')
-                <a href="{{url('fees/exportAssign')}}" class="btn btn-sm btn-primary"><i class="material-icons">import_export</i> Export Assigned</a>
-                <a href="{{url('fees/exportPayment')}}" class="btn btn-sm btn-danger"><i class="material-icons">monetization_on</i> Export Payment</a>
-                <a href="{{url('fees/exportRemain')}}" class="btn btn-sm btn-success"><i class="material-icons">monetization_on</i> Export Remaining</a>
-                <a href="{{url('fees/exportTran/'.now()->year)}}" class="btn btn-sm btn-warning"><i class="material-icons">import_export</i> Export Transactions ({{now()->year}})</a>
-                <a href="{{url('fees/exportTran/'.(now()->year-1))}}" class="btn btn-sm btn-default"><i class="material-icons">import_export</i> Export Transactions ({{now()->year - 1}})</a>
-                <br>
-            @endif
-            {{-- @include('layouts.master.add-class-form') <!--NEW FORM BUTTON --> --}}
+            <h4>@lang('Fee Summary by Form') - {{ $year }}</h4>
+            <a href="{{url('fees/assign')}}" class="btn btn-sm btn-info"><i class="material-icons">arrow_back</i> @lang('Back to Current Year')</a>
+            <br>
             <br>
             <table class="table table-bordered">
                 <thead>
                     <th class="text-center">Section</th>
-                    <th class="text-center">Student Count (Active)</th>
+                    <th class="text-center">Student Count</th>
                     <th class="text-center">Total Assigned</th>
                     <th class="text-center">Total Payments</th>
                     <th class="text-center">Remaining</th>
@@ -47,8 +40,8 @@
                 @endphp
                     @foreach ($sections as $section)
                         @php
-                            $assign = (!empty($section->total_assigned_amount))? $section->total_assigned_amount->aggregate : 0;
-                            $payment = (!empty($section->total_paid_amount))? $section->total_paid_amount->aggregate : 0;
+                            $assign = $section->total_assigned_year ?? 0;
+                            $payment = $section->total_paid_year ?? 0;
                             $remain = $assign - $payment;
                         @endphp
                         <tr>
@@ -62,10 +55,9 @@
                                     @if($assign <= 0)
                                         disabled
                                     @endif
-                                " href="{{url('/fees/section/'.$section->id)}}"><i class="material-icons">visibility</i> @lang('View')</a>
+                                " href="{{url('/fees/section/'.$section->id.'/year/'.$year)}}"><i class="material-icons">visibility</i> @lang('View')</a>
                             </td>
                         </tr>
-
                     @endforeach
                 </tbody>
             </table>

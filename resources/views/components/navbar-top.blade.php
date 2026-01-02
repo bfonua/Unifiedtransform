@@ -1,7 +1,7 @@
 <nav class="navbar navbar-inverse navbar-static-top" style="background-color: #23262f;">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-text" href="{{ url('/home')}}">TCTNET</a>
+            <a class="navbar-text" href="{{ url('/home')}}">TCTIMS</a>
         </div>
         <form class="navbar-form navbar-right" action="/action_page.php">
             @guest
@@ -40,6 +40,13 @@
             @guest
                 <li><a href="{{ route('login') }}" ">@lang('Login')</a></li>
             @else
+            @if(app('impersonate')->isImpersonating())
+            <li>
+                <span class="label label-warning" style="padding: 8px; margin-top: 15px; display: inline-block;">
+                    <i class="glyphicon glyphicon-eye-open"></i> @lang('Impersonating')
+                </span>
+            </li>
+            @endif
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <span class="label label-danger">
@@ -48,15 +55,40 @@
                     &nbsp;&nbsp; &nbsp;&nbsp;{{ Auth::user()->name }}</span>
                 <span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                        @if (Auth::user()->role != 'master')
-                    <li>
-                        <a href="{{ url('user/' . Auth::user()->student_code) }}">@lang('Profile')</a>
-                    </li>
+                    @if (Auth::user()->role == 'master')
+                        @php
+                            $masterSchoolId = session()->has('master_school_id') ? session('master_school_id') : null;
+                        @endphp
+                        @if(session()->has('master_school_id'))
+                            <li>
+                                <a href="{{ url('master/leave-school') }}">@lang('Leave School Portal')</a>
+                            </li>
+                        @else
+                            <li>
+                                <a href="{{ route('masters.index') }}">@lang('Manage Schools')</a>
+                            </li>
+                        @endif
+                    @endif
+                    @if ((Auth::user()->role == 'master' && session()->has('master_school_id')) || Auth::user()->role == 'admin')
+                        @php
+                            $schoolId = Auth::user()->role == 'master' ? session('master_school_id') : Auth::user()->school_id;
+                        @endphp
+                        <li>
+                            <a href="{{ url('school/admin-list/' . $schoolId) }}">@lang('View Admins')</a>
+                        </li>
+                        <li>
+                            <a href="{{ url('school/non-student-users/' . $schoolId) }}">@lang('View Non-Student Users')</a>
+                        </li>
+                    @endif
+                    @if (Auth::user()->role == 'teacher' || Auth::user()->role == 'accountant' || Auth::user()->role == 'admin')
+                        <li>
+                            <a href="{{ url('user/profile/edit') }}">@lang('Edit Profile')</a>
+                        </li>
                     @endif
                     <li>
                         <a href="{{ url('user/config/change_password') }}">@lang('Change Password')</a>
                     </li>
-                    @if (env('APP_ENV') != 'production')
+                    @if (env('APP_ENV') != 'production' && (app('impersonate')->isImpersonating() || Auth::user()->role == 'master'))
                         <li>
                             <a href="{{ url('user/config/impersonate') }}">
                                 {{ app('impersonate')->isImpersonating() ? __('Leave Impersonation') : __('Impersonate') }}

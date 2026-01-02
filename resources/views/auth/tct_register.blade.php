@@ -37,6 +37,10 @@
                     @if (session('register_school_id'))
                         <a href="{{ url('school/admin-list/' . session('register_school_id')) }}" target="_blank" class="text-white pull-right">@lang('View Admins')</a>
                     @endif
+                    {{-- Display View student profile link --}}
+                    @if (session('register_student_code'))
+                        <a href="{{ url('user/' . session('register_student_code')) }}" target="_blank" class="text-white pull-right" style="margin-right: 10px;">@lang('View Student Profile')</a>
+                    @endif
                 </div>
             @endif
             <div class="panel panel-default">
@@ -71,20 +75,6 @@
                                 @endif
                             </div>
                         </div>
-                        <!-- EMAIL (teacher) -->
-                        @if(session('register_role', 'teacher') == 'teacher')
-                            <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
-                                <label for="email" class="col-md-4 control-label">* @lang('E-Mail Address')</label>
-                                <div class="col-md-6">
-                                    <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" required>
-                                    @if ($errors->has('email'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('email') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        @endif
                         <!-- CATEGORY -->
                         @if(session('register_role', 'student') == 'student')
                             <div class="form-group{{ $errors->has('category') ? ' has-error' : '' }}">
@@ -107,7 +97,7 @@
                         <div class="form-group{{ $errors->has('birthday') ? ' has-error' : '' }}">
                             <label for="birthday" class="col-md-4 control-label">* @lang('Date of Birth')</label>
                             <div class="col-md-6">
-                                <input id="birthday" type="date" class="form-control" name="birthday" value="{{old('birthday')}}" placeholder="yyyy/mm/dd"
+                                <input id="birthday" type="text" class="form-control" name="birthday" value="{{old('birthday')}}" placeholder="dd/mm/yyyy"
                                     required>
                                 @if ($errors->has('birthday'))
                                 <span class="help-block">
@@ -116,56 +106,6 @@
                                 @endif
                             </div>
                         </div>
-                        @if(session('register_role', 'teacher') == 'teacher')   
-                            <hr>
-                            <!-- PASSWORD (teacher) -->
-                            <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
-                                <label for="password" class="col-md-4 control-label">* @lang('Password')</label>
-                                <div class="col-md-6">
-                                    <input id="password" type="password" class="form-control" name="password" required>
-                                    @if ($errors->has('password'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('password') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="password-confirm" class="col-md-4 control-label">* @lang('Confirm Password')</label>
-                                <div class="col-md-6">
-                                    <input id="password-confirm" type="password" class="form-control" name="password_confirmation"
-                                        required>
-                                </div>
-                            </div>
-                            <hr>
-                            <!-- GENDER (teacher) default Male for TCT students -->
-                            <div class="form-group{{ $errors->has('gender') ? ' has-error' : '' }}">
-                                <label for="gender" class="col-md-4 control-label">* @lang('Gender')</label>
-                                <div class="col-md-6">
-                                    <select id="gender" class="form-control" name="gender">
-                                        <option selected="selected">@lang('Male')</option>
-                                        <option>@lang('Female')</option>
-                                    </select>
-                                    @if ($errors->has('gender'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('gender') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                            <!-- Phone number (teacher) -->
-                            <div class="form-group{{ $errors->has('phone_number') ? ' has-error' : '' }}">
-                                <label for="phone_number" class="col-md-4 control-label">* @lang('Phone Number')</label>
-                                <div class="col-md-6">
-                                    <input id="phone_number" type="text" class="form-control" name="phone_number" value="{{ old('phone_number') }}">
-                                    @if ($errors->has('phone_number'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('phone_number') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        @endif
                         <!-- NATIONALITY --> 
                         <div class="form-group{{ $errors->has('nationality') ? ' has-error' : '' }}">
                             <label for="nationality" class="col-md-4 control-label">* @lang('Nationality')</label>
@@ -322,45 +262,6 @@
                         </div>         
                         <hr>
                         @endif
-                        @if(session('register_role', 'teacher') == 'teacher')
-                        <!-- DEPARTMENT (teacher) -->
-                            <div class="form-group{{ $errors->has('department') ? ' has-error' : '' }}">
-                                <label for="department" class="col-md-4 control-label">* @lang('Department')</label>
-                                <div class="col-md-6">
-                                    <select id="department" class="form-control" name="department_id" required>
-                                        @if (count(session('departments')) > 0)
-                                            @foreach (session('departments') as $d)
-                                                <option value="{{$d->id}}">{{$d->department_name}}</option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                    @if ($errors->has('department'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('department') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                            <!-- Class Teacher -->
-                            <div class="form-group{{ $errors->has('class_teacher') ? ' has-error' : '' }}">
-                                <label for="class_teacher" class="col-md-4 control-label">@lang('Class Teacher')</label>
-                                <div class="col-md-6">
-                                    <select id="class_teacher" class="form-control" name="class_teacher_section_id">
-                                        <option selected="selected" value="0">@lang('Not Class Teacher')</option>
-                                        @foreach (session('register_sections') as $section)
-                                        <option value="{{$section->id}}">@lang('Section'): {{$section->section_number}} @lang('Class'):
-                                            {{$section->class->class_number}}</option>
-                                        @endforeach
-                                    </select>
-                                    @if ($errors->has('class_teacher'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('class_teacher') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        @endif
-                        <hr>
                         <div class="page-panel-title">Health and Emergency Details</div>
                         <!-- BLOOD GROUP -->
                         <div class="form-group{{ $errors->has('blood_group') ? ' has-error' : '' }}">
@@ -475,13 +376,23 @@
 
                         @endif
                         <hr>
-                        <div class="form-group">
-                            <div class="col-md-6 col-md-offset-4">
-                                <button type="submit" id="registerBtn" class="btn btn-primary">
-                                    @lang('Register')
-                                </button>
+                        @if (Auth::user()->role == 'admin' || Auth::user()->role == 'master')
+                            <div class="form-group">
+                                <div class="col-md-6 col-md-offset-4">
+                                    <button type="submit" id="registerBtn" class="btn btn-primary">
+                                        @lang('Register')
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        @else
+                            <div class="form-group">
+                                <div class="col-md-6 col-md-offset-4">
+                                    <div class="alert alert-warning">
+                                        @lang('You do not have permission to register students.')
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </form>
                 </div>
             </div>

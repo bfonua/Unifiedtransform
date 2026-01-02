@@ -59,7 +59,7 @@
     @endslot
 @endcomponent
 
-@if($fees->first()->session < now()->year)
+@if((Auth::user()->role == 'admin' || Auth::user()->role == 'master') && $fees->first() && $fees->first()->session < now()->year)
     @component('components.fee-type-form', [
         'buttonTitle' => 'Update Session',
         'modal_name' => 'feeModal',

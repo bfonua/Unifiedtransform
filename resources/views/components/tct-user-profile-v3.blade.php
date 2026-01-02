@@ -1,5 +1,3 @@
-<!-- Include Service into Blade file -->
-
 @php $userSer = $user; @endphp
 @inject('userSer', 'App\Services\User\UserService')
 
@@ -12,9 +10,15 @@
 @if(isset($error2))
     <div class="bg-danger text-white">{{$error}}</div>
 @endif
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade in">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        <strong>Success!</strong> {{session('success')}}
+    </div>
+@endif
 
 <div>
-    @if(Auth::user()->role == 'admin')
+    @if(Auth::user()->role == 'admin' || Auth::user()->role == 'master')
         <div class="col-md-2" text-center>
             <img src="http://ssl.gstatic.com/accounts/ui/avatar_2x.png" class="avatar img-circle img-thumbnail" alt="avatar">
             <hr>
@@ -23,8 +27,8 @@
                 @if ($user->active)
                     @include('layouts.master.set-inactive')
                 @else
-                    @if($userSer->checkReinstate($user))
-                        @if($userSer->getReinstateRequest($user)->approved)
+                    @if($hasReinstate)
+                        @if($reinstateRequest->approved)
                             @include('layouts.master.set-inactive')
                         @else
                             @include('layouts.master.reinstate-approval')
@@ -53,7 +57,17 @@
                 <a role="button" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure? This will delete the student and ALL related records')" href="{{url('tct_delete_student/'.$user->id)}}"><i class="material-icons">delete</i> @lang('Delete Record')</a>
             </div>
         </div>
+    @elseif(Auth::user()->role == 'teacher')
+        <div class="col-md-2" text-center>
+            <img src="http://ssl.gstatic.com/accounts/ui/avatar_2x.png" class="avatar img-circle img-thumbnail" alt="avatar">
+            <hr>
+            <!-- EDIT BUTTONS -->
+            <div class="row text-center">
+                @include('layouts.master.edit-details-form')
+            </div>
+        </div>
     @endif
+
     <div class="col-md-10" id="main-container">
         <!-- STUDENT SUMMARY -->
         <div class="row">
@@ -67,14 +81,12 @@
                 <li class="nav-item">
                     <a class="nav-link active " data-toggle="tab" href="#general">Administration</a>
                 </li>
-                @if(Auth::user()->role != 'teacher')
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#finance">Finance</a>
-                    </li>
-                @endif
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#finance">Finance</a>
+                </li>
                 @if($user->studentInfo->section->class->options and $user->studentInfo->section->class->optionCount > 0)
                 <li class="nav-item">
-                    <a class="nav-link active " data-toggle="tab" href="#subject">Subjects</a>
+                    <a class="nav-link active " data-toggle="tab" href="#subject">Electives</a>
                 </li>
                 @endif
             </ul>
@@ -123,25 +135,25 @@
                                     <td class="text-primary">@lang('Notes'):</td>
                                     <td colspan="2">{{$user->studentInfo['reg_notes']}}</td>
                                 </tr>
-                                @if(!$user->active)
+                                @if(!$user->active && $inactiveRequest)
                                     <tr>
                                         <td colspan="4" class="bg-info text-white text-center"><b>Inactive details</b></td>
                                     </tr>
                                     <tr>
                                         <td>@lang('Type'):</td>
-                                        <td>{{ucfirst($userSer->getInactiveRequest($user)->type)}}</td>
+                                        <td>{{ucfirst($inactiveRequest->type)}}</td>
                                         <td>@lang('Inactive Date')</td>
-                                        <td>{{Carbon\Carbon::parse($userSer->getInactiveRequest($user)->created_at)->format('d/m/Y')}}</td>
+                                        <td>{{Carbon\Carbon::parse($inactiveRequest->created_at)->format('d/m/Y')}}</td>
                                     </tr>
                                     <tr>
                                         <td>@lang('Inactive Notes'):</td>
-                                        <td colspan="3">{{$userSer->getInactiveRequest($user)->notes}}</td>
+                                        <td colspan="3">{{$inactiveRequest->notes}}</td>
                                     </tr>
-                                    @if($userSer->checkReinstate($user))
+                                    @if($hasReinstate && $reinstateRequest)
                                         <tr>
                                             <td colspan="4">
-                                                Reinstated on {{Carbon\Carbon::parse($userSer->getReinstateRequest($user)->created_at)->format('d/m/Y')}}
-                                                - {{$userSer->getReinstateRequest($user)->notes}}
+                                                Reinstated on {{Carbon\Carbon::parse($reinstateRequest->created_at)->format('d/m/Y')}}
+                                                - {{$reinstateRequest->notes}}
                                             </td>
                                         </tr>
                                     @endif
@@ -219,51 +231,81 @@
                                     @if(isset($enrollmentHistory) && count($enrollmentHistory) > 0)
                                         @foreach($enrollmentHistory as $index => $record)
                                             @php
-                                                $isCurrent = $record->session == $user->studentInfo->session;
-                                                $isUnavailable = $record->status === 'Unavailable';
+                                                $isCurrent = isset($record->type) && $record->type === 'enrollment' && $record->session == $user->studentInfo->session;
+                                                $isUnavailable = isset($record->type) && $record->type === 'unavailable';
+                                                $isInactive = isset($record->type) && $record->type === 'inactive';
+                                                $isReinstate = isset($record->type) && $record->type === 'reinstate';
                                             @endphp
-                                            <tr class="{{ $isCurrent ? 'bg-light' : ($isUnavailable ? 'text-muted' : '') }}">
-                                                <td class="text-center">
-                                                    @if($isCurrent)<strong>@endif
-                                                    {{$record->session}}
-                                                    @if($isCurrent)</strong>@endif
-                                                </td>
-                                                @if($isUnavailable)
+                                            
+                                            @if($isInactive)
+                                                {{-- Inactive Event Row --}}
+                                                <tr class="text-dark">
+                                                    <td class="text-center"><strong>{{$record->session}}</strong></td>
                                                     <td colspan="5" class="text-center">
-                                                        Not Available
+                                                        <strong>{{$record->inactive_type}}</strong> - 
+                                                        {{Carbon\Carbon::parse($record->inactive_date)->format('d/m/Y')}}
+                                                        @if($record->inactive_notes)
+                                                            <br><small class="text-muted">{{$record->inactive_notes}}</small>
+                                                        @endif
                                                     </td>
-                                                @else
-                                                    <td class="text-center">
-                                                        @if($isCurrent)<strong>@endif
-                                                        {{$record->form_name}}
-                                                        @if($isCurrent)</strong>@endif
-                                                    </td>
-                                                    <td class="text-center">
-                                                        @if($isCurrent)<strong>@endif
-                                                        {{$record->form_num}}
-                                                        @if($isCurrent)</strong>@endif
-                                                    </td>
-                                                    <td class="text-center">
-                                                        @if($isCurrent)<strong>@endif
-                                                        {{$record->house_name}}
-                                                        @if($isCurrent)</strong>@endif
-                                                    </td>
-                                                    <td class="text-center">
-                                                        @if($isCurrent)<strong>@endif
-                                                        {{$record->status}}
-                                                        @if($isCurrent)</strong>@endif
-                                                    </td>
-                                                    <td class="text-center">
-                                                        @if($isCurrent)<strong>@endif
-                                                        {{$record->channel_name}}
-                                                        @if($isCurrent)</strong>@endif
-                                                    </td>
-                                                @endif
-                                            </tr>
-                                            @if($record->notes)
-                                                <tr class="{{ $isCurrent ? 'bg-light' : '' }}">
-                                                    <td colspan="6" class="text-muted"><small><strong>Notes:</strong> {{$record->notes}}</small></td>
                                                 </tr>
+                                            @elseif($isReinstate)
+                                                {{-- Reinstate Event Row --}}
+                                                <tr class="text-dark">
+                                                    <td class="text-center"><strong>{{$record->session}}</strong></td>
+                                                    <td colspan="5" class="text-center">
+                                                        <strong>REINSTATED</strong> - 
+                                                        {{Carbon\Carbon::parse($record->reinstate_date)->format('d/m/Y')}}
+                                                        @if($record->reinstate_notes)
+                                                            <br><small class="text-muted">{{$record->reinstate_notes}}</small>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @else
+                                                {{-- Regular Enrollment Row --}}
+                                                <tr class="{{ $isCurrent ? 'bg-light' : ($isUnavailable ? 'text-muted' : '') }}">
+                                                    <td class="text-center">
+                                                        @if($isCurrent)<strong>@endif
+                                                        {{$record->session}}
+                                                        @if($isCurrent)</strong>@endif
+                                                    </td>
+                                                    @if($isUnavailable)
+                                                        <td colspan="5" class="text-center">
+                                                            Not Available
+                                                        </td>
+                                                    @else
+                                                        <td class="text-center">
+                                                            @if($isCurrent)<strong>@endif
+                                                            {{$record->form_name}}
+                                                            @if($isCurrent)</strong>@endif
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @if($isCurrent)<strong>@endif
+                                                            {{$record->form_num}}
+                                                            @if($isCurrent)</strong>@endif
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @if($isCurrent)<strong>@endif
+                                                            {{$record->house_name}}
+                                                            @if($isCurrent)</strong>@endif
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @if($isCurrent)<strong>@endif
+                                                            {{$record->status}}
+                                                            @if($isCurrent)</strong>@endif
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @if($isCurrent)<strong>@endif
+                                                            {{$record->channel_name}}
+                                                            @if($isCurrent)</strong>@endif
+                                                        </td>
+                                                    @endif
+                                                </tr>
+                                                @if(isset($record->notes) && $record->notes && !$isUnavailable)
+                                                    <tr class="{{ $isCurrent ? 'bg-light' : '' }}">
+                                                        <td colspan="6" class="text-muted"><small><strong>Notes:</strong> {{$record->notes}}</small></td>
+                                                    </tr>
+                                                @endif
                                             @endif
                                         @endforeach
                                     @else
@@ -296,7 +338,6 @@
                                     @foreach ($years as $session) 
                                         @if(isset($feeList[$session]))
                                             <div class="text-center">
-                                                {{-- <h4>{{$session}}<small> - Channel: {{\App\Fee::find($feeList[$session]['fee_id'])->first()->fee_channel->name}}</small></h4> --}}
                                                 <h4>{{$session}} <small> - Channel: {{ $feeChannels[$session] ?? '' }}</small></h4>
                                             </div>
                                             <table class="table">
@@ -387,28 +428,31 @@
                                                         <tr>
                                                             {{-- ASSIGN BUTTON --}}
                                                             <td colspan="2">
-                                                                <div class="text-center">
-                                                                    <form class="form-horizontal" action="{{url('fees/reassignForm')}}" method="post">
-                                                                        {{csrf_field()}}
-                                                                        <input type="hidden" value="{{$user->id}}" name="user_id">
-                                                                        <input type="hidden" value="{{$session}}" name="session">
-                                                                        <button type="submit" class="btn btn-primary btn-sm data-to"><i class="material-icons">assignment_returned</i> Reassign</button>
-                                                                    </form>
-                                                                </div>
+                                                                @if (Auth::user()->role != 'teacher')
+                                                                    <div class="text-center">
+                                                                        <form class="form-horizontal" action="{{url('fees/reassignForm')}}" method="post">
+                                                                            {{csrf_field()}}
+                                                                            <input type="hidden" value="{{$user->id}}" name="user_id">
+                                                                            <input type="hidden" value="{{$session}}" name="session">
+                                                                            <button type="submit" class="btn btn-primary btn-sm data-to"><i class="material-icons">assignment_returned</i> Reassign</button>
+                                                                        </form>
+                                                                    </div>
+                                                                @endif
                                                             </td>
                                                             {{-- PAYMENT BUTTON --}}
                                                             <td colspan="2">
-                                                                @if($session > 2019)
-                                                                    <div class="text-center">
-                                                                        @component('components.fee-type-form', [
-                                                                            'buttonTitle' => 'Make Payment',
-                                                                            'modal_name' => 'paymentModal'.$session,
-                                                                            'title' => 'Set Payment '.$session,
-                                                                            'put_method' => '',
-                                                                            'url' => url('fees/tct_payment'),
-                                                                        ])
-                                                                            @slot('buttonType')
-                                                                                <button type="button" class="btn btn-danger btn-sm {{($total['remain'] == 0)?'':''}}" data-toggle="modal" data-target="#paymentModal{{$session}}"><i class="material-icons">attach_money</i>  
+                                                                @if (Auth::user()->role != 'teacher')
+                                                                    @if($session > 2019)
+                                                                        <div class="text-center">
+                                                                            @component('components.fee-type-form', [
+                                                                                'buttonTitle' => 'Make Payment',
+                                                                                'modal_name' => 'paymentModal'.$session,
+                                                                                'title' => 'Set Payment '.$session,
+                                                                                'put_method' => '',
+                                                                                'url' => url('fees/tct_payment'),
+                                                                            ])
+                                                                                @slot('buttonType')
+                                                                                    <button type="button" class="btn btn-danger btn-sm {{($total['remain'] == 0)?'':''}}" data-toggle="modal" data-target="#paymentModal{{$session}}"><i class="material-icons">attach_money</i>  
                                                                             @endslot
                                                                             @slot('form_content')
                                                                                 <input type="hidden" value="{{$user->id}}" name="user_id">
@@ -580,6 +624,7 @@
                                                                         @endcomponent
                                                                     </div>
                                                                 @endif
+                                                                @endif
                                                             </td>
                                                         </tr>
                                                         <tr>
@@ -612,14 +657,20 @@
                                                         <tr>
                                                             <th class="text-center" colspan="2">Currently Not Assigned</th>
                                                             <th class="text-center" colspan="2">
-                                                                <div class="text-center">
-                                                                    <form class="form-horizontal" action="{{url('fees/reassignForm')}}" method="post">
-                                                                        {{csrf_field()}}
-                                                                        <input type="hidden" value="{{$user->id}}" name="user_id">
-                                                                        <input type="hidden" value="{{$session}}" name="session">
-                                                                        <button type="submit" class="btn btn-primary btn-sm data-to"><i class="material-icons">assignment_returned</i> Assign Fees</button>
-                                                                    </form>
-                                                                </div>
+                                                                @if (Auth::user()->role != 'teacher')
+                                                                    <div class="text-center">
+                                                                        <form class="form-horizontal" action="{{url('fees/reassignForm')}}" method="post">
+                                                                            {{csrf_field()}}
+                                                                            <input type="hidden" value="{{$user->id}}" name="user_id">
+                                                                            <input type="hidden" value="{{$session}}" name="session">
+                                                                            <button type="submit" class="btn btn-primary btn-sm data-to"><i class="material-icons">assignment_returned</i> Assign Fees</button>
+                                                                        </form>
+                                                                    </div>
+                                                                @else
+                                                                    <div class="text-center text-muted">
+                                                                        Not Available
+                                                                    </div>
+                                                                @endif
                                                             </th>
                                                         </tr>
                                                     @endif
@@ -632,13 +683,16 @@
                                     Student has not been assigned! <br>
                                     <br>
                                     @if($user->studentInfo->session == now()->year)
-                                    <form class="form-horizontal" action="{{url('fees/reassignForm')}}" method="post">
-                                        {{csrf_field()}}
-                                        {{-- {{$session}} --}}
-                                        <input type="hidden" value="{{$user->id}}" name="user_id">
-                                        <input type="hidden" value="{{now()->year}}" name="session">
-                                        <button type="submit" class="btn btn-primary btn-sm data-to"><i class="material-icons">assignment_returned</i> Assign Fees</button>
-                                    </form>
+                                        @if (Auth::user()->role != 'teacher')
+                                            <form class="form-horizontal" action="{{url('fees/reassignForm')}}" method="post">
+                                                {{csrf_field()}}
+                                                <input type="hidden" value="{{$user->id}}" name="user_id">
+                                                <input type="hidden" value="{{now()->year}}" name="session">
+                                                <button type="submit" class="btn btn-primary btn-sm data-to"><i class="material-icons">assignment_returned</i> Assign Fees</button>
+                                            </form>
+                                        @else
+                                            <div class="text-muted">Fee assignment not available.</div>
+                                        @endif
                                     @else
                                         Please register / promote student inorder to Assign Fees!
                                     @endif
@@ -810,21 +864,21 @@
                         </div>
                     </div>
                 </div>
-                <!-- Subject Details -->
+                <!-- Electives Details -->
                 @if($user->studentInfo->section->class->options and $user->studentInfo->section->class->optionCount > 0)
                 <div class="tab-pane" id="subject">
                     <br/>
                     <div class="row col-md-12">
                         <table class="table">
                             <tr>
-                                <td  class="bg-dark text-white text-center">Subjects & Grades</td>
+                                <td  class="bg-dark text-white text-center">Electives & Grades</td>
                             </tr>
                         </table>
                         <div class="col-xs-6 container">
                             <div class="text-center">
                                 @foreach($subjectList as $session => $chosenOptions)
                                     @if($session > 2020)
-                                    <h4>{{$session}}<small> - Subjects</small></h4>
+                                    <h4>{{$session}}<small> - Electives</small></h4>
                                     <table class="table">
                                         <thead>
                                             <tr class="bg-secondary text-white">
@@ -962,8 +1016,6 @@
 </div>
 
 @section('jsFiles')
-    {{-- <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
-    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script> --}}
     <script src = "https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
     <script>
@@ -985,9 +1037,6 @@
                 minViewMode: "years"
             });
         });
-        // $('#registerBtn').click(function () {
-        //     $("#registerForm").submit();
-        // });
     </script>
 
     <script>
@@ -1001,8 +1050,6 @@
         printWindow.document.write(tableContent);
         printWindow.document.write('</div></div></body></html>');
         printWindow.document.close();
-        // var academicPart = printWindow.document.getElementById("academic-part");
-        // academicPart.appendChild(resultTable);
         printWindow.print();
         });
     </script>

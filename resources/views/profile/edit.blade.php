@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('Edit'))
+@section('title', __('Edit') . ' ' . ucfirst($user->role))
 
 @section('content')
 <div class="container{{ (\Auth::user()->role == 'master')? '' : '-fluid' }}">
@@ -26,7 +26,7 @@
             </div>
             @endif
             <div class="panel panel-default">
-                <div class="page-panel-title">@lang('Edit')</div>
+                <div class="page-panel-title">@lang('Edit') {{ucfirst($user->role)}}</div>
 
                 <div class="panel-body">
                     <form class="form-horizontal" method="POST" action="{{ url('edit/user') }}">
@@ -64,7 +64,7 @@
                         </div>
 
                         <div class="form-group{{ $errors->has('phone_number') ? ' has-error' : '' }}">
-                            <label for="phone_number" class="col-md-4 control-label">* @lang('Phone Number')</label>
+                            <label for="phone_number" class="col-md-4 control-label">@lang('Phone Number')</label>
 
                             <div class="col-md-6">
                                 <input id="phone_number" type="text" class="form-control" name="phone_number"
@@ -78,40 +78,34 @@
                             </div>
                         </div>
 
-                        @if($user->role == 'teacher')
-                        <div class="form-group{{ $errors->has('department') ? ' has-error' : '' }}">
-                            <label for="department" class="col-md-4 control-label">@lang('Department')</label>
+                        @if($user->role != 'student')
+                        <div class="form-group{{ $errors->has('gender') ? ' has-error' : '' }}">
+                            <label for="gender" class="col-md-4 control-label">@lang('Gender')</label>
 
                             <div class="col-md-6">
-                                <select id="department" class="form-control" name="department_id">
-                                    @if (count($departments)) > 0)
-                                    @foreach ($departments as $d)
-                                    <option value="{{$d->id}}" @if ($d->id == old('department_id', $user->department_id))
-											selected="selected"
-										@endif
-										>{{$d->department_name}}</option>
-                                    @endforeach
-                                    @endif
+                                <select id="gender" class="form-control" name="gender">
+                                    <option value="Male" {{ $user->gender == 'Male' ? 'selected' : '' }}>@lang('Male')</option>
+                                    <option value="Female" {{ $user->gender == 'Female' ? 'selected' : '' }}>@lang('Female')</option>
                                 </select>
 
-                                @if ($errors->has('department'))
+                                @if ($errors->has('gender'))
                                 <span class="help-block">
-                                    <strong>{{ $errors->first('department') }}</strong>
+                                    <strong>{{ $errors->first('gender') }}</strong>
                                 </span>
                                 @endif
                             </div>
                         </div>
+                        @endif
+
+                        @if($user->role == 'teacher')
                         <div class="form-group{{ $errors->has('class_teacher') ? ' has-error' : '' }}">
                             <label for="class_teacher" class="col-md-4 control-label">@lang('Class Teacher')</label>
 
                             <div class="col-md-6">
                                 <select id="class_teacher" class="form-control" name="class_teacher_section_id">
+                                    <option value="0" {{ ($user->section_id == 0 || $user->section_id == null) ? 'selected' : '' }}>@lang('Not Class Teacher')</option>
                                     @foreach ($sections as $section)
-                                    <option value="{{$section->id}}" @if ($section->id == old('class_teacher_section_id', $user->section_id))
-											selected="selected"
-										@endif
-										>@lang('Section'): {{$section->section_number}} @lang('Class'):
-                                        {{$section->class->class_number}}</option>
+                                    <option value="{{$section->id}}" {{ $section->id == old('class_teacher_section_id', $user->section_id) ? 'selected' : '' }}>{{$section->class->class_number}}{{$section->section_number}}</option>
                                     @endforeach
                                 </select>
 
@@ -123,35 +117,6 @@
                             </div>
                         </div>
                         @endif
-
-                        <div class="form-group{{ $errors->has('address') ? ' has-error' : '' }}">
-                            <label for="address" class="col-md-4 control-label">@lang('address')</label>
-
-                            <div class="col-md-6">
-                                <input id="address" type="text" class="form-control" name="address"
-                                    value="{{ $user->address }}">
-
-                                @if ($errors->has('address'))
-                                <span class="help-block">
-                                    <strong>{{ $errors->first('address') }}</strong>
-                                </span>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="form-group{{ $errors->has('about') ? ' has-error' : '' }}">
-                            <label for="about" class="col-md-4 control-label">@lang('About')</label>
-
-                            <div class="col-md-6">
-                                <textarea id="about" class="form-control" name="about">{{ $user->about }}</textarea>
-
-                                @if ($errors->has('about'))
-                                <span class="help-block">
-                                    <strong>{{ $errors->first('about') }}</strong>
-                                </span>
-                                @endif
-                            </div>
-                        </div>
                         
                         @if($user->role == 'student')
 
@@ -381,6 +346,65 @@
                         </div>
                         @endif
 
+                        @if(Auth::user()->role == 'master' && $user->role != 'student')
+                        <hr>
+                        <h4 class="col-md-12" style="margin-bottom: 20px;">@lang('Password Reset') (@lang('Master Only'))</h4>
+                        <div class="form-group{{ $errors->has('new_password') ? ' has-error' : '' }}">
+                            <label for="new_password" class="col-md-4 control-label">@lang('New Password')</label>
+
+                            <div class="col-md-6">
+                                <input id="new_password" type="password" class="form-control" name="new_password" 
+                                    autocomplete="new-password"
+                                    placeholder="@lang('Leave blank to keep current password')">
+                                <small class="help-block">@lang('Minimum 6 characters')</small>
+
+                                @if ($errors->has('new_password'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('new_password') }}</strong>
+                                </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group{{ $errors->has('new_password_confirmation') ? ' has-error' : '' }}">
+                            <label for="new_password_confirmation" class="col-md-4 control-label">@lang('Confirm New Password')</label>
+
+                            <div class="col-md-6">
+                                <input id="new_password_confirmation" type="password" class="form-control" name="new_password_confirmation" autocomplete="new-password">
+
+                                @if ($errors->has('new_password_confirmation'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('new_password_confirmation') }}</strong>
+                                </span>
+                                @endif
+                            </div>
+                        </div>
+                        <hr>
+                        @endif
+
+                        @if(Auth::user()->role == 'master' && $user->role == 'admin')
+                        <h4 class="col-md-12" style="margin-bottom: 20px;">@lang('Change Role') (@lang('Master Only'))</h4>
+                        <div class="form-group{{ $errors->has('change_role') ? ' has-error' : '' }}">
+                            <label for="change_role" class="col-md-4 control-label">@lang('Change Admin Role To')</label>
+
+                            <div class="col-md-6">
+                                <select id="change_role" class="form-control" name="change_role">
+                                    <option value="" selected>@lang('Keep as Admin')</option>
+                                    <option value="teacher">@lang('Teacher')</option>
+                                    <option value="accountant">@lang('Accountant')</option>
+                                </select>
+                                <small class="help-block">@lang('Warning: This will change the user\'s role permanently')</small>
+
+                                @if ($errors->has('change_role'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('change_role') }}</strong>
+                                </span>
+                                @endif
+                            </div>
+                        </div>
+                        <hr>
+                        @endif
+
                         <div class="form-group">
                             <div class="col-md-6 col-md-offset-4">
                                 <a href="javascript:history.back()" class="btn btn-danger" style="margin-right: 2%;"
@@ -400,6 +424,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
 <script>
     $(function () {
+        @if($user->role == 'student' && $user->studentInfo)
         $('#birthday').datepicker({
             format: "yyyy-mm-dd",
         });
@@ -412,6 +437,7 @@
         });
         $('#session').datepicker('setDate',
             "{{ Carbon\Carbon::parse($user->studentInfo['session'])->format('Y') }}");
+        @endif
     });
 </script>
 @endsection

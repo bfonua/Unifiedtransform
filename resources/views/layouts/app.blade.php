@@ -9,15 +9,14 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title') -
-        {{ Auth::check() &&
+    <title>@yield('title')@if(Auth::check() &&
         (Auth::user()->role == 'student' ||
             Auth::user()->role == 'teacher' ||
             Auth::user()->role == 'admin' ||
             Auth::user()->role == 'accountant' ||
-            Auth::user()->role == 'librarian')
-            ? Auth::user()->school->name
-            : config('app.name') }}
+            false))
+            - {{ Auth::user()->school->name }}
+        @endif
     </title>
 
     <link rel="stylesheet" href="{{ url('css/loader.css') }}">
@@ -58,7 +57,7 @@
         src="https://cdn.datatables.net/v/bs/jszip-2.5.0/dt-1.10.20/b-1.6.1/b-html5-1.6.1/datatables.min.js"></script>
     @yield('jsFiles')
     <footer class="text-center" style="padding: 10px 0; color: #888888; font-size: 0.95em;">
-        TCTIMS &mdash; 2.3.1.{{ date('Y') }}
+        TCTIMS &mdash; 2.4.{{ date('Y') }}
     </footer>
 </body>
 

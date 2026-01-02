@@ -10,7 +10,7 @@
             @include('layouts.leftside-menubar')
         </div>
 
-        <div class="col-md-10" id="main-container">
+        <div class="col-md-8" id="main-container">
             <br>
             <h4>@lang('All Houses')</h4>
             <a href="{{url('students/export/house')}}" class="btn btn-sm btn-success"><i class="material-icons">import_export</i> Export all houses</a>
@@ -27,28 +27,25 @@
             <table id="house_table" class='table'>
                 <thead>
                     <th class="text-center">House Name</th>
-                    <th class="text-center">Active</th>
                     <th class="text-center">Student Count</th>
-                    <th class="text-center">Last Session</th>
                     <th class="text-center">View Students</th>
+                    @if (Auth::user()->role == 'admin' || Auth::user()->role == 'master')
                     <th class="text-center">Edit House</th>
+                    @endif
                 </thead>
                 <tbody>
                     @foreach ($houses as $house)
                         <tr>
                             <td>{{$house->house_name.' ('.$house->house_abbrv.')'}}</td>
-                            <td class="text-center">{{($house->active)?"Yes":"No"}}</td>
-                            @php 
-                                $count = \App\StudentInfo::where('session', now()->year)->where('house_id', $house->id)->count('id');
-                            @endphp
-                            <td class="text-center">{{($count == 0)?'-':$count}}</td>
-                            <td class="text-center">{{\App\StudentInfo::where('house_id', $house->id)->max('session')}}</td>
+                            <td class="text-center">{{($house->current_session_students_count == 0)?'-':$house->current_session_students_count}}</td>
                             <td class="text-center">
                                 <a role="button" class="btn btn-primary btn-xs" href="{{url('house/tct_students/'.$house->id)}}"><i class="material-icons">visibility</i> @lang('View Students')</a>
                             </td>
+                            @if (Auth::user()->role == 'admin' || Auth::user()->role == 'master')
                             <td class="text-center">
                                 @include('layouts.master.edit-house-form')
                             </td>
+                            @endif
                         </tr>
                     @endforeach
 

@@ -16,7 +16,7 @@ class CheckAccountant
     public function handle($request, Closure $next)
     {
         $user = \Auth::user();
-        if ($user->hasRole('accountant') || $user->hasRole('admin')) {
+        if ($user->hasRole('accountant') || $user->hasRole('admin') || $user->hasRole('master')) {
             return $next($request);
         }
         return redirect('home');

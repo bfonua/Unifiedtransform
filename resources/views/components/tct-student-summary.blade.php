@@ -5,7 +5,6 @@
             <td colspan="2">
                 <strong>
                     {{($user->studentInfo->session == date('Y'))?'Registered':'Archived'}} 
-                    {{-- / {{($user->active)? 'Active' : 'Inactive'}} --}}
                     
                     @if ($user->active)
                         {{($user->studentInfo->session == date('Y'))?'/ Active':'/ Graduated'}} 
@@ -29,7 +28,6 @@
                             @else
                                 / <b class="text-danger"> Not Approved</b>
                             @endif
-                                {{-- ({{($approved)?' Approved': <div class="text-danger">Not Approved</div>}})</ --}}
                         @endif    
                     @endif
                     / {{ucfirst($user->studentInfo->group)}} / Category: {{$user->studentInfo->category_id}} 

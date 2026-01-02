@@ -2,8 +2,25 @@
 
 @section('title', __('TCTNET Home'))
 
-@section('content')
-    <style>
+@section('content')    @php
+        // Get school for display - handle master users
+        if (Auth::user()->role == 'master' && session()->has('master_school_id')) {
+            $school = \App\School::find(session('master_school_id'));
+        } else {
+            $school = Auth::user()->school;
+        }
+        
+        // Get school code (fallback if not set by parent template)
+        if (!isset($schoolCode)) {
+            if (Auth::user()->role == 'master' && session()->has('master_school_id')) {
+                $schoolCode = \App\School::find(session('master_school_id'))->code;
+            } elseif (Auth::user()->school) {
+                $schoolCode = Auth::user()->school->code;
+            } else {
+                $schoolCode = null;
+            }
+        }
+    @endphp    <style>
         .badge-download {
             background-color: transparent !important;
             color: #464443 !important;
@@ -32,10 +49,10 @@
                                 <div class="" style="">
                                     <div class="">
                                         <h2>
-                                            @if (Auth::user()->school->name == 'Tupou College')
-                                                TCTIMS Summary Dashboard
+                                            @if ($school->name == 'Tupou College')
+                                                TCTIMS Summary
                                             @else
-                                                {{ Auth::user()->school->name }}
+                                                {{ $school->name }}
                                             @endif
                                         </h2>
                                         <div class="panel panel-default">
@@ -55,7 +72,7 @@
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
-                                                                        <tr>
+                                                                        <tr style="cursor: pointer;" onclick="window.location='{{ url('tct_users/' . $schoolCode . '/1/0') }}'">
                                                                             <td><b>Total Registered</b></td>
                                                                             <td class="text-right">{{ $totalStudents }}</td>
                                                                         </tr>
@@ -63,7 +80,7 @@
                                                                             <td><span class="badge bg-success">Active</span></td>
                                                                             <td class="text-right">{{ $totalActive }}</td>
                                                                         </tr>
-                                                                        <tr>
+                                                                        <tr style="cursor: pointer;" onclick="window.location='{{ url('school/inactive') }}'">
                                                                             <td><span class="badge bg-error">Inactive</span></td>
                                                                             <td class="text-right">
                                                                                 {{ $inactive = $totalStudents - $totalActive }}
@@ -71,17 +88,17 @@
                                                                         </tr>
                                                                     </tbody>
                                                                 </table>
-                                                                <hr>
                                                                 <table
                                                                     class="table table-striped table-condensed table-hover">
                                                                     <tbody>
                                                                         <tr>
-                                                                            <td><i class="material-icons" style="vertical-align: middle; color: #e57373;">person_remove</i> Removed</td>
+                                                                            <td>
+                                                                                Removed
+                                                                            </td>
                                                                             <td class="text-right">{{ $inactive }}</td>
                                                                         </tr>
                                                                         <tr>
                                                                             <td>
-                                                                                <i class="material-icons" style="vertical-align: middle; color: #ffb300;">logout</i>
                                                                                 Withdrawn
                                                                             </td>
                                                                             <td class="text-right">
@@ -89,7 +106,6 @@
                                                                         </tr>
                                                                         <tr>
                                                                             <td>
-                                                                                <i class="material-icons" style="vertical-align: middle; color: #64b5f6;">pause_circle</i>
                                                                                 Suspended
                                                                             </td>
                                                                             <td class="text-right">
@@ -97,7 +113,6 @@
                                                                         </tr>
                                                                         <tr>
                                                                             <td>
-                                                                                <i class="material-icons" style="vertical-align: middle; color: #d32f2f;">block</i>
                                                                                 Expelled
                                                                             </td>
                                                                             <td class="text-right">
@@ -202,11 +217,13 @@
                                                         <div class="row panel panel-default">
                                                             <div class="page-panel-title text-center">Quick Links</div>
                                                             <div class="panel-body text-center">
-                                                                <a class="btn btn-sm btn-block btn-success"
-                                                                    href="{{ url('register/tct_student') }}"
-                                                                    data-toggle="tooltip" title="Register a new student application"> <i
-                                                                        class="material-icons">person_add</i> New Application
-                                                                </a><br>
+                                                                @if (Auth::user()->role == 'admin' || Auth::user()->role == 'master')
+                                                                    <a class="btn btn-sm btn-block btn-success"
+                                                                        href="{{ url('register/tct_student') }}"
+                                                                        data-toggle="tooltip" title="Register a new student application"> <i
+                                                                            class="material-icons">person_add</i> New Application
+                                                                    </a><br>
+                                                                @endif
                                                                 <a class="btn btn-sm btn-block btn-primary"
                                                                     href="{{ url('students/export/tct') }}"
                                                                     data-toggle="tooltip" title="Export class lists"> <i
@@ -216,11 +233,12 @@
                                                                     href="{{ url('students/export/house') }}"
                                                                     data-toggle="tooltip" title="Export house lists"> <i
                                                                         class="material-icons">import_export</i> Export House Lists
-                                                                </a><br>
-                                                                <a class="btn btn-sm btn-block btn-info disabled"
+                                                                </a>
+                                                                {{-- <a class="btn btn-sm btn-block btn-info disabled"
                                                                     href="#" aria-disabled="true"><i class="material-icons">price_check</i>
                                                                     Finance Summary
-                                                                </a><br>
+                                                                </a> --}}
+                                                                <br>
                                                             </div>
                                                         </div>
                                                     </div>

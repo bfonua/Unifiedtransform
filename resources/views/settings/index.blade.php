@@ -133,7 +133,6 @@
                                     <th scope="col">+@lang('Student')</th>
                                     <th scope="col">+@lang('Teacher')</th>
                                     <th scope="col">+@lang('Accountant')</th>
-                                    <th scope="col">+@lang('Librarian')</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -155,9 +154,7 @@
                                     <td>
                                         <a class="btn btn-default btn-sm" href="{{url('register/accountant')}}">+ @lang('Add Accountant')</a>
                                     </td>
-                                    <td>
-                                        <a class="btn btn-warning btn-sm" href="{{url('register/librarian')}}">+ @lang('Add Librarian')</a>
-                                    </td>
+
                                 </tr>
                             </tbody>
                         </table>

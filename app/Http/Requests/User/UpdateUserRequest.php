@@ -32,12 +32,8 @@ class UpdateUserRequest extends FormRequest
             'user_id' => 'required|numeric',
             'email' => 'required|email|max:255|' . Rule::unique('users')->ignore($this->get('user_id')),
             'name' => 'required|string|max:255',
-            'phone_number' => 'required|string|' . Rule::unique('users')->ignore($this->get('user_id')),
+            'phone_number' => 'nullable|string|' . Rule::unique('users')->ignore($this->get('user_id')),
         ];
-
-        if ($this->get('user_role') == 'teacher') {
-            $rules['department_id'] = 'required|numeric';
-        }
 
         return $rules;
     }

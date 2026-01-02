@@ -20,6 +20,7 @@
                                 <th scope="col">@lang('Edit')</th>
                                 <th scope="col">+@lang('Admin')</th>
                                 <th scope="col">@lang('View Admins')</th>
+                                <th scope="col">@lang('Actions')</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -42,6 +43,11 @@
                                     <td>
                                         <a class="btn btn-success btn-sm" role="button" href="{{url('school/admin-list/'.$school->id)}}">
                                             <small>@lang('View Admins')</small>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-primary btn-sm" role="button" href="{{url('master/enter-school/'.$school->id)}}">
+                                            <small>@lang('Enter School')</small>
                                         </a>
                                     </td>
                                 </tr>

@@ -61,6 +61,30 @@
               @endif
             </div>
         </div>
+        <div class="col-md-2">
+            <br>
+            <div class="panel panel-default">
+                <div class="panel-heading" style="background-color: white; text-align: center;">
+                    <h5><i class="material-icons" style="font-size: 16px; vertical-align: middle;">class</i> Form Navigation</h5>
+                </div>
+                <div class="panel-body" style="padding: 10px;">
+                    @if($sections->count())
+                        <div class="list-group">
+                            @foreach($sections as $s)
+                                <a href="{{ url('section/tct_students/' . $s->id . '?section=1') }}" 
+                                   class="list-group-item {{ $s->id == $section->id ? 'active' : '' }}" 
+                                   style="padding: 10px 15px; font-size: 14px; display: flex; justify-content: space-between; align-items: center;">
+                                    <span>{{ $s->class->class_number . $s->section_number }}</span>
+                                    <span class="badge {{ $s->id == $section->id ? 'badge-light' : 'badge-primary' }}">
+                                        {{ $studentCountList['total'][$s->id] ?? 0 }} ({{ $studentCountList['active'][$s->id] ?? 0 }})
+                                    </span>
+                                </a>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection

@@ -502,6 +502,50 @@ class UserService
             ->get();
     }
 
+    public function getTCTSectionStudentsWithFinanceByYear($section_id, $year)
+    {
+        // Get students from student_infos table
+        $studentsFromInfo = \App\User::with(['studentInfo', 'inactive' => function($q) use ($year) {
+                $q->where('session', $year);
+            }])
+            ->whereHas('studentInfo', function ($q) use ($section_id, $year) {
+                $q->where('session', $year)
+                    ->where('form_id', $section_id);
+            })
+            ->pluck('id');
+        
+        // Get students from regrecords table
+        $studentsFromRegrecords = \App\User::whereHas('regrecord', function ($q) use ($section_id, $year) {
+                $q->where('session', $year)
+                    ->where('form_id', $section_id);
+            })
+            ->pluck('id');
+        
+        // Merge and get unique user IDs
+        $allStudentIds = $studentsFromInfo->merge($studentsFromRegrecords)->unique();
+        
+        // Return all students with their relationships, ordered by form_num
+        return \App\User::with(['studentInfo', 'regrecord' => function($q) use ($year, $section_id) {
+                $q->where('session', $year)
+                    ->where('form_id', $section_id);
+            }, 'inactive' => function($q) use ($year) {
+                $q->where('session', $year);
+            }])
+            ->whereIn('id', $allStudentIds)
+            ->get()
+            ->sortBy(function($user) use ($year, $section_id) {
+                // Try to get form_num from student_info first
+                $studentInfo = $user->studentInfo()->where('session', $year)->where('form_id', $section_id)->first();
+                if ($studentInfo) {
+                    return $studentInfo->form_num;
+                }
+                // Fall back to regrecord
+                $regrecord = $user->regrecord()->where('session', $year)->where('form_id', $section_id)->first();
+                return $regrecord ? $regrecord->form_num : 9999;
+            })
+            ->values();
+    }
+
     public function getSectionStudentsWithStudentInfo($request, $section_id)
     {
         $ignoreSessions = $request->session()->get('ignoreSessions');
@@ -554,10 +598,7 @@ class UserService
         $tb->code = session('register_school_code');
         $tb->student_code = session('register_school_id') . date('y') . substr(number_format(time() * mt_rand(), 0, '', ''), 0, 5);
         $tb->gender = $request->gender;
-        $tb->blood_group = $request->blood_group;
-        $tb->nationality = (!empty($request->nationality)) ? $request->nationality : '';
-        $tb->phone_number = $request->phone_number;
-        $tb->pic_path = (!empty($request->pic_path)) ? $request->pic_path : '';
+        $tb->phone_number = (!empty($request->phone_number)) ? $request->phone_number : null;
         $tb->verified = 1;
         $tb->save();
         return $tb;
@@ -619,25 +660,30 @@ class UserService
 
     public function storeStaff($request, $role)
     {
+        $school_id = session('register_school_id');
+        $school_code = session('register_school_code');
+        
         $tb = new $this->user;
         $tb->name = $request->name;
         $tb->email = (!empty($request->email)) ? $request->email : '';
         $tb->password = bcrypt($request->password);
         $tb->role = $role;
         $tb->active = 1;
-        $tb->school_id = auth()->user()->school_id;
-        $tb->code = auth()->user()->code;
-        $tb->student_code = auth()->user()->school_id . date('y') . substr(number_format(time() * mt_rand(), 0, '', ''), 0, 5);
+        $tb->school_id = $school_id;
+        $tb->code = $school_code;
+        $tb->student_code = $school_id . date('y') . substr(number_format(time() * mt_rand(), 0, '', ''), 0, 5);
         $tb->gender = $request->gender;
-        $tb->blood_group = $request->blood_group;
+        $tb->blood_group = (!empty($request->blood_group)) ? $request->blood_group : 'N/A';
         $tb->nationality = (!empty($request->nationality)) ? $request->nationality : '';
         $tb->phone_number = $request->phone_number;
         $tb->pic_path = (!empty($request->pic_path)) ? $request->pic_path : '';
         $tb->verified = 1;
-        $tb->department_id = (!empty($request->department_id)) ? $request->department_id : 0;
 
         if ($role == 'teacher') {
             $tb->section_id = ($request->class_teacher_section_id != 0) ? $request->class_teacher_section_id : 0;
         }
+        
+        $tb->save();
+        return $tb;
     }
 }

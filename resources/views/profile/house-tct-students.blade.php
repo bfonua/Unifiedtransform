@@ -8,7 +8,7 @@
         <div class="col-md-2" id="side-navbar">
             @include('layouts.leftside-menubar')
         </div>
-        <div class="col-md-7" id="main-container">
+        <div class="col-md-8" id="main-container">
             <br>
             <h4>
                 {{$house->house_name}}
@@ -57,6 +57,30 @@
                     @lang('No Related Data Found.')
                 </div>
               @endif
+            </div>
+        </div>
+        <div class="col-md-2">
+            <br>
+            <div class="panel panel-default">
+                <div class="panel-heading" style="background-color: white; text-align: center;">
+                    <h5><i class="material-icons" style="font-size: 16px; vertical-align: middle;">house</i> House Navigation</h5>
+                </div>
+                <div class="panel-body" style="padding: 10px;">
+                    @if($houses->count())
+                        <div class="list-group">
+                            @foreach($houses as $h)
+                                <a href="{{ url('house/tct_students/' . $h->id) }}" 
+                                   class="list-group-item {{ $h->id == $house->id ? 'active' : '' }}" 
+                                   style="padding: 10px 15px; font-size: 14px; display: flex; justify-content: space-between; align-items: center;">
+                                    <span>{{ $h->house_name }}</span>
+                                    <span class="badge {{ $h->id == $house->id ? 'badge-light' : 'badge-primary' }}">
+                                        {{ $studentCountHouse[$h->id] ?? 0 }}
+                                    </span>
+                                </a>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
     </div>

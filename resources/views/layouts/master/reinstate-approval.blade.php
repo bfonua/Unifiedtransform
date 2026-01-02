@@ -13,8 +13,8 @@
                 <form class="form-horizontal" action="{{url('/school/reinstate_approval')}}" method="post">
                     {{csrf_field()}}
                     <input type="hidden" value="{{$user->id}}" name="user_id">
-                    <input type="hidden" value="{{$userSer->getInactiveRequest($user)->id}}" name="inactive_id">
-                    <input type="hidden" value="{{$userSer->getReinstateRequest($user)->id}}" name="reinstate_id">
+                    <input type="hidden" value="{{$inactiveRequest ? $inactiveRequest->id : ''}}" name="inactive_id">
+                    <input type="hidden" value="{{$reinstateRequest ? $reinstateRequest->id : ''}}" name="reinstate_id">
                     <div class="form-group">
                         <label for="approval" class="col-sm-4 control-label">@lang('Confirm approval')</label>
                         <div class="col-sm-8">

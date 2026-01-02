@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('Departments and Classes'))
+@section('title', __('Classes'))
 
 @section('content')
 
@@ -23,11 +23,13 @@
             </div>
             <div class="col-md-10" id="main-container">
                 <br>
-                <h4>@lang('Active Departments & Classes')</h4>
+                <h4>@lang('Active Classes & Sections')</h4>
                 <a href="{{url('students/export/tct')}}" class="btn btn-sm btn-success"><i class="material-icons">import_export</i> Export Class List</a>
-                <a href="{{url('students/all_reg')}}" class="btn btn-sm btn-primary"><i class="material-icons">import_export</i> Export Reg Info</a>
-                @include('layouts.master.add-class-form') <!--NEW FORM BUTTON -->
-                @include('layouts.master.add-department-form')
+                @if (Auth::user()->role == 'admin' || Auth::user()->role == 'master')
+                    <a href="{{url('students/all_reg')}}" class="btn btn-sm btn-primary"><i class="material-icons">import_export</i> Export Reg Info</a>
+                    @include('layouts.master.add-class-form') <!--NEW FORM BUTTON -->
+                    {{-- @include('layouts.master.add-department-form') --}}
+                @endif
                 <hr>
                 <div class="panel panel-default container col-md-6" id="cls-sec">
                     <div class="panel panel-default">
@@ -37,7 +39,9 @@
                                 <div class="col-md-2 text-center"><h5>Form</h5></div>
                                 <div class="col-md-3 text-center"><h5>Number of Sections</h5></div>
                                 <div class="col-md-3 text-center"><h5>View Sections</h5></div>
-                                <div class="col-md-2 text-center"><h5>Edit</h5></div>
+                                @if (Auth::user()->role == 'admin' || Auth::user()->role == 'master')
+                                    <div class="col-md-2 text-center"><h5>Edit</h5></div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -59,9 +63,11 @@
                                             <div class="col-md-3 text-center">
                                                 <a class="panel-title collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{$class->id}}" aria-expanded="false" aria-controls="collapse{{$class->id}}"><small><b>@lang('Click to view') <i class="material-icons">keyboard_arrow_down</i></b></small></a>
                                             </div>
-                                            <div class="col-md-2 text-center">
-                                                @include('layouts.master.edit-class-form')
-                                            </div>
+                                            @if (Auth::user()->role == 'admin' || Auth::user()->role == 'master')
+                                                <div class="col-md-2 text-center">
+                                                    @include('layouts.master.edit-class-form')
+                                                </div>
+                                            @endif
                                         </div>
                                 </div>
                                 <div id="collapse{{$class->id}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{$class->id}}">
@@ -74,17 +80,14 @@
                                                         <th class="text-center">@lang('View Today\'s Attendance')</th>
                                                         <th class="text-center">@lang('View Each Student\'s Attendance')</th>
                                                         <th class="text-center">@lang('Give Attendance')</th>
-                                                        {{-- <th class="text-center">@lang('Edit')</th> --}}
                                                     @endif
                                                     @if(isset($_GET['course']) && $_GET['course'] == 1)
                                                     <th class="text-center">@lang('Active')</th>
                                                     <th class="text-center">@lang('Student Count')</th>
-                                                    {{-- <th class="text-center">@lang('Last Session')</th> --}}
-                                                    {{-- <th class="text-center">@lang('View Courses')</th> --}}
                                                     <th class="text-center">@lang('View Students')</th>
-                                                    {{-- <th class="text-center">@lang('View Routines')</th> --}}
-                                                    <th class="text-center">@lang('Edit')</th>
-                                                    {{-- <th class="text-center">@lang('Promotion')</th> --}}
+                                                    @if (Auth::user()->role == 'admin' || Auth::user()->role == 'master')
+                                                        <th class="text-center">@lang('Edit')</th>
+                                                    @endif
 
                                                     @endif
                                                 </tr>
@@ -94,69 +97,28 @@
                                                     @if($class->id == $section->class_id)
                                                         <tr>
                                                             <td class="text-center">
-                                                                {{-- <a class="text-center" href="{{url('courses/0/'.$section->id)}}">{{$section->section_number}}</a> --}}
                                                                 {{$section->section_number}}
                                                             </td>
-                                                            @if(isset($_GET['att']) && $_GET['att'] == 1)
-                                                                @foreach ($exams as $ex)
-                                                                    @if ($ex->class_id == $class->id)
-                                                                        <td>
-                                                                            <a role="button" class="btn btn-primary btn-xs" href="{{url('attendances/'.$section->id.'/0/'.$ex->exam_id)}}">@lang('Attendance')</a>
-                                                                        </td>
-                                                                    @endif
-                                                                @endforeach
-                                                                {{-- ATTENDANCE --}}
-                                                                <td>
-                                                                    <a role="button" class="btn btn-danger btn-xs" href="{{url('attendances/'.$section->id)}}">@lang('Attendance')</a>
-                                                                </td>
-                                                                <td>
-                                                                    <?php
-                                                                        $ce = 0;    
-                                                                    ?>
-                                                                    @foreach ($exams as $ex)
-                                                                        @if ($ex->class_id == $class->id)
-                                                                            <?php
-                                                                                $ce = 1;
-                                                                            ?>
-                                                                            <a role="button" class="btn btn-info btn-xs" href="{{url('attendances/'.$section->id.'/0/'.$ex->exam_id)}}"><i class="material-icons">spellcheck</i> @lang('Take Attendance')</a>
-                                                                        @endif
-                                                                    @endforeach
-                                                                    @if($ce == 0)
-                                                                        @lang('Assign Class Under Exam')
-                                                                    @endif
-                                                                </td>
-                                                            @endif
                                                             @if(isset($_GET['course']) && $_GET['course'] == 1)
                                                                 <td class="text-center">{{($section->active)?"Yes":"No"}}</td>
-                                                                {{-- @php
-                                                                    $studentCount = \App\StudentInfo::where('form_id', $section->id)
-                                                                    ->where('session', now()->year)
-                                                                    ->count('id');
-                                                                @endphp --}}
                                                                 <td class="text-center">{{($section->active)?$section->students_count:'-'}}</td>
-                                                                {{-- <td class="text-center"></td> --}}
-                                                                {{-- <td class="text-center">
-                                                                    <a role="button" class="btn btn-info btn-xs" href="{{url('courses/0/'.$section->id)}}"><i class="material-icons">visibility</i> @lang('View Courses')</a>
-                                                                </td> --}}
                                                                 <td class="text-center">
                                                                     <a role="button" class="btn btn-primary btn-xs" href="{{url('section/tct_students/'.$section->id.'?section=1')}}"><i class="material-icons">visibility</i> @lang('View Students')</a>
                                                                 </td>
-                                                                {{-- <td class="text-center">
-                                                                    <a role="button" class="btn btn-warning btn-xs" href="{{url('academic/routine/'.$section->id)}}"><i class="material-icons">visibility</i> @lang('View Routines')</a>
-                                                                </td> --}}
                                                                 <td class="text-center">
-                                                                    @include('layouts.master.edit-sections-form')
+                                                                    @if (Auth::user()->role == 'admin' || Auth::user()->role == 'master')
+                                                                        @include('layouts.master.edit-sections-form')
+                                                                    @endif
                                                                 </td>
-                                                                {{-- <td class="text-center">
-                                                                    <a  class="btn btn-xs btn-success" href="{{url('school/promote-students/'.$section->id)}}">+ @lang('Promote Students')</a>
-                                                                </td> --}}
                                                             @endif
                                                         </tr>
                                                     @endif
                                                 @endforeach
                                             </tbody>
                                         </table>
-                                        @include('layouts.master.create-section-form')
+                                        @if (Auth::user()->role == 'admin' || Auth::user()->role == 'master')
+                                            @include('layouts.master.create-section-form')
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -168,7 +130,7 @@
                     @endif
                 </div>
                 {{-- DEPARTMENTS --}}
-                <div class="container col-md-6">
+                {{-- <div class="container col-md-6">
                     <div class="panel panel-default">
                         <h5>Departments</h5>
                         <div class="page-panel-title" role="tab" id="headers">
@@ -194,12 +156,11 @@
                                                 <a class="panel-title collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{$department->id}}" aria-expanded="false" aria-controls="collapse{{$department->id}}"><small><b>@lang('Click to view') <i class="material-icons">keyboard_arrow_down</i></b></small></a>
                                             </div>
                                             <div class="col-md-2 text-center">                    
-                                                {{-- @include('layouts.master.edit-department-form') --}}
+                                                @include('layouts.master.edit-department-form')
                                             </div>
                                         </div>
                                 </div>
                                 <div id="collapse{{$department->id}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{$department->id}}">
-                                    {{--  --}}
                                 </div>
                             </div>
                             @endforeach
@@ -209,8 +170,7 @@
                             </div>
                         @endif
                     </div>
-                </div>
-
+                </div> --}}
             </div>
         </div>
     </div>

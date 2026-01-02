@@ -14,3 +14,7 @@ yarn-error.log
 .rnd
 /database/database.*
 .env.dusk.local
+
+# Test files
+test_*.php
+recover_fees.php

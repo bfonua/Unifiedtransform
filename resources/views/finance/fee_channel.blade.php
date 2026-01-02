@@ -38,7 +38,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="session" class="col-sm-4 control-label">@lang('session')</label>
+                        <label for="session" class="col-sm-4 control-label">@lang('Session')</label>
                         <div class="col-sm-8">
                         <input type="text" class="form-control" id="session" name="session" value="{{now()->year}}">
                         </div>
@@ -61,7 +61,7 @@
                 @endslot
             @endcomponent
 
-            @if($fee_channels->first()->session < now()->year)
+            @if((Auth::user()->role == 'admin' || Auth::user()->role == 'master') && $fee_channels->first()->session < now()->year)
             @component('components.fee-type-form', [
                 'buttonTitle' => 'Update Session',
                 'modal_name' => 'updateSessionModal',

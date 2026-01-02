@@ -156,4 +156,50 @@ class Section extends Model
         return ($related)? $related->first() : 0 ;
     }
 
+    // Methods for year-specific queries
+    public function totalAssignedForYear($year)
+    {
+        return $this->hasManyDeep(
+            'App\Fee',
+            ['App\StudentInfo', 'App\User', 'App\Assign'],
+            [
+                'form_id', // FM on StudentInfo
+                'id', // FK on User
+                'user_id', // FK on Assign
+                'id', //FK on Fee
+            ],
+            [
+                'id', // LK on Section
+                'student_id', // LK on StudentInfo
+                'id', // LK on User
+                'fee_id' // LK on Assign
+            ]
+        )->where('assigns.session', $year)
+         ->selectRaw('sum(fees.amount) as aggregate')
+         ->groupBy('student_infos.form_id');
+    }
+
+    public function totalPaidForYear($year)
+    {
+        return $this->hasManyDeep(
+            'App\Payment',
+            ['App\StudentInfo', 'App\User', 'App\Assign'],
+            [
+                'form_id', // FM on StudentInfo
+                'id', // FK on User
+                'user_id', // FK on Assign
+                'user_id', // FK on Payment (same user)
+            ],
+            [
+                'id', // LK on Section
+                'student_id', // LK on StudentInfo
+                'id', // LK on User
+                'user_id', // LK on Assign
+            ]
+        )->where('assigns.session', $year)
+         ->whereRaw('payments.fee_id = assigns.fee_id')
+         ->selectRaw('sum(payments.amount) as aggregate')
+         ->groupBy('student_infos.form_id');
+    }
+
 }

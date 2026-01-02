@@ -39,6 +39,48 @@ class AssignController extends Controller
         return view('finance.assigned', compact('classes', 'sections', 'school'));
     }
 
+    /**
+     * Display fees assigned for a specific year.
+     *
+     * @param  int  $year
+     * @return \Illuminate\Http\Response
+     */
+    public function assignedByYear($year)
+    {
+        $school = \Auth::user()->school;
+        $classes = \App\Myclass::bySchool(\Auth::user()->school->id)->get();
+        
+        // Get sections with fees assigned in the specified year
+        $sections = \App\Section::with('class')
+            ->where('active', 1)
+            ->orderBy('class_id')
+            ->orderBy('section_number', 'asc')
+            ->get();
+
+        // For each section, get the year-specific totals and student counts
+        foreach ($sections as $section) {
+            // Get student count for the specified year from both student_infos and regrecords (including inactive)
+            $fromStudentInfos = \App\User::whereHas('studentInfo', function($q) use ($section, $year) {
+                $q->where('form_id', $section->id)->where('session', $year);
+            })->pluck('id');
+            
+            $fromRegrecords = \App\User::whereHas('regrecord', function($q) use ($section, $year) {
+                $q->where('form_id', $section->id)->where('session', $year);
+            })->pluck('id');
+            
+            $section->students_count = $fromStudentInfos->merge($fromRegrecords)->unique()->count();
+            
+            // Get assigned and paid amounts
+            $assignedResult = $section->totalAssignedForYear($year)->first();
+            $paidResult = $section->totalPaidForYear($year)->first();
+            
+            $section->total_assigned_year = $assignedResult ? $assignedResult->aggregate : 0;
+            $section->total_paid_year = $paidResult ? $paidResult->aggregate : 0;
+        }
+
+        return view('finance.assigned-by-year', compact('classes', 'sections', 'school', 'year'));
+    }
+
     public function sectionFeeList(Request $request)
     {
         $students = $this->userService->getTCTSectionStudentsWithFinance($request->id);
@@ -69,7 +111,176 @@ class AssignController extends Controller
                 'remain' => $remain,
             ];
         }
-        return view('finance.section-tct-finance', compact('students', 'section', 'feeTypes', 'studentFees'));
+
+        // Get all sections with student counts for navigation
+        $sections = \App\Section::with('class')
+            ->withCount('students')
+            ->where('active', 1)
+            ->orderBy('class_id')
+            ->orderBy('section_number', 'asc')
+            ->get();
+        
+        $sectionsActive = \App\Section::withCount(['students' => function ($q) {
+                $q->where('active', 1);
+            }])
+            ->where('active', 1)
+            ->orderBy('class_id')
+            ->orderBy('section_number', 'asc')
+            ->get();
+        
+        $studentCountList = [
+            'total' => $sections->pluck('students_count', 'id')->toArray(),
+            'active' => $sectionsActive->pluck('students_count', 'id')->toArray(),
+        ];
+
+        return view('finance.section-tct-finance', compact('students', 'section', 'feeTypes', 'studentFees', 'sections', 'studentCountList'));
+    }
+
+    public function sectionFeeListByYear($sectionId, $year)
+    {
+        $students = $this->userService->getTCTSectionStudentsWithFinanceByYear($sectionId, $year);
+        $section = \App\Section::find($sectionId);
+        $studentFees = [];
+        
+        // Get fee types filtered by the year
+        $feeTypes = \App\FeeType::withCount(['fees' => function($q) use ($year) {
+                $q->where('session', $year);
+        }])
+            ->where('fee_types.active', 1)
+            ->get();
+        
+        // Get all student IDs at once for bulk queries
+        $studentIds = $students->pluck('id')->toArray();
+        
+        // Bulk fetch all assignments for this year and these students
+        $assignments = \App\Assign::with('fees.fee_type')
+            ->where('session', $year)
+            ->whereIn('user_id', $studentIds)
+            ->get()
+            ->groupBy('user_id');
+        
+        // Bulk fetch all payments for these students
+        $allFeeIds = \App\Assign::where('session', $year)
+            ->whereIn('user_id', $studentIds)
+            ->pluck('fee_id')
+            ->unique()
+            ->toArray();
+            
+        $payments = \App\Payment::whereIn('user_id', $studentIds)
+            ->whereIn('fee_id', $allFeeIds)
+            ->get()
+            ->groupBy('user_id');
+        
+        // Process each student using cached data
+        foreach ($students as $student) {
+            $assign = $payment = $remain = [];
+            $studentAssignments = $assignments->get($student->id, collect());
+            $studentPayments = $payments->get($student->id, collect());
+            
+            // Build a map of fee_id => payment amount for this student
+            $paymentMap = $studentPayments->groupBy('fee_id')->map(function($group) {
+                return $group->sum('amount');
+            });
+            
+            // Calculate totals by fee type
+            $totalAssign = 0;
+            $totalPaid = 0;
+            
+            foreach ($feeTypes as $type) {
+                // Filter assignments by fee type
+                $typeAssignments = $studentAssignments->filter(function($assignment) use ($type) {
+                    return $assignment->fees && $assignment->fees->fee_type_id == $type->id;
+                });
+                
+                $amountAssign = $typeAssignments->sum('fees.amount');
+                $assign[$type->name] = $this->userService->numberformat($amountAssign);
+                
+                // Calculate payments for this fee type
+                $amountPaid = $typeAssignments->sum(function($assignment) use ($paymentMap) {
+                    return $paymentMap->get($assignment->fee_id, 0);
+                });
+                $payment[$type->name] = $this->userService->numberformat($amountPaid);
+                
+                $remain[$type->name] = $this->userService->numberformat($amountAssign - $amountPaid);
+                
+                $totalAssign += $amountAssign;
+                $totalPaid += $amountPaid;
+            }
+            
+            $assign['total'] = $this->userService->numberformat($totalAssign);
+            $payment['total'] = $this->userService->numberformat($totalPaid);
+            $remain['total'] = $this->userService->numberformat($totalAssign - $totalPaid);
+            
+            $studentFees[$student->id] = [
+                'assign' => $assign,
+                'payment' => $payment,
+                'remain' => $remain,
+            ];
+        }
+
+        // Get all sections with student counts for navigation (optimized with single queries)
+        $sections = \App\Section::with('class')
+            ->where('active', 1)
+            ->orderBy('class_id')
+            ->orderBy('section_number', 'asc')
+            ->get();
+        
+        // Get total and active student counts in single queries using UNION
+        $totalCounts = \DB::table('users')
+            ->select('student_infos.form_id as section_id', \DB::raw('COUNT(DISTINCT users.id) as count'))
+            ->join('student_infos', 'users.id', '=', 'student_infos.student_id')
+            ->where('student_infos.session', $year)
+            ->whereIn('student_infos.form_id', $sections->pluck('id'))
+            ->groupBy('student_infos.form_id')
+            ->get()
+            ->keyBy('section_id');
+            
+        $totalCountsFromReg = \DB::table('users')
+            ->select('regrecords.form_id as section_id', \DB::raw('COUNT(DISTINCT users.id) as count'))
+            ->join('regrecords', 'users.id', '=', 'regrecords.user_id')
+            ->where('regrecords.session', $year)
+            ->whereIn('regrecords.form_id', $sections->pluck('id'))
+            ->groupBy('regrecords.form_id')
+            ->get()
+            ->keyBy('section_id');
+            
+        $activeCounts = \DB::table('users')
+            ->select('student_infos.form_id as section_id', \DB::raw('COUNT(DISTINCT users.id) as count'))
+            ->join('student_infos', 'users.id', '=', 'student_infos.student_id')
+            ->where('student_infos.session', $year)
+            ->where('users.active', 1)
+            ->whereIn('student_infos.form_id', $sections->pluck('id'))
+            ->groupBy('student_infos.form_id')
+            ->get()
+            ->keyBy('section_id');
+            
+        $activeCountsFromReg = \DB::table('users')
+            ->select('regrecords.form_id as section_id', \DB::raw('COUNT(DISTINCT users.id) as count'))
+            ->join('regrecords', 'users.id', '=', 'regrecords.user_id')
+            ->where('regrecords.session', $year)
+            ->where('users.active', 1)
+            ->whereIn('regrecords.form_id', $sections->pluck('id'))
+            ->groupBy('regrecords.form_id')
+            ->get()
+            ->keyBy('section_id');
+        
+        // Merge counts
+        $studentCountList = [
+            'total' => [],
+            'active' => [],
+        ];
+        
+        foreach ($sections as $sec) {
+            $totalFromInfo = $totalCounts->get($sec->id)->count ?? 0;
+            $totalFromReg = $totalCountsFromReg->get($sec->id)->count ?? 0;
+            $studentCountList['total'][$sec->id] = $totalFromInfo + $totalFromReg;
+            
+            $activeFromInfo = $activeCounts->get($sec->id)->count ?? 0;
+            $activeFromReg = $activeCountsFromReg->get($sec->id)->count ?? 0;
+            $studentCountList['active'][$sec->id] = $activeFromInfo + $activeFromReg;
+        }
+
+        return view('finance.section-tct-finance-by-year', compact('students', 'section', 'feeTypes', 'studentFees', 'sections', 'studentCountList', 'year'));
     }
 
     public function showUnassigned()

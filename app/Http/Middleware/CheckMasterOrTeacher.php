@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 
-class CheckTeacher
+class CheckMasterOrTeacher
 {
     /**
      * Handle an incoming request.
@@ -16,7 +16,7 @@ class CheckTeacher
     public function handle($request, Closure $next)
     {
         $user = \Auth::user();
-        if ($user->hasRole('teacher') || $user->hasRole('admin') || $user->hasRole('master')) {
+        if ($user->hasRole('master') || $user->hasRole('teacher')) {
             return $next($request);
         }
         return redirect('home');

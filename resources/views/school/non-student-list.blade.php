@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('Admins'))
+@section('title', __('Non-Student Users'))
 
 @section('content')
 <div class="container-fluid">
@@ -12,68 +12,66 @@
             </div>
             @endif
             <ul class="nav flex-column">
-                @if(Auth::user()->role == 'master')
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('schools.index') }}"><i class="material-icons">gamepad</i> @lang('Manage School')</a>
-                    </li>
-                @endif
-                @if(Auth::user()->role == 'master')
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url('register/admin/' . $admins->first()->school_id . '/' . $admins->first()->school->code) }}" style="background-color: #5cb85c; color: white;">
-                        <i class="material-icons">person_add</i> @lang('Create New Admin')
+                    <a class="nav-link" href="{{ route('home') }}"><i class="material-icons">home</i> @lang('Home')</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url('register/teacher') }}" style="background-color: #5cb85c; color: white;">
+                        <i class="material-icons">person_add</i> @lang('New Teacher')
                     </a>
                 </li>
-                @endif
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url('register/accountant') }}" style="background-color: #5bc0de; color: white;">
+                        <i class="material-icons">person_add</i> @lang('New Accountant')
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="col-md-10" id="main-container">
-            <h2>Admins</h2>
+            <h2>@lang('Non-Student Users')</h2>
             <div class="panel panel-default">
-                @if(count($admins) > 0)
+                @if(count($users) > 0)
                 <div class="panel-body">
                     <table class="table">
                         <tr>
-                            @if(Auth::user()->role == 'master')
                             <th>@lang('Action')</th>
-                            @endif
+                            <th>@lang('Action')</th>
                             <th>@lang('Name')</th>
+                            <th>@lang('Role')</th>
                             <th>@lang('Code')</th>
                             <th>@lang('Email')</th>
                             <th>@lang('Phone Number')</th>
                             <th>@lang('Date Registered')</th>
                         </tr>
-                        @foreach ($admins as $admin)
+                        @foreach ($users as $user)
                         <tr>
-                            @if(Auth::user()->role == 'master')
                             <td>
-                                @if($admin->active == 0)
-                                <a href="{{url('master/activate-admin/'.$admin->id)}}" class="btn btn-xs btn-success"
+                                @if($user->active == 0)
+                                <a href="{{url('school/activate-user/'.$user->id)}}" class="btn btn-xs btn-success"
                                     role="button"><i class="material-icons">
                                         done
                                     </i>@lang('Activate')</a>
                                 @else
-                                <a href="{{url('master/deactivate-admin/'.$admin->id)}}" class="btn btn-xs btn-danger"
+                                <a href="{{url('school/deactivate-user/'.$user->id)}}" class="btn btn-xs btn-danger"
                                     role="button"><i class="material-icons">
                                         clear
                                     </i>@lang('Deactivate')</a>
                                 @endif
                             </td>
-                            @endif
-                            @if(Auth::user()->role == 'master')
                             <td>
-                                <a href="{{url('edit/user/'.$admin->id)}}" class="btn btn-xs btn-info"
+                                <a href="{{url('edit/user/'.$user->id)}}" class="btn btn-xs btn-info"
                                     role="button"><i class="material-icons">
                                         edit
                                     </i> @lang('Edit')</a>
                             </td>
-                            @endif
                             <td>
-                                {{$admin->name}}
+                                {{$user->name}}
                             </td>
-                            <td>{{$admin->student_code}}</td>
-                            <td>{{$admin->email}}</td>
-                            <td>{{$admin->phone_number}}</td>
-                            <td>{{$admin->created_at->format('Y-m-d')}}</td>
+                            <td>{{ucfirst($user->role)}}</td>
+                            <td>{{$user->student_code}}</td>
+                            <td>{{$user->email}}</td>
+                            <td>{{$user->phone_number}}</td>
+                            <td>{{$user->created_at->format('Y-m-d')}}</td>
                         </tr>
                         @endforeach
                     </table>

@@ -21,7 +21,6 @@ use App\Http\Requests\User\CreateAdminRequest;
 use App\Http\Requests\User\CreateTeacherRequest;
 use App\Http\Requests\User\ChangePasswordRequest;
 use App\Http\Requests\User\ImpersonateUserRequest;
-use App\Http\Requests\User\CreateLibrarianRequest;
 use App\Http\Requests\User\CreateAccountantRequest;
 use Mavinoo\Batch\Batch;
 use App\Events\UserRegistered;
@@ -147,23 +146,60 @@ class UserController extends Controller
     {
         $students = $this->userService->getTCTSectionStudentsWithSchool($section_id);
         $section = Section::find($section_id);
-        return view('profile.section-tct-students', compact('students', 'section'));
+
+        // Get all sections with student counts for navigation
+        $sections = \App\Section::with('class')
+            ->withCount('students')
+            ->where('active', 1)
+            ->orderBy('class_id')
+            ->orderBy('section_number', 'asc')
+            ->get();
+        
+        $sectionsActive = \App\Section::withCount(['students' => function ($q) {
+                $q->where('active', 1);
+            }])
+            ->where('active', 1)
+            ->orderBy('class_id')
+            ->orderBy('section_number', 'asc')
+            ->get();
+        
+        $studentCountList = [
+            'total' => $sections->pluck('students_count', 'id')->toArray(),
+            'active' => $sectionsActive->pluck('students_count', 'id')->toArray(),
+        ];
+
+        return view('profile.section-tct-students', compact('students', 'section', 'sections', 'studentCountList'));
     }
 
     public function houseTCTStudents($house_id)
     {
-        $students = \App\StudentInfo::where(
-            [
+        $students = \App\StudentInfo::with([
+                'student.inactive' => function($query) {
+                    $query->where('session', now()->year);
+                },
+                'section.class'
+            ])
+            ->where([
                 'session' => now()->year,
                 'house_id' => $house_id
-            ]
-        )
+            ])
             ->orderBy('form_id', 'desc')
             ->orderBy('group', 'asc')
             ->get();
         $house = House::find($house_id);
 
-        return view('profile.house-tct-students', compact('students', 'house'));
+        // Get all houses with student counts for navigation
+        $houses = \App\House::withCount([
+            'users' => function($query) {
+                $query->whereHas('studentInfo', function($q) {
+                    $q->where('session', now()->year);
+                });
+            }
+        ])->get();
+        
+        $studentCountHouse = $houses->pluck('users_count', 'id')->toArray();
+
+        return view('profile.house-tct-students', compact('students', 'house', 'houses', 'studentCountHouse'));
     }
 
     /**
@@ -281,7 +317,9 @@ class UserController extends Controller
     {
         $tb = $this->userService->storeTCTStudent($request);
         event(new TCTStudentInfoUpdateRequested($request, $tb->id));
-        return redirect('register/tct_student')->with('status', __('Saved'));
+        return redirect('register/tct_student')
+            ->with('status', __('Saved'))
+            ->with('register_student_code', $tb->student_code);
     }
 
     public function tct_delete_student($id)
@@ -338,7 +376,7 @@ class UserController extends Controller
             Log::info('Email failed to send to this address: ' . $tb->email);
         }
 
-        return back()->with('status', __('Saved'));
+        return back()->with('status', __('Teacher added successfully'));
     }
 
     /**
@@ -356,25 +394,7 @@ class UserController extends Controller
             Log::info('Email failed to send to this address: ' . $tb->email);
         }
 
-        return back()->with('status', __('Saved'));
-    }
-
-    /**
-     * @param CreateLibrarianRequest $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function storeLibrarian(CreateLibrarianRequest $request)
-    {
-        $password = $request->password;
-        $tb = $this->userService->storeStaff($request, 'librarian');
-        try {
-            // Fire event to send welcome email
-            event(new UserRegistered($tb, $password));
-        } catch (\Exception $ex) {
-            Log::info('Email failed to send to this address: ' . $tb->email);
-        }
-
-        return back()->with('status', __('Saved'));
+        return back()->with('status', __('Accountant added successfully'));
     }
 
     /**
@@ -543,6 +563,7 @@ class UserController extends Controller
         // Get current year enrollment from StudentInfo
         if (in_array($currentYear, $availableStudentYears)) {
             $currentRecord = (object)[
+                'type' => 'enrollment',
                 'session' => $user->studentInfo->session,
                 'form_name' => ($user->studentInfo->section && $user->studentInfo->section->class) 
                     ? $user->studentInfo->section->class->class_number . $user->studentInfo->section->section_number 
@@ -566,6 +587,7 @@ class UserController extends Controller
         foreach ($regrecords as $r) {
             if (!isset($records[$r->session])) {
                 $records[$r->session] = (object)[
+                    'type' => 'enrollment',
                     'session' => $r->session,
                     'form_name' => ($r->section && $r->section->class) 
                         ? $r->section->class->class_number . $r->section->section_number 
@@ -581,13 +603,63 @@ class UserController extends Controller
             }
         }
         
+        // Get all inactive records with their reinstates
+        $allInactives = \App\Inactive::where('user_id', $user->id)
+            ->orderBy('created_at', 'asc')
+            ->get();
+        
+        $allReinstates = \App\Reinstate::whereIn('inactive_id', $allInactives->pluck('id'))
+            ->get()
+            ->keyBy('inactive_id');
+        
+        // Add inactive events to records
+        foreach ($allInactives as $inactive) {
+            $inactiveYear = $inactive->session;
+            $inactiveKey = $inactiveYear . '_inactive_' . $inactive->id;
+            
+            $records[$inactiveKey] = (object)[
+                'type' => 'inactive',
+                'session' => $inactiveYear,
+                'inactive_type' => strtoupper($inactive->type),
+                'inactive_date' => $inactive->created_at,
+                'inactive_notes' => $inactive->notes,
+                'created_at' => $inactive->created_at,
+                'sort_date' => $inactive->created_at,
+            ];
+            
+            // Add reinstate event if exists and is approved
+            if (isset($allReinstates[$inactive->id]) && $allReinstates[$inactive->id]->approved) {
+                $reinstate = $allReinstates[$inactive->id];
+                $reinstateYear = $reinstate->session;
+                $reinstateKey = $reinstateYear . '_reinstate_' . $reinstate->id;
+                
+                $records[$reinstateKey] = (object)[
+                    'type' => 'reinstate',
+                    'session' => $reinstateYear,
+                    'reinstate_date' => $reinstate->created_at,
+                    'reinstate_notes' => $reinstate->notes,
+                    'created_at' => $reinstate->created_at,
+                    'sort_date' => $reinstate->created_at,
+                ];
+            }
+        }
+        
         // Build complete history including gap years
         foreach ($availableStudentYears as $year) {
+            // First, add any inactive/reinstate events for this year
+            foreach ($records as $key => $record) {
+                if (($record->type === 'inactive' || $record->type === 'reinstate') && $record->session == $year) {
+                    $enrollmentHistory[] = $record;
+                }
+            }
+            
+            // Then add enrollment record for this year if exists
             if (isset($records[$year])) {
                 $enrollmentHistory[] = $records[$year];
             } else {
                 // Gap year - no enrollment data
                 $enrollmentHistory[] = (object)[
+                    'type' => 'unavailable',
                     'session' => $year,
                     'form_name' => 'Unavailable',
                     'form_num' => 'N/A',
@@ -598,6 +670,42 @@ class UserController extends Controller
                     'created_at' => null,
                     'notes' => null,
                 ];
+            }
+        }
+        
+        // Sort by session (descending) then by type priority within same session
+        usort($enrollmentHistory, function($a, $b) {
+            if ($a->session != $b->session) {
+                return $b->session - $a->session; // Descending by session
+            }
+            // Within same session, prioritize by chronological order (most recent first): reinstate -> inactive -> enrollment/unavailable
+            $typePriority = ['reinstate' => 1, 'inactive' => 2, 'enrollment' => 3, 'unavailable' => 3];
+            $priorityA = $typePriority[$a->type] ?? 3;
+            $priorityB = $typePriority[$b->type] ?? 3;
+            
+            if ($priorityA != $priorityB) {
+                return $priorityA - $priorityB;
+            }
+            
+            // If same type and priority, sort by date if available
+            $dateA = isset($a->sort_date) ? strtotime($a->sort_date) : 0;
+            $dateB = isset($b->sort_date) ? strtotime($b->sort_date) : 0;
+            return $dateA - $dateB; // Ascending by date within same type
+        });
+        
+        // Pre-load inactive and reinstate data to avoid multiple queries in view
+        $inactiveRequest = null;
+        $reinstateRequest = null;
+        $hasReinstate = false;
+        
+        if (!$user->active) {
+            $inactiveRequest = \App\Inactive::where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->first();
+            
+            if ($inactiveRequest) {
+                $reinstateRequest = \App\Reinstate::where('inactive_id', $inactiveRequest->id)->first();
+                $hasReinstate = $reinstateRequest !== null;
             }
         }
         
@@ -619,7 +727,10 @@ class UserController extends Controller
             'subID',
             'oldPaymentFeeTypes',
             'oldPaymentAmounts',
-            'enrollmentHistory'
+            'enrollmentHistory',
+            'inactiveRequest',
+            'reinstateRequest',
+            'hasReinstate'
         ));
     }
 
@@ -633,17 +744,27 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = $this->user->find($id);
+        
+        // Get school_id - for master users, use session school_id
+        $school_id = \Auth::user()->role == 'master' && session()->has('master_school_id')
+            ? session('master_school_id')
+            : \Auth::user()->school_id;
+        
         $classes = Myclass::query()
-            ->bySchool(\Auth::user()->school_id)
+            ->bySchool($school_id)
             ->pluck('id')
             ->toArray();
 
         $sections = Section::query()
+            ->with('class')  // Eager load the class relationship
             ->whereIn('class_id', $classes)
+            ->where('active', 1)
+            ->orderBy('class_id')
+            ->orderBy('section_number', 'asc')
             ->get();
 
         $departments = Department::query()
-            ->bySchool(\Auth::user()->school_id)
+            ->bySchool($school_id)
             ->get();
 
         return view('profile.edit', [
@@ -661,20 +782,36 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request)
     {
+        $passwordReset = false;
 
-        DB::transaction(function () use ($request) {
+        DB::transaction(function () use ($request, &$passwordReset) {
             $tb = $this->user->find($request->user_id);
             $tb->name = $request->name;
             $tb->email = (!empty($request->email)) ? $request->email : '';
             $tb->nationality = (!empty($request->nationality)) ? $request->nationality : '';
             $tb->phone_number = $request->phone_number;
-            $tb->address = (!empty($request->address)) ? $request->address : '';
-            $tb->about = (!empty($request->about)) ? $request->about : '';
             if (!empty($request->pic_path)) {
                 $tb->pic_path = $request->pic_path;
             }
+            
+            // Allow master users to reset passwords for non-student users
+            if (\Auth::user()->role == 'master' && $request->user_role != 'student' && !empty($request->new_password)) {
+                $request->validate([
+                    'new_password' => 'required|string|min:6|confirmed',
+                ]);
+                $tb->password = bcrypt($request->new_password);
+                $passwordReset = true;
+            }
+            
+            // Allow master users to change admin role to other non-student roles
+            if (\Auth::user()->role == 'master' && $request->user_role == 'admin' && !empty($request->change_role)) {
+                $allowed_roles = ['teacher', 'accountant'];
+                if (in_array($request->change_role, $allowed_roles)) {
+                    $tb->role = $request->change_role;
+                }
+            }
+            
             if ($request->user_role == 'teacher') {
-                $tb->department_id = $request->department_id;
                 $tb->section_id = $request->class_teacher_section_id;
             }
             if ($tb->save()) {
@@ -689,7 +826,11 @@ class UserController extends Controller
             }
         });
 
-        return back()->with('status', __('Saved'));
+        $message = $passwordReset 
+            ? __('Saved') . ' - ' . __('Password has been reset successfully')
+            : __('Saved');
+            
+        return back()->with('status', $message);
     }
 
     /**
@@ -740,7 +881,7 @@ class UserController extends Controller
         $tb->save();
         $tb2->save();
 
-        return redirect("/user/$tb2->student_code");
+        return redirect("/user/$tb2->student_code")->with('success', 'Student details updated successfully!');
     }
 
     public function promote_tct_student(Request $request)
@@ -797,15 +938,10 @@ class UserController extends Controller
     {
         $admin = $this->user->find($id);
 
-        if ($admin->active !== 0) {
-            $admin->active = 0;
-        } else {
-            $admin->active = 1;
-        }
-
+        $admin->active = 1;
         $admin->save();
 
-        return back()->with('status', __('Saved'));
+        return back()->with('status', __('User activated successfully'));
     }
 
     /**
@@ -817,15 +953,38 @@ class UserController extends Controller
     {
         $admin = $this->user->find($id);
 
-        if ($admin->active !== 1) {
-            $admin->active = 1;
-        } else {
-            $admin->active = 0;
-        }
-
+        $admin->active = 0;
         $admin->save();
 
-        return back()->with('status', __('Saved'));
+        return back()->with('status', __('User deactivated successfully'));
+    }
+
+    /**
+     * Activate user (for non-student users)
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function activateUser($id)
+    {
+        $user = $this->user->find($id);
+        $user->active = 1;
+        $user->save();
+
+        return back()->with('status', __('User activated successfully'));
+    }
+
+    /**
+     * Deactivate user (for non-student users)
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function deactivateUser($id)
+    {
+        $user = $this->user->find($id);
+        $user->active = 0;
+        $user->save();
+
+        return back()->with('status', __('User deactivated successfully'));
     }
 
     /**

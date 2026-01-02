@@ -17,12 +17,6 @@ class InactiveController extends Controller
     {
 
         $maxSession = \App\StudentInfo::max('session');
-        // $inactive = User::where('active', 0)->with('studentInfo.house', 'studentInfo.section.class', 'inactive')
-        // ->whereHas('studentInfo', function($q) use($maxSession){
-        //     $q->where('session', $maxSession);
-        // })
-        // ->get();
-
         $inactive = Inactive::with([
             'users.studentInfo.section.class',
             'users.studentInfo.house'
@@ -67,7 +61,6 @@ class InactiveController extends Controller
         $tb->type = $request->type;
         $tb->notes = (!empty($request->notes))?$request->notes:'';
         $tb->save();
-        // print($tb);
 
         // UPDATE 'active' FIELD IN USERS TABLE
         $tb2 = User::find($request->user_id);
@@ -75,7 +68,6 @@ class InactiveController extends Controller
         $tb2->save();
         
         return redirect("/user/$tb2->student_code");
-        // return redirect()->action('App\Http\Controllers\UserController@show', [$tb2->sco]);
 
     }
 

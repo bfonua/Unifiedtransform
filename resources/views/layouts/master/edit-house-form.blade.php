@@ -1,5 +1,8 @@
-<a role="button" class="btn btn-danger btn-xs" href="" data-toggle="modal" data-target="#editSectionModal{{$house->id}}"><i class="material-icons">edit</i> @lang('Edit House')</a>
+@if (Auth::user()->role == 'admin' || Auth::user()->role == 'master')
+    <a role="button" class="btn btn-danger btn-xs" href="" data-toggle="modal" data-target="#editSectionModal{{$house->id}}"><i class="material-icons">edit</i> @lang('Edit House')</a>
+@endif
 <!-- MODAL -->
+@if (Auth::user()->role == 'admin' || Auth::user()->role == 'master')
 <div class="modal fade" id="editSectionModal{{$house->id}}" tabindex="-1" role="dialog" aria-labelledby="editSectionModal{{$house->id}}Label">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -50,3 +53,4 @@
         </div>  
     </div>
 </div>
+@endif

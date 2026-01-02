@@ -21,36 +21,15 @@ class SectionController extends Controller
             $q->where('active', 1);
         }])
             ->get();
-        $classeIds = \App\Myclass::bySchool(\Auth::user()->school->id)
-            ->pluck('id')
-            ->toArray();
         $sections = \App\Section::with('class')->withCount('students')
             ->where('active', 1)
             ->orderBy('class_id')
             ->orderBy('section_number', 'asc')
             ->get();
-        // return dd($sections);
-        $exams = \App\ExamForClass::whereIn('class_id', $classeIds)
-            ->where('active', 1)
-            ->groupBy('class_id')
-            ->get();
-
-        $departments = \App\Department::all();
-        // $departments = Department::bySchool(\Auth::user()->school_id)->get();
-        // $teachers = User::select('departments.*', 'users.*')
-        //     ->join('departments', 'departments.id', '=', 'users.department_id')
-        //     ->where('role', 'teacher')
-        //     ->orderBy('name', 'ASC')
-        //     ->where('active', 1)
-        //     ->get();
-
         return view('school.sections', [
             'classes' => $classes,
             'sections' => $sections,
-            'exams' => $exams,
             'school' => $school,
-            'departments' => $departments,
-            // 'teachers'=>$tecahers,
 
         ]);
     }
@@ -144,12 +123,6 @@ class SectionController extends Controller
         $tb->active = $request->section_active;
         $tb->save();
         return redirect('school/sections?course=1');
-
-        //   return ($tb->save())?response()->json([
-        //     'status' => 'success'
-        //   ]):response()->json([
-        //     'status' => 'error'
-        //   ]);
     }
 
     /**
@@ -202,8 +175,6 @@ class SectionController extends Controller
     public function sectionByYear()
     {
         $years = Regrecord::groupBy('session')->orderBy('session', 'desc')->pluck('session')->toArray();
-        // return $q = Regrecord::with('section.class')->orderBy('session', 'desc')->groupBy('form_id')->groupBy('session')->orderBy('form_id', 'desc')->groupBy('session')->get();
-        // return $q->groupBy('session')[2020]->groupBy('form_id');
         $list = [];
         foreach ($years as $year) {
             $sections = Regrecord::where('session', $year)->groupBy('form_id')->orderBy('form_id', 'desc')->pluck('form_id')->toArray();

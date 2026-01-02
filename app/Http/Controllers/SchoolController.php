@@ -55,6 +55,16 @@ class SchoolController extends Controller
       return view('school.admin-list',compact('admins'));
     }
 
+    public function nonStudentUsers($school_id)
+    {
+      $users = User::bySchool($school_id)
+        ->whereIn('role', ['teacher', 'accountant', 'master'])
+        ->orderBy('role', 'asc')
+        ->orderBy('name', 'asc')
+        ->get();
+      return view('school.non-student-list', compact('users'));
+    }
+
     public function edit(School $school) {
         return view('schools.edit', compact('school'));
     }

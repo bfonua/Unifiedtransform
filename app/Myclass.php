@@ -66,6 +66,7 @@ class Myclass extends Model
                 'id',
                 'student_id'
             ]
-        )->where('student_infos.session', now()->year);
+        )->where('student_infos.session', now()->year)
+         ->where('subject_assigns.session', now()->year);
     }
 }

@@ -23,9 +23,9 @@
             @if (session('status'))
             <div class="alert alert-success">
                 {{ session('status') }}
-                {{-- Display View admin links --}}
+                {{-- Display View non-student users link --}}
                 @if (session('register_school_id'))
-                    <a href="{{ url('school/admin-list/' . session('register_school_id')) }}" target="_blank" class="text-white pull-right">@lang('View Admins')</a>
+                    <a href="{{ url('school/non-student-users/' . session('register_school_id')) }}" target="_blank" class="text-white pull-right">@lang('View Non-Student Users')</a>
                 @endif
             </div>
             @endif
@@ -37,7 +37,7 @@
                         {{ csrf_field() }}
 
                         <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
-                            <label for="name" class="col-md-4 control-label">* @lang('Full Name')</label>
+                            <label for="name" class="col-md-4 control-label">* @lang('Name')</label>
 
                             <div class="col-md-6">
                                 <input id="name" type="text" class="form-control" name="name" value="{{ old('name') }}"
@@ -66,7 +66,7 @@
                         </div>
 
                         <div class="form-group{{ $errors->has('phone_number') ? ' has-error' : '' }}">
-                            <label for="phone_number" class="col-md-4 control-label">* @lang('Phone Number')</label>
+                            <label for="phone_number" class="col-md-4 control-label">@lang('Phone Number')</label>
 
                             <div class="col-md-6">
                                 <input id="phone_number" type="text" class="form-control" name="phone_number" value="{{ old('phone_number') }}">
@@ -136,25 +136,6 @@
                         </div>
                         @endif
                         @if(session('register_role', 'teacher') == 'teacher')
-                        <div class="form-group{{ $errors->has('department') ? ' has-error' : '' }}">
-                            <label for="department" class="col-md-4 control-label">* @lang('Department')</label>
-
-                            <div class="col-md-6">
-                                <select id="department" class="form-control" name="department_id" required>
-                                    @if (count(session('departments')) > 0)
-                                        @foreach (session('departments') as $d)
-                                            <option value="{{$d->id}}">{{$d->department_name}}</option>
-                                        @endforeach
-                                    @endif
-                                </select>
-
-                                @if ($errors->has('department'))
-                                <span class="help-block">
-                                    <strong>{{ $errors->first('department') }}</strong>
-                                </span>
-                                @endif
-                            </div>
-                        </div>
                         <div class="form-group{{ $errors->has('class_teacher') ? ' has-error' : '' }}">
                             <label for="class_teacher" class="col-md-4 control-label">@lang('Class Teacher')</label>
 
@@ -162,8 +143,7 @@
                                 <select id="class_teacher" class="form-control" name="class_teacher_section_id">
                                     <option selected="selected" value="0">@lang('Not Class Teacher')</option>
                                     @foreach (session('register_sections') as $section)
-                                    <option value="{{$section->id}}">@lang('Section'): {{$section->section_number}} @lang('Class'):
-                                        {{$section->class->class_number}}</option>
+                                    <option value="{{$section->id}}">{{$section->class->class_number}}{{$section->section_number}}</option>
                                     @endforeach
                                 </select>
 
@@ -175,44 +155,6 @@
                             </div>
                         </div>
                         @endif
-                        <div class="form-group{{ $errors->has('blood_group') ? ' has-error' : '' }}">
-                            <label for="blood_group" class="col-md-4 control-label">@lang('Blood Group')</label>
-
-                            <div class="col-md-6">
-                                <select id="blood_group" class="form-control" name="blood_group">
-                                    <option selected="selected">A+</option>
-                                    <option>A-</option>
-                                    <option>B+</option>
-                                    <option>B-</option>
-                                    <option>AB+</option>
-                                    <option>AB-</option>
-                                    <option>O+</option>
-                                    <option>O-</option>
-                                </select>
-
-                                @if ($errors->has('blood_group'))
-                                <span class="help-block">
-                                    <strong>{{ $errors->first('blood_group') }}</strong>
-                                </span>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="form-group{{ $errors->has('nationality') ? ' has-error' : '' }}">
-                            <label for="nationality" class="col-md-4 control-label">* @lang('Nationality')</label>
-
-                            <div class="col-md-6">
-                                <input id="nationality" type="text" class="form-control" name="nationality" value="{{ old('nationality') }}"
-                                    required>
-
-                                @if ($errors->has('nationality'))
-                                <span class="help-block">
-                                    <strong>{{ $errors->first('nationality') }}</strong>
-                                </span>
-                                @endif
-                            </div>
-                        </div>
-
                         <div class="form-group{{ $errors->has('gender') ? ' has-error' : '' }}">
                             <label for="gender" class="col-md-4 control-label">@lang('Gender')</label>
 
@@ -298,6 +240,7 @@
                             </div>
                         </div>
 
+                        @if(session('register_role', 'student') == 'student')
                         <div class="form-group{{ $errors->has('address') ? ' has-error' : '' }}">
                             <label for="address" class="col-md-4 control-label">* @lang('address')</label>
 
@@ -507,15 +450,6 @@
                             </div>
                         </div>
                         @endif
-
-                        <div class="form-group">
-                            <label class="col-md-4 control-label">@lang('Upload Profile Picture')</label>
-                            <div class="col-md-6">
-                                <input type="hidden" id="picPath" name="pic_path">
-                                @component('components.file-uploader',['upload_type'=>'profile'])
-                                @endcomponent
-                            </div>
-                        </div>
 
                         <div class="form-group">
                             <div class="col-md-6 col-md-offset-4">

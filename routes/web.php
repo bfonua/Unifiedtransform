@@ -24,24 +24,20 @@ Auth::routes();
 Route::middleware(['auth', 'master'])->group(function () {
     Route::get('/masters', 'MasterController@index')->name('masters.index');
     Route::resource('/schools', 'SchoolController')->only(['index', 'edit', 'store', 'update']);
+    Route::get('/settings', 'SettingController@index')->name('settings.index');
 });
 
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/queryTest', 'UserController@queryTest');
 
-// TCT Test Routes
-Route::middleware(['auth'])->group(function () {
+// TCT Test Routes - Master Only
+Route::middleware(['auth', 'master'])->group(function () {
     Route::get('/tct-test', 'TestController@index')->name('test.index');
     Route::post('/tct-test/custom', 'TestController@customQuery')->name('test.custom');
 });
 
 Route::middleware(['auth'])->group(function () {
     Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
-    // Route::get('/view-attendance/section/{section_id}',function($section_id){
-    //   if($section_id > 0){
-    //     $attendances = App\Attendance::with(['student'])->where('section_id', $section_id)->get();
-    //   }
-    // });
     Route::get('attendances/students/{teacher_id}/{course_id}/{exam_id}/{section_id}', 'AttendanceController@addStudentsToCourseBeforeAtt')->middleware(['teacher']);
     Route::get('attendances/{section_id}/{student_id}/{exam_id}', 'AttendanceController@index');
     Route::get('attendances/{section_id}', 'AttendanceController@sectionIndex')->middleware(['teacher']);
@@ -62,7 +58,16 @@ Route::middleware(['auth', 'teacher'])->prefix('grades')->group(function () {
 
 Route::get('grades/{student_id}', 'GradeController@index')->middleware(['auth', 'teacher.student']);
 
-Route::middleware(['auth', 'accountant'])->prefix('fees')->name('fees.')->group(function () {
+// Fee viewing routes - accessible to Admin, Master, Accountant, and Teacher
+Route::middleware(['auth', 'master.admin.accountant.teacher'])->prefix('fees')->name('fees.')->group(function () {
+    Route::get('assign', 'AssignController@index');
+    Route::get('assigned/{year}', 'AssignController@assignedByYear')->where('year', '[0-9]+');
+    Route::get('section/{id}', 'AssignController@sectionFeeList');
+    Route::get('section/{id}/year/{year}', 'AssignController@sectionFeeListByYear')->where('year', '[0-9]+');
+});
+
+// Fee management routes - accessible to Admin, Master, and Accountant only
+Route::middleware(['auth', 'master.admin.accountant'])->prefix('fees')->name('fees.')->group(function () {
     Route::get('all', 'FeeController@index');
     Route::get('create', 'FeeController@create');
     Route::post('create', 'FeeController@store');
@@ -75,12 +80,13 @@ Route::middleware(['auth', 'accountant'])->prefix('fees')->name('fees.')->group(
     Route::put('tct_create/{id}', 'FeeController@update');
     Route::post('tct_update_session', 'FeeController@updateSession');
     Route::get('unassign', 'AssignController@showUnassigned');
-    Route::resource('assign', 'AssignController');
+    Route::post('assign', 'AssignController@store');
+    Route::put('assign/{assign}', 'AssignController@update');
+    Route::delete('assign/{assign}', 'AssignController@destroy');
     Route::post('reassign', 'AssignController@reassign');
     Route::resource('tct_payment', 'PaymentController');
     Route::resource('tct_paymentMigrate', 'PaymentMigrateController');
     Route::post('reassignForm', 'AssignController@showForm');
-    Route::get('section/{id}', 'AssignController@sectionFeeList');
     Route::get('exportAssign', 'UploadController@export_tctFinanceAssignList');
     Route::get('exportPayment', 'UploadController@export_tctFinancePaymentList');
     Route::get('exportRemain', 'UploadController@export_tctFinanceRemainList'); // exports remain payments by Class
@@ -90,7 +96,7 @@ Route::middleware(['auth', 'accountant'])->prefix('fees')->name('fees.')->group(
     Route::get('assignListAction', 'AjaxController@getFeeAssignList');
 });
 
-Route::middleware(['auth', 'admin'])->prefix('subject')->name('subject.')->group(function () {
+Route::middleware(['auth', 'master.admin'])->prefix('subject')->name('subject.')->group(function () {
     Route::resource('/', 'SubjectController');
     Route::post('/add-class', 'SubjectController@store');
     Route::put('/update_subject/{id}', 'SubjectController@update_subject');
@@ -106,13 +112,15 @@ Route::middleware(['auth', 'admin'])->prefix('subject')->name('subject.')->group
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/settings', 'SettingController@index')->name('settings.index');
     Route::get('gpa/create-gpa', 'GradesystemController@create');
     Route::post('create-gpa', 'GradesystemController@store');
     Route::post('gpa/delete', 'GradesystemController@destroy');
 
     Route::get('search', 'SearchDataController@index')->name('search');
     Route::get('autocomplete', 'SearchDataController@autocomplete')->name('autocomplete');
+});
+
+Route::middleware(['auth'])->group(function () {
     Route::get('find', 'SearchDataController@find');
 });
 
@@ -133,6 +141,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('user/{user_code}', 'UserController@show');
     Route::get('user/config/change_password', 'UserController@changePasswordGet');
     Route::post('user/config/change_password', 'UserController@changePasswordPost');
+    Route::get('user/profile/edit', function() {
+        return redirect('edit/user/' . Auth::id());
+    });
     Route::get('section/students/{section_id}', 'UserController@sectionStudents');
     Route::get('section/tct_students/{section_id}', 'UserController@sectionTCTStudents');
     Route::get('house/tct_students/{house_id}', 'UserController@houseTCTStudents');
@@ -177,9 +188,14 @@ Route::middleware(['auth', 'admin'])->prefix('exams')->name('exams.')->group(fun
 Route::middleware(['auth', 'teacher'])->group(function () {
     Route::get('exams/active', 'ExamController@indexActive');
     Route::get('school/sections', 'SectionController@index');
+    Route::get('school/houses', 'HouseController@index');
+    Route::get('school/inactive', 'InactiveController@index');
+});
+
+// Manage Classes - Admin and Master only
+Route::middleware(['auth', 'master.admin'])->group(function () {
     Route::get('school/inactive_sections', 'SectionController@inactive');
     Route::get('school/sections_by_year', 'SectionController@sectionByYear');
-    Route::get('school/houses', 'HouseController@index');
 });
 
 Route::middleware(['auth', 'librarian'])->namespace('Library')->group(function () {
@@ -220,6 +236,8 @@ Route::middleware(['auth', 'accountant'])->prefix('accounts')->name('accounts.')
 });
 
 Route::middleware(['auth', 'master'])->group(function () {
+    Route::get('master/enter-school/{school_id}', 'MasterController@enterSchool');
+    Route::get('master/leave-school', 'MasterController@leaveSchool');
     Route::get('register/admin/{id}/{code}', function ($id, $code) {
         session([
             'register_role' => 'admin',
@@ -234,8 +252,12 @@ Route::middleware(['auth', 'master'])->group(function () {
     Route::get('school/admin-list/{school_id}', 'SchoolController@show');
 });
 
-Route::middleware(['auth', 'admin'])->group(function () {
+Route::middleware(['auth', 'master.admin'])->group(function () {
     Route::prefix('school')->name('school.')->group(function () {
+        Route::get('admin-list/{school_id}', 'SchoolController@show'); // View admins list
+        Route::get('non-student-users/{school_id}', 'SchoolController@nonStudentUsers'); // View non-student users list
+        Route::get('activate-user/{id}', 'UserController@activateUser'); // Activate non-student user
+        Route::get('deactivate-user/{id}', 'UserController@deactivateUser'); // Deactivate non-student user
         Route::post('add-class', 'MyclassController@store');
         Route::post('add-tct-department', 'DepartmentController@store'); // ADD DEPARTMENT
         Route::put('edit-tct-class/{id}', 'MyclassController@tct_update'); // UPDATE CLASS
@@ -248,7 +270,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::post('promote-students', 'UserController@promoteSectionStudentsPost');
         Route::post('theme', 'SchoolController@changeTheme');
         Route::post('set-ignore-sessions', 'SchoolController@setIgnoreSessions');
-        Route::resource('inactive', 'InactiveController');
+        Route::resource('inactive', 'InactiveController')->except(['index']);
         Route::resource('reinstate', 'ReinstateController')->only(['index', 'edit', 'store', 'update']);
         Route::post('reinstate_approval', 'ReinstateController@approval');
         Route::post('promote-tct-student', 'UserController@promote_tct_student');
@@ -256,54 +278,79 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Redirect to TCT Registration Form
     Route::get('tct_register', 'UserController@showTCTRegistrationForm')->name('tct_register');
     Route::post('tct_edit_administration', 'UserController@tct_administration_update');
-    Route::post('tct_edit_other', 'UserController@tct_other_update');
     Route::post('tct_edit_inactive', 'InactiveController@tct_update');
     Route::get('tct_delete_student/{id}', 'UserController@tct_delete_student');
     Route::prefix('register')->name('register.')->group(function () {
         Route::get('student', 'UserController@redirectToRegisterStudent');
         Route::get('tct_student', 'UserController@redirectToRegisterTCTStudent'); //Redirect from current page to controller
         Route::get('teacher', function () {
-            $departments = \App\Department::where('school_id', \Auth::user()->school_id)->get();
-            $classes = \App\Myclass::where('school_id', \Auth::user()->school->id)->pluck('id');
-            $sections = \App\Section::with('class')->whereIn('class_id', $classes)->get();
+            $school_id = \Auth::user()->role == 'master' && session()->has('master_school_id') 
+                ? session('master_school_id') 
+                : \Auth::user()->school_id;
+            $school = \App\School::find($school_id);
+            
+            // Get classes for this school first (matching home page logic)
+            $classes = \App\Myclass::bySchool($school_id)->pluck('id')->toArray();
+            
+            // Get sections matching home page query exactly
+            $sections = \App\Section::with('class')
+                ->whereIn('class_id', $classes)
+                ->where('active', 1)
+                ->orderBy('class_id')
+                ->orderBy('section_number', 'asc')
+                ->get();
+                
             session([
                 'register_role' => 'teacher',
-                'departments' => $departments,
-                'register_sections' => $sections
+                'register_sections' => $sections,
+                'register_school_id' => $school_id,
+                'register_school_code' => $school->code
             ]);
             return redirect()->route('register');
         });
         Route::get('accountant', function () {
-            session(['register_role' => 'accountant']);
-            return redirect()->route('register');
-        });
-        Route::get('librarian', function () {
-            session(['register_role' => 'librarian']);
+            $school_id = \Auth::user()->role == 'master' && session()->has('master_school_id') 
+                ? session('master_school_id') 
+                : \Auth::user()->school_id;
+            $school = \App\School::find($school_id);
+            
+            session([
+                'register_role' => 'accountant',
+                'register_school_id' => $school_id,
+                'register_school_code' => $school->code
+            ]);
             return redirect()->route('register');
         });
         Route::post('student', 'UserController@store');
         Route::post('tct_student', 'UserController@tct_store');
         Route::post('teacher',  'UserController@storeTeacher');
         Route::post('accountant',  'UserController@storeAccountant');
-        Route::post('librarian',  'UserController@storeLibrarian');
     });
     Route::get('edit/course/{id}', 'CourseController@edit');
     Route::post('edit/course/{id}', 'CourseController@updateNameAndTime');
 });
 
 //use PDF;
-Route::middleware(['auth', 'master.admin'])->group(function () {
+Route::middleware(['auth', 'master.admin.accountant.teacher'])->group(function () {
     Route::get('edit/user/{id}', 'UserController@edit');
     Route::post('edit/user', 'UserController@update');
+});
+
+Route::middleware(['auth', 'master.admin'])->group(function () {
     Route::post('upload/file', 'UploadController@upload');
     Route::post('users/import/user-xlsx', 'UploadController@import');
     Route::get('users/export/students-xlsx', 'UploadController@export');
-    Route::get('students/export/tct', 'UploadController@export_tctFormsList');
-    Route::get('students/export/house', 'UploadController@export_tctHouseList');
     Route::get('students/all_reg', 'UploadController@export_allRegList');
 
     // TCT all forms export
 });
+
+Route::middleware(['auth', 'master.admin.accountant.teacher'])->group(function () {
+    Route::get('students/export/tct', 'UploadController@export_tctFormsList');
+    Route::get('students/export/house', 'UploadController@export_tctHouseList');
+    Route::post('tct_edit_other', 'UserController@tct_other_update');
+});
+
 Route::middleware(['auth', 'teacher'])->group(function () {
     Route::post('calculate-marks', 'GradeController@calculateMarks');
     Route::post('message/students', 'NotificationController@store');

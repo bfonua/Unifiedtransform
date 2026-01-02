@@ -98,14 +98,6 @@
                                 --}}
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <div class="col-md-8 col-md-offset-4">
-                                <small class="text-muted">
-                                    <i class="fa fa-shield"></i> @lang('Your connection is secure and encrypted')
-                                </small>
-                            </div>
-                        </div>
                     </form>
                 </div>
             </div>

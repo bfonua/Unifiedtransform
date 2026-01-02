@@ -1,7 +1,10 @@
 <!-- ACADEMIC DETAILS -->
-<a role="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editAdminDetails{{$user->id}}"><i class="material-icons">edit</i> @lang('Edit Admin')</a>
+@if(Auth::user()->role == 'admin' || Auth::user()->role == 'master')
+    <a role="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editAdminDetails{{$user->id}}"><i class="material-icons">edit</i> @lang('Edit Admin')</a>
+@else
+    <a role="button" class="btn btn-primary btn-sm disabled" style="pointer-events: none; opacity: 0.6;"><i class="material-icons">edit</i> @lang('Edit Admin')</a>
+@endif
 
-{{-- {{$userSer->getAdminDetails()['sections']}} --}}
 <div class="modal fade" id="editAdminDetails{{$user->id}}" tabindex="-1" role="dialog" aria-labelledby="#editAdminDetails{{$user->id}}Label">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -14,7 +17,6 @@
             <div class="modal-body">
                 <form class="form-horizontal" action="{{url('tct_edit_administration')}}" method="post">
                     {{csrf_field()}}
-                    {{-- {{ method_field('PUT') }} --}}
                     <input type="hidden" value="{{$user->id}}" name="user_id">
                     <div class="row form-group">
                         <label for="tct_id" class="col-sm-4 control-label">@lang('TCT ID')</label>
@@ -349,7 +351,7 @@
                 <form class="form-horizontal" action="{{url('tct_edit_inactive')}}" method="post">
                     {{csrf_field()}}
                     <input type="hidden" value="{{$user->id}}" name="user_id">
-                    <input type="hidden" value="{{$userSer->getInactiveRequest($user)->id}}" name="inactive_id">
+                    <input type="hidden" value="{{$inactiveRequest ? $inactiveRequest->id : ''}}" name="inactive_id">
 
                     <div class="row form-group">
                         <label for="type" class="col-sm-4 control-label">@lang('Type')</label>
@@ -360,7 +362,7 @@
                                 @endphp
                                 @foreach ($types as $type)
                                     <option value="{{$type}}"
-                                        {{($type == $userSer->getInactiveRequest($user)->type)?'selected="selected"':''}}
+                                        {{($inactiveRequest && $type == $inactiveRequest->type)?'selected="selected"':''}}
                                         >{{ucfirst($type)}}
                                     </option>
                                 @endforeach
@@ -368,15 +370,15 @@
                         </div>
                     </div>
                     <div class="row form-group">
-                        <label for="inactive_date" class="col-sm-4 control-label">@lang('Inactive')</label>
+                        <label for="inactive_date" class="col-sm-4 control-label">@lang('Date made inactive')</label>
                         <div class="col-sm-8">
-                            <input id="inactive_date" type="text" class="form-control" name="inactive_date" value="{{Carbon\Carbon::parse($userSer->getInactiveRequest($user)->created_at)->format('d/m/Y')}}"  required>
+                            <input id="inactive_date" type="text" class="form-control" name="inactive_date" value="{{$inactiveRequest ? Carbon\Carbon::parse($inactiveRequest->created_at)->format('d/m/Y') : ''}}"  required>
                         </div>
                     </div>
                     <div class="row form-group">
                         <label for="notes" class="col-sm-4 control-label">@lang('Notes')</label>
                         <div class="col-sm-8">
-                            <textarea id="notes" type="text" class="form-control" name="notes">{{$userSer->getInactiveRequest($user)->notes}}</textarea>
+                            <textarea id="notes" type="text" class="form-control" name="notes">{{$inactiveRequest ? $inactiveRequest->notes : ''}}</textarea>
                         </div>
                     </div>
                     <div class="row form-group">
