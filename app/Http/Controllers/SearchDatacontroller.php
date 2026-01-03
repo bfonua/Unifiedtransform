@@ -20,8 +20,8 @@ class SearchDatacontroller extends Controller
     {
         $data = \App\User::select('name')
             ->where("name", "LIKE", "%{$request->input('query')}%")
-            ->orwhere("lst_name", "%{$request->input('query')}%")
-            ->orWhere("given_name", "%{$request->input('query')}%")
+            ->orWhere("lst_name", "LIKE", "%{$request->input('query')}%")
+            ->orWhere("given_name", "LIKE", "%{$request->input('query')}%")
             ->get();
         return response()->json($data);
     }
