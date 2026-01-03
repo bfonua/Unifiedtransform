@@ -117,6 +117,7 @@
         return {
             searchQuery: '',
             results: [],
+            loading: false,
             clearSearch() {
                 this.searchQuery = '';
                 this.results = [];
@@ -125,8 +126,10 @@
             fetchResults() {
                 if (this.searchQuery.trim().length < 1) {
                     this.results = [];
+                    this.loading = false;
                     return;
                 }
+                this.loading = true;
                 fetch(`/find?q=${encodeURIComponent(this.searchQuery.trim())}`)
                     .then(res => {
                         if (!res.ok) throw new Error('Network response was not ok');
