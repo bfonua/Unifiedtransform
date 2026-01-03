@@ -118,21 +118,28 @@
             searchQuery: '',
             results: [],
             loading: false,
+            debounceTimer: null,
             clearSearch() {
                 this.searchQuery = '';
                 this.results = [];
                 document.getElementById('search-input').focus();
             },
             fetchResults() {
+                // Clear previous timer
+                clearTimeout(this.debounceTimer);
+                
                 if (this.searchQuery.trim().length < 1) {
                     this.results = [];
                     this.loading = false;
                     return;
                 }
+                
                 this.loading = true;
-                // Use Laravel's url() helper to get the correct base path
-                const url = `{{ url('/find') }}?q=${encodeURIComponent(this.searchQuery.trim())}`;
-                fetch(url)
+                
+                // Debounce: wait 400ms after user stops typing
+                this.debounceTimer = setTimeout(() => {
+                    const url = `{{ url('/find') }}?q=${encodeURIComponent(this.searchQuery.trim())}`;
+                    fetch(url)
                     .then(res => {
                         if (!res.ok) throw new Error('Network response was not ok');
                         return res.json();
@@ -146,8 +153,8 @@
                     })
                     .finally(() => {
                         this.loading = false;
-                    }
-                );
+                    });
+                }, 400); // Wait 400ms after user stops typing
             }
         }
     }

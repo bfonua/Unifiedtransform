@@ -44,8 +44,7 @@ class SearchDatacontroller extends Controller
         $q = $request->get('q');
         return \App\User::where('school_id', $school_id)
             ->where(function($query) use ($q) {
-                $query->where('name', 'LIKE', "%{$q}%")
-                    ->orWhere('lst_name', 'LIKE', "%{$q}%")
+                $query->where('lst_name', 'LIKE', "%{$q}%")
                     ->orWhere('given_name', 'LIKE', "%{$q}%")
                     ->orWhere('student_code', 'LIKE', "%{$q}%")
                     // Add support for "lastname firstname"
