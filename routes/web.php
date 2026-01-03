@@ -118,9 +118,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('search', 'SearchDataController@index')->name('search');
-    Route::get('autocomplete', 'SearchDataController@autocomplete')->name('autocomplete');
-    Route::get('find', 'SearchDataController@find');
+    Route::get('search', 'SearchDatacontroller@index')->name('search');
+    Route::get('autocomplete', 'SearchDatacontroller@autocomplete')->name('autocomplete');
+    Route::get('find', 'SearchDatacontroller@find');
 });
 
 Route::middleware(['auth', 'teacher'])->group(function () {
