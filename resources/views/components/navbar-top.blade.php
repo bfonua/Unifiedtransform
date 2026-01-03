@@ -17,7 +17,7 @@
                         style="position: absolute; z-index: 50; max-height: 300px; overflow-y: auto; left: auto;">
                         <template x-for="result in results" :key="result.id">
                             <li class="list-group-item">
-                                <a :href="'/user/' + result.student_code">
+                                <a :href="'{{ url('/user') }}/' + result.student_code">
                                     <strong x-text="result.student_code"></strong>
                                     <span x-text="result.given_name + ' ' + result.lst_name"></span>
                                 </a>
