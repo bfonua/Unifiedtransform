@@ -478,28 +478,39 @@ class UserController extends Controller
             ->orderBy('pay_date', 'desc')
             ->get();
             
-        // Consolidate PaymentMigrate queries - load once with all needed data
-        $oldPaymentData = \App\PaymentMigrate::where('tct_id', $user->studentInfo->tct_id)
-            ->whereIn('year', $sessions)
-            ->orderBy('pay_date', 'desc')
-            ->get();
-            
-        // Old payments for display
-        $oldPayments = $oldPaymentData;
-        
-        // Pre-load fee types from PaymentMigrate for each year
-        $oldPaymentFeeTypes = $oldPaymentData
-            ->groupBy('year')
-            ->map(function($items) {
-                return $items->pluck('fee_type')->unique()->values()->toArray();
-            });
-            
-        // Pre-calculate old payment amounts for each fee type and session (pre-2020)
+        // Initialize old payment variables
+        $oldPayments = collect();
+        $oldPaymentFeeTypes = [];
         $oldPaymentAmounts = [];
-        foreach ($oldPaymentData->groupBy('year') as $year => $payments) {
-            $oldPaymentAmounts[$year] = $payments->groupBy('fee_type')->map(function($items) {
-                return $items->sum('amount');
-            })->toArray();
+        
+        // Try to load PaymentMigrate data (historical payments) - skip if table doesn't exist
+        try {
+            if ($user->studentInfo && $user->studentInfo->tct_id) {
+                $oldPaymentData = \App\PaymentMigrate::where('tct_id', $user->studentInfo->tct_id)
+                    ->whereIn('year', $sessions)
+                    ->orderBy('pay_date', 'desc')
+                    ->get();
+                    
+                // Old payments for display
+                $oldPayments = $oldPaymentData;
+                
+                // Pre-load fee types from PaymentMigrate for each year
+                $oldPaymentFeeTypes = $oldPaymentData
+                    ->groupBy('year')
+                    ->map(function($items) {
+                        return $items->pluck('fee_type')->unique()->values()->toArray();
+                    });
+                    
+                // Pre-calculate old payment amounts for each fee type and session (pre-2020)
+                foreach ($oldPaymentData->groupBy('year') as $year => $payments) {
+                    $oldPaymentAmounts[$year] = $payments->groupBy('fee_type')->map(function($items) {
+                        return $items->sum('amount');
+                    })->toArray();
+                }
+            }
+        } catch (\Exception $e) {
+            // PaymentMigrate table doesn't exist or other error - continue without old payment data
+            \Log::info('PaymentMigrate table not available: ' . $e->getMessage());
         }
 
         // Cache school type IDs for 60 minutes - these rarely change
