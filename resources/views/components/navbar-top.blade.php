@@ -130,8 +130,8 @@
                     return;
                 }
                 this.loading = true;
-                // Use current origin to avoid CORS issues with www vs non-www redirects
-                const url = `${window.location.origin}/find?q=${encodeURIComponent(this.searchQuery.trim())}`;
+                // Use Laravel's url() helper to get the correct base path
+                const url = `{{ url('/find') }}?q=${encodeURIComponent(this.searchQuery.trim())}`;
                 fetch(url)
                     .then(res => {
                         if (!res.ok) throw new Error('Network response was not ok');
