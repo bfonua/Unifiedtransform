@@ -480,7 +480,7 @@
                                                                                 </div>
                                                                                 <hr>
                                                                                 @php
-                                                                                    $feeListIDs = collect($feeList[$session]['fee_id'])->map(fn($id) => $feesWithChannels[$id] ?? null)->filter();
+                                                                                    $feeListIDs = collect($feeList[$session]['fee_id'])->map(function($id) use ($feesWithChannels) { return $feesWithChannels[$id] ?? null; })->filter();
                                                                                     // Log::info($feeListIDs);
                                                                                 @endphp
                                                                                 @foreach ($feeListIDs as $feeListID)
