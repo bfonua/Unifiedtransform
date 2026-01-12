@@ -10,7 +10,10 @@ function loader_fade_out() {
 }
 
 function data_table_div() {
-    var myTable = $('.table-data-div').DataTable({ paging: false });
+    // Check if DataTables is loaded before initializing
+    if (typeof $.fn.DataTable !== 'undefined' && $('.table-data-div').length > 0) {
+        var myTable = $('.table-data-div').DataTable({ paging: false });
+    }
 }
 
 function all_images() {

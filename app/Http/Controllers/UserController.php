@@ -411,23 +411,31 @@ class UserController extends Controller
             return view('profile.no-user');
         }
         
+        // Get sessions first (restored from master to prevent ordering bug)
+        $sessions = \App\Assign::where('user_id', $user->id)
+            ->orderBy('session', 'desc')
+            ->groupBy('session')
+            ->pluck('session')
+            ->toArray();
+        
         $feeList = [];
         $subjectList = [];
-        $sessions = []; // Initialize sessions outside if block
 
         $firstYear = "20" . substr($user->studentInfo->tct_id, 0, 2);
         $years = range(now()->year, $firstYear);
 
         if ($assignedCount = $user->fees_assigned_count > 0) {
             // Eager load all fees with relationships in one query
+            // FIX: Restored whereIn('session', $sessions) from master version which prevented the bug.
+            // Also added orderBy('fee_id', 'asc') to ensure deterministic ordering within each session.
+            // Without proper ordering, GROUP BY fee_id allows MySQL to return fee_ids in random order,
+            // causing intermittent bugs where payment terms display as "Term 3, 4, 1, 2" on page refreshes.
             $all_fees_assigned = \App\Assign::with(['fees.fee_type', 'fees.fee_channel'])
                 ->where('user_id', $user->id)
-                ->orderBy('session', 'desc')
+                ->whereIn('session', $sessions)
+                ->orderBy('fee_id', 'asc')
                 ->groupBy('fee_id')
                 ->get();
-            
-            // Get sessions from the loaded assigns (avoid duplicate query)
-            $sessions = $all_fees_assigned->pluck('session')->unique()->values()->toArray();
             
             // Extract fees with channels from the already loaded assigns (no duplicate query)
             $feesWithChannels = $all_fees_assigned->pluck('fees')->keyBy('id');
