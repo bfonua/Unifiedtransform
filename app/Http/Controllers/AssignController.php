@@ -27,8 +27,8 @@ class AssignController extends Controller
      */
     public function index()
     {
-        $school = \Auth::user()->school;
-        $classes = \App\Myclass::bySchool(\Auth::user()->school->id)->get();
+        $school = \Auth::user()->getSchool();
+        $classes = \App\Myclass::bySchool(\Auth::user()->getSchoolId())->get();
         $sections = \App\Section::with('class', 'totalAssignedAmount', 'totalPaidAmount')->withCount(['students' => function ($q) {
             $q->where('active', 1);
         }])
@@ -47,8 +47,8 @@ class AssignController extends Controller
      */
     public function assignedByYear($year)
     {
-        $school = \Auth::user()->school;
-        $classes = \App\Myclass::bySchool(\Auth::user()->school->id)->get();
+        $school = \Auth::user()->getSchool();
+        $classes = \App\Myclass::bySchool(\Auth::user()->getSchoolId())->get();
         
         // Get sections with fees assigned in the specified year
         $sections = \App\Section::with('class')

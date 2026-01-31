@@ -14,7 +14,7 @@ class HouseController extends Controller
      */
     public function index()
     {
-        $school = \Auth::user()->school;
+        $school = \Auth::user()->getSchool();
         $houses = House::withCount([
             'students as current_session_students_count' => function ($query) {
                 $query->where('session', now()->year);

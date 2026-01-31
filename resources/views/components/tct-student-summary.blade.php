@@ -39,10 +39,25 @@
         </tr>
         <tr>    
             <td>
-                <strong>Form:</strong> {{$user->studentInfo->section->class->class_number}}{{$user->studentInfo->section->section_number}} (#{{$user->studentInfo->form_num}})
+                <strong>Form:</strong> 
+                @if($user->studentInfo->session == date('Y') && $user->studentInfo->section)
+                    <a href="{{ url('section/tct_students/' . $user->studentInfo->section->id . '?section=1') }}">
+                        {{$user->studentInfo->section->class->class_number}}{{$user->studentInfo->section->section_number}}
+                    </a>
+                @else
+                    {{$user->studentInfo->section->class->class_number ?? ''}}{{$user->studentInfo->section->section_number ?? ''}}
+                @endif
+                (#{{$user->studentInfo->form_num}})
             </td>
             <td>
-                <strong>House:</strong> {{$user->studentInfo->house->house_name}}
+                <strong>House:</strong> 
+                @if($user->studentInfo->session == date('Y') && $user->studentInfo->house)
+                    <a href="{{ url('house/tct_students/' . $user->studentInfo->house->id . '?section=1') }}">
+                        {{$user->studentInfo->house->house_name}}
+                    </a>
+                @else
+                    {{$user->studentInfo->house->house_name ?? '-'}}
+                @endif
             </td>
             <td>
                 @if($user->studentInfo->assigned)

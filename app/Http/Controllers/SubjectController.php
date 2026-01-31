@@ -82,8 +82,8 @@ class SubjectController extends Controller
 
     public function show_sections()
     {
-        $school = \Auth::user()->school;
-        $classes = \App\Myclass::bySchool(\Auth::user()->school->id)
+        $school = \Auth::user()->getSchool();
+        $classes = \App\Myclass::bySchool(\Auth::user()->getSchoolId())
             ->where('options', 1)
             ->get();
 

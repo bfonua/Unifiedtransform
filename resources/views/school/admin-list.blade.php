@@ -26,7 +26,7 @@
                 @endif
             </ul>
         </div>
-        <div class="col-md-10" id="main-container">
+        <div class="col-md-8" id="main-container">
             <h2>Admins</h2>
             <div class="panel panel-default">
                 @if(count($admins) > 0)
@@ -35,9 +35,9 @@
                         <tr>
                             @if(Auth::user()->role == 'master')
                             <th>@lang('Action')</th>
+                            <th>@lang('Edit')</th>
                             @endif
                             <th>@lang('Name')</th>
-                            <th>@lang('Code')</th>
                             <th>@lang('Email')</th>
                             <th>@lang('Phone Number')</th>
                             <th>@lang('Date Registered')</th>
@@ -70,7 +70,6 @@
                             <td>
                                 {{$admin->name}}
                             </td>
-                            <td>{{$admin->student_code}}</td>
                             <td>{{$admin->email}}</td>
                             <td>{{$admin->phone_number}}</td>
                             <td>{{$admin->created_at->format('Y-m-d')}}</td>

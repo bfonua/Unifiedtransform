@@ -17,7 +17,7 @@ class RoutineController extends Controller
      public function index()
      {
        $files = Routine::with('section')
-                        ->bySchool(\Auth::user()->school_id)
+                        ->bySchool(\Auth::user()->getSchoolId())
                         ->where('active',1)
                         ->get();
         return view('routines.create',['files'=>$files,'section_id' => 0]);
@@ -33,7 +33,7 @@ class RoutineController extends Controller
       try{
         if(Schema::hasColumn('routines','section_id')){
           $files = Routine::with('section')
-                          ->bySchool(\Auth::user()->school_id)
+                          ->bySchool(\Auth::user()->getSchoolId())
                           ->where('section_id', $section_id)
                           ->where('active',1)
                           ->get();
@@ -62,7 +62,7 @@ class RoutineController extends Controller
       $tb->file_path = $request->file_path;
       $tb->title = $request->title;
       $tb->active = 1;
-      $tb->school_id = \Auth::user()->school_id;
+      $tb->school_id = \Auth::user()->getSchoolId();
       $tb->user_id = \Auth::user()->id;
       $tb->save();
       return back()->with('status', __('Uploaded'));

@@ -16,7 +16,7 @@
             <div class="panel panel-default">
               @if($students->first())
                 <div class="panel-body">
-                    <table id="myTable" class="table table-bordered">
+                    <table id="myTable" class="table table-bordered table-striped table-hover">
                         <thead>
                         <tr>
                             <th class="text-center" scope="col">@lang('#')</th>
@@ -47,7 +47,13 @@
                                     </a>
                                 </td>
                                 <td class="text-center">
-                                    {{$student->studentInfo->house->house_abbrv ?? '-'}}
+                                    @if($student->studentInfo && $student->studentInfo->house)
+                                        <a href="{{ url('house/tct_students/' . $student->studentInfo->house->id . '?section=1') }}">
+                                            {{$student->studentInfo->house->house_abbrv}}
+                                        </a>
+                                    @else
+                                        -
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

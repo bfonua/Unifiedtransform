@@ -63,14 +63,14 @@ class houseListExport implements WithEvents, WithTitle
                         ),
                     'fill' => array(
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'color' => array('argb' => 'c6e0b4'),
+                        'color' => array('argb' => 'FFC6E0B4'),
                         ),
                     );
 
                 $inactiveStyle = array(
                     'fill' => array(
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'color' => array('argb' => '909090'),
+                        'color' => array('argb' => 'FF909090'),
                         ),
                 );
 
@@ -95,29 +95,29 @@ class houseListExport implements WithEvents, WithTitle
                 $row = 3; 
                 $count = 1;
                 foreach($reslist as $res){
-                    if($res->student){
-                        $name = $this->split_name($res->student->given_name)[0]." ". $this->split_name($res->student->given_name)[1]." ".$res->student->lst_name;
-                        if($res->group == "Head Prefect"){
-                            $name .= ' (HP)';
-                        }
-                        elseif($res->group == "prefect"){
-                            $name .= ' (P)';
-                        }
-                        $role = (ucfirst($res->group) == "Head Prefect")? 'HP': ucfirst($res->group);
-                            
-                        $sheet->setCellValue('A'.$row, $res->tct_id)
-                        ->setCellValue('B'.$row, $count)
-                        ->setCellValue('C'.$row, $role)
-                        ->setCellValue('D'.$row, $name)
-                        ->setCellValue('E'.$row, $res->section->class->class_number.$res->section->section_number);
-                        if($res->student->active == 0){
-                            $sheet->getStyle("A".$row.":E".$row)->applyFromArray($inactiveStyle);
-                        }
-                    } else{
-                        $sheet->setCellValue('A'.$row, $res->tct_id)
-                        ->setCellValue('B'.$row, $count)
-                        ->setCellValue('E'.$row, $res->section->class->class_number.$res->section->section_number);
+                    // Skip records with missing critical relationships
+                    if(!$res->student || !$res->section || !$res->section->class){
+                        continue;
                     }
+                    
+                    $name = $this->split_name($res->student->given_name)[0]." ". $this->split_name($res->student->given_name)[1]." ".$res->student->lst_name;
+                    if($res->group == "Head Prefect"){
+                        $name .= ' (HP)';
+                    }
+                    elseif($res->group == "prefect"){
+                        $name .= ' (P)';
+                    }
+                    $role = (ucfirst($res->group) == "Head Prefect")? 'HP': ucfirst($res->group);
+                        
+                    $sheet->setCellValue('A'.$row, $res->tct_id)
+                    ->setCellValue('B'.$row, $count)
+                    ->setCellValue('C'.$row, $role)
+                    ->setCellValue('D'.$row, $name)
+                    ->setCellValue('E'.$row, $res->section->class->class_number.$res->section->section_number);
+                    if($res->student->active == 0){
+                        $sheet->getStyle("A".$row.":E".$row)->applyFromArray($inactiveStyle);
+                    }
+                    
                     $row++;
                     $count++;
                 }

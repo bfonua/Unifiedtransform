@@ -13,10 +13,10 @@ class SettingController extends Controller
 {
     public function index()
     {
-        $school      = \Auth::user()->school;
+        $school      = \Auth::user()->getSchool();
         $classes     = Myclass::all();
         $sections    = Section::all();
-        $departments = Department::bySchool(\Auth::user()->school_id)->get();
+        $departments = Department::bySchool(\Auth::user()->getSchoolId())->get();
         $teachers = User::select('departments.*', 'users.*')
             ->join('departments', 'departments.id', '=', 'users.department_id')
             ->where('role', 'teacher')

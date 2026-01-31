@@ -44,7 +44,7 @@ class MyclassController extends Controller
         ]);
         $tb = new Myclass;
         $tb->class_number = $request->class_number;
-        $tb->school_id = \Auth::user()->school_id;
+        $tb->school_id = \Auth::user()->getSchoolId();
         $tb->groupClass = (!empty($request->group)) ? $request->group : '';
         $tb->options = 0;
         $tb->optionCount = 0;

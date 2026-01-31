@@ -37,7 +37,7 @@ class UploadController extends Controller {
       'file' => 'required|max:10000|mimes:doc,docx,png,jpeg,pdf,xlsx,xls,ppt,pptx,txt'
     ]);
 
-    $upload_dir = 'school-'.auth()->user()->school_id.'/'.date("Y").'/'.$request->upload_type;
+    $upload_dir = 'school-'.auth()->user()->getSchoolId().'/'.date("Y").'/'.$request->upload_type;
 
     $path = \Storage::disk('public')->putFile($upload_dir, $request->file('file'));//$request->file('file')->store($upload_dir);
     
@@ -50,7 +50,7 @@ class UploadController extends Controller {
       $tb->file_path = 'storage/'.$path;
       $tb->title = $request->title;
       $tb->active = 1;
-      $tb->school_id = auth()->user()->school_id;
+      $tb->school_id = auth()->user()->getSchoolId();
       $tb->user_id = auth()->user()->id;
       $tb->save();
     }else if($request->upload_type == 'event'){
@@ -61,7 +61,7 @@ class UploadController extends Controller {
       $tb->file_path = 'storage/'.$path;
       $tb->title = $request->title;
       $tb->active = 1;
-      $tb->school_id = auth()->user()->school_id;
+      $tb->school_id = auth()->user()->getSchoolId();
       $tb->user_id = auth()->user()->id;
       $tb->save();
     } else if($request->upload_type == 'routine'){
@@ -72,7 +72,7 @@ class UploadController extends Controller {
       $tb->file_path = 'storage/'.$path;
       $tb->title = $request->title;
       $tb->active = 1;
-      $tb->school_id = auth()->user()->school_id;
+      $tb->school_id = auth()->user()->getSchoolId();
       $tb->user_id = auth()->user()->id;
       $tb->save();
     } else if($request->upload_type == 'syllabus'){
@@ -83,7 +83,7 @@ class UploadController extends Controller {
       $tb->file_path = 'storage/'.$path;
       $tb->title = $request->title;
       $tb->active = 1;
-      $tb->school_id = auth()->user()->school_id;
+      $tb->school_id = auth()->user()->getSchoolId();
       $tb->user_id = auth()->user()->id;
       $tb->save();
     } else if($request->upload_type == 'profile' && $request->user_id > 0){
@@ -135,37 +135,37 @@ class UploadController extends Controller {
 
     public function export(Request $request){
       if($request->type == 'student')
-        return Excel::download(new StudentsExport($request->year), date('Y').'-students.xlsx');
+        return Excel::download(new StudentsExport($request->year), 'Students_'.date('Y-m-d_H-i-s').'.xlsx');
       else if($request->type == 'teacher')
-        return Excel::download(new TeachersExport($request->year), date('Y').'-teachers.xlsx');
+        return Excel::download(new TeachersExport($request->year), 'Teachers_'.date('Y-m-d_H-i-s').'.xlsx');
     }
     // Controller to export TCT Form Files
     public function export_tctFormsList(){
         // $year = date("Y");
-        return Excel::download(new allformsListExport, 'Form List '.date("Y").'.xlsx');
+        return Excel::download(new allformsListExport, 'Form_List_'.date('Y-m-d_H-i-s').'.xlsx');
     }
 
     public function export_tctHouseList(){
-        return Excel::download(new allHouseListExport, 'House List '.date("Y").'.xlsx');
+        return Excel::download(new allHouseListExport, 'House_List_'.date('Y-m-d_H-i-s').'.xlsx');
     }
 
     public function export_tctFinanceAssignList(){
-        return Excel::download(new allFinanceAssignListExport, 'TCT Assigned List '.date("Y").'.xlsx');
+        return Excel::download(new allFinanceAssignListExport, 'TCT_Assigned_List_'.date('Y-m-d_H-i-s').'.xlsx');
     }
 
     public function export_tctFinancePaymentList(){
-        return Excel::download(new allFinancePaymentListExport, 'TCT Payment List '.date("Y").'.xlsx');
+        return Excel::download(new allFinancePaymentListExport, 'TCT_Payment_List_'.date('Y-m-d_H-i-s').'.xlsx');
     }
 
     public function export_tctFinanceRemainList(){
-        return Excel::download(new allFinanceRemainListExport, 'TCT Remaining List '.date("Y").'.xlsx');
+        return Excel::download(new allFinanceRemainListExport, 'TCT_Remaining_List_'.date('Y-m-d_H-i-s').'.xlsx');
     }
 
     public function export_allRegList(){
-        return Excel::download(new allRegStudentsExport(now()->year), date('Y').'-students.xlsx');
+        return Excel::download(new allRegStudentsExport(now()->year), 'Registered_Students_'.date('Y-m-d_H-i-s').'.xlsx');
     }
 
     public function export_tctFinanceTranList($session){
-        return Excel::download(new allFinanceTranListExport($session), 'TCT Transactions '.$session.'.xlsx');
+        return Excel::download(new allFinanceTranListExport($session), 'TCT_Transactions_'.$session.'_'.date('Y-m-d_H-i-s').'.xlsx');
     }
 }

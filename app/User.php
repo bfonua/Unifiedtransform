@@ -68,7 +68,7 @@ class User extends Model implements
     }
 
     public function inactiveNow($session){
-        return $this->hasMany('App\Inactive', 'user_id')->where('session', $session);
+        return $this->hasMany('App\Inactive', 'user_id')->where('session', $session)->orderBy('created_at', 'desc');
     }
 
     public function reinstate(){
@@ -233,4 +233,33 @@ class User extends Model implements
     {
         return $this->role == $role ? true : false;
     }
-}
+
+    /**
+     * Get the effective school ID for the user.
+     * For master users, returns the school_id from session if available.
+     * For regular users, returns their school_id attribute.
+     *
+     * @return int|null
+     */
+    public function getSchoolId()
+    {
+        if ($this->role == 'master' && session()->has('master_school_id')) {
+            return session('master_school_id');
+        }
+        return $this->school_id;
+    }
+
+    /**
+     * Get the school relationship, accounting for master users.
+     * For master users in a school context, loads the school from session.
+     * For regular users, returns their school relationship.
+     *
+     * @return \App\School|null
+     */
+    public function getSchool()
+    {
+        if ($this->role == 'master' && session()->has('master_school_id')) {
+            return School::find(session('master_school_id'));
+        }
+        return $this->school;
+    }}

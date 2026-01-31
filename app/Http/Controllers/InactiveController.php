@@ -22,8 +22,10 @@ class InactiveController extends Controller
             'users.studentInfo.house'
         ])
         ->where('session', $maxSession)
-        ->distinct('user_id')
-        ->get();
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->unique('user_id')
+        ->values();
         
         // return $inactive;
         return view('profile.inactive-tct-students', [
@@ -54,13 +56,26 @@ class InactiveController extends Controller
                 'notes' => 'required'
             ]);
 
-        // CREATE NEW INACTIVE RECORD
-        $tb = new Inactive;
-        $tb->session = date('Y');
-        $tb->user_id = $request->user_id;
-        $tb->type = $request->type;
-        $tb->notes = (!empty($request->notes))?$request->notes:'';
-        $tb->save();
+        // Check if an inactive record already exists for this user in the current session
+        $existingInactive = Inactive::where('user_id', $request->user_id)
+            ->where('session', date('Y'))
+            ->first();
+
+        if ($existingInactive) {
+            // Update the existing record instead of creating a duplicate
+            $existingInactive->type = $request->type;
+            $existingInactive->notes = (!empty($request->notes)) ? $request->notes : '';
+            $existingInactive->save();
+            $tb = $existingInactive;
+        } else {
+            // CREATE NEW INACTIVE RECORD
+            $tb = new Inactive;
+            $tb->session = date('Y');
+            $tb->user_id = $request->user_id;
+            $tb->type = $request->type;
+            $tb->notes = (!empty($request->notes)) ? $request->notes : '';
+            $tb->save();
+        }
 
         // UPDATE 'active' FIELD IN USERS TABLE
         $tb2 = User::find($request->user_id);

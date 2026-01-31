@@ -13,7 +13,7 @@ class GradesystemController extends Controller
    * @return \Illuminate\Http\Response
    */
     public function index(){
-      $gpas = Gradesystem::bySchool(\Auth::user()->school_id)->get();
+      $gpas = Gradesystem::bySchool(\Auth::user()->getSchoolId())->get();
       return view('gpa.all',['gpas'=>$gpas]);
     }
     /**
@@ -44,7 +44,7 @@ class GradesystemController extends Controller
       $gpa->grade = $request->grade;
       $gpa->from_mark = $request->from_mark;
       $gpa->to_mark = $request->to_mark;
-      $gpa->school_id = \Auth::user()->school_id;
+      $gpa->school_id = \Auth::user()->getSchoolId();
       $gpa->user_id = \Auth::user()->id;
       $gpa->save();
       return back()->with('status', __('Saved'));

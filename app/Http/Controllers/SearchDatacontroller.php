@@ -19,9 +19,7 @@ class SearchDatacontroller extends Controller
     public function autocomplete(Request $request)
     {
         // Get school_id - for master users, use session, otherwise use auth user's school
-        $school_id = \Auth::user()->role == 'master' && session()->has('master_school_id')
-            ? session('master_school_id')
-            : \Auth::user()->school_id;
+        $school_id = \Auth::user()->getSchoolId();
 
         $data = \App\User::select('name')
             ->where('school_id', $school_id)
@@ -37,9 +35,7 @@ class SearchDatacontroller extends Controller
     public function find(Request $request)
     {
         // Get school_id - for master users, use session, otherwise use auth user's school
-        $school_id = \Auth::user()->role == 'master' && session()->has('master_school_id')
-            ? session('master_school_id')
-            : \Auth::user()->school_id;
+        $school_id = \Auth::user()->getSchoolId();
 
         $q = $request->get('q');
         return \App\User::where('school_id', $school_id)

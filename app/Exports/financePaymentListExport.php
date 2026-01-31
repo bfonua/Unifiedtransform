@@ -75,13 +75,13 @@ class financePaymentListExport implements WithEvents, WithTitle
                     ),
                     'fill' => array(
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'color' => array('argb' => 'eebaba')
+                        'color' => array('argb' => 'FFEEBABA')
                     ),
                 );
                 $inactiveStyle = array(
                     'fill' => array(
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'color' => array('argb' => '909090')
+                        'color' => array('argb' => 'FF909090')
                     ),
                 );
                 // TITLE 
@@ -107,14 +107,18 @@ class financePaymentListExport implements WithEvents, WithTitle
                 $row = 3;
                 $count = 1;
                 foreach($reslist as $res){
-                    if($res->student){
-                        $class_num = $res->form_num;
-                        while($count < $class_num){
-                            $sheet->setCellValue('B'.$row, $count);
-                            $count++;
-                            $row++;
-                        }
-                        $name = $this->split_name($res->student->given_name)[0]." ". $this->split_name($res->student->given_name)[1]." ".$res->student->lst_name;
+                    // Skip records with missing student relationships
+                    if(!$res->student || !$res->house){
+                        continue;
+                    }
+                    
+                    $class_num = $res->form_num;
+                    while($count < $class_num){
+                        $sheet->setCellValue('B'.$row, $count);
+                        $count++;
+                        $row++;
+                    }
+                    $name = $this->split_name($res->student->given_name)[0]." ". $this->split_name($res->student->given_name)[1]." ".$res->student->lst_name;
                         if($res->group == "Head Prefect"){
                             $name .= ' (HP)';
                         } elseif(ucfirst($res->group) == "Prefect"){
@@ -155,12 +159,12 @@ class financePaymentListExport implements WithEvents, WithTitle
                                 ->setCellValue('J'.$row, ($total == 0)? '-': $total);
                             $sheet->getStyle("E".$row.":J".$row)->applyFromArray($center);
                         }
-                        if($res->student->active == '0'){
-                            $sheet->getStyle("A".$row.":J".$row)->applyFromArray($inactiveStyle);
-                        }
-                        $row++;
-                        $count++;
+                    if($res->student->active == '0'){
+                        $sheet->getStyle("A".$row.":J".$row)->applyFromArray($inactiveStyle);
                     }
+                    
+                    $row++;
+                    $count++;
                 }
                 $last_row = $row - 1;
                 $last_border = $last_row;

@@ -16,8 +16,8 @@ class SectionController extends Controller
      */
     public function index()
     {
-        $school = \Auth::user()->school;
-        $classes = \App\Myclass::bySchool(\Auth::user()->school->id)->withCount(['sections' => function ($q) {
+        $school = \Auth::user()->getSchool();
+        $classes = \App\Myclass::bySchool(\Auth::user()->getSchoolId())->withCount(['sections' => function ($q) {
             $q->where('active', 1);
         }])
             ->get();
@@ -148,10 +148,10 @@ class SectionController extends Controller
     public function inactive()
     {
 
-        $school = \Auth::user()->school;
-        $classes = \App\Myclass::bySchool(\Auth::user()->school->id)
+        $school = \Auth::user()->getSchool();
+        $classes = \App\Myclass::bySchool(\Auth::user()->getSchoolId())
             ->get();
-        $classeIds = \App\Myclass::bySchool(\Auth::user()->school->id)
+        $classeIds = \App\Myclass::bySchool(\Auth::user()->getSchoolId())
             ->pluck('id')
             ->toArray();
         $sections = \App\Section::whereIn('class_id', $classeIds)

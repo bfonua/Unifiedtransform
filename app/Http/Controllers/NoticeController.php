@@ -25,7 +25,7 @@ class NoticeController extends Controller
      */
     public function create()
     {
-      $files = Notice::bySchool(\Auth::user()->school_id)->where('active',1)->get();
+      $files = Notice::bySchool(\Auth::user()->getSchoolId())->where('active',1)->get();
       return view('notices.create',['files'=>$files]);
     }
 
@@ -41,7 +41,7 @@ class NoticeController extends Controller
       $tb->file_path = $request->file_path;
       $tb->title = $request->title;
       $tb->active = 1;
-      $tb->school_id = \Auth::user()->school_id;
+      $tb->school_id = \Auth::user()->getSchoolId();
       $tb->user_id = \Auth::user()->id;
       $tb->save();
       return back()->with('status', __('Uploaded'));

@@ -82,7 +82,7 @@ class SchoolController extends Controller
         'department_name' => 'required|string|max:50',
       ]);
       $s = new Department;
-      $s->school_id = \Auth::user()->school_id;
+      $s->school_id = \Auth::user()->getSchoolId();
       $s->department_name = $request->department_name;
       $s->save();
       return back()->with('status', __('Created'));

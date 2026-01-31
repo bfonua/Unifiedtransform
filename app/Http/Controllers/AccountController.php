@@ -80,7 +80,7 @@ class AccountController extends Controller
   }
 
   public function income(){
-    $sectors = AccountSector::bySchool(\Auth::user()->school_id)
+    $sectors = AccountSector::bySchool(\Auth::user()->getSchoolId())
                                 ->where('type','income')
                                 ->get();
     //$sections = $this->accountSectors->getSectionsIds();
@@ -133,7 +133,7 @@ class AccountController extends Controller
   }
 
   public function expense(){
-    $sectors = AccountSector::bySchool(\Auth::user()->school_id)
+    $sectors = AccountSector::bySchool(\Auth::user()->getSchoolId())
                                 ->where('type','expense')
                                 ->get();
     return view('accounts.expense',['sectors'=>$sectors]);

@@ -14,7 +14,7 @@ class FeeController extends Controller
      */
     public function index()
     {
-        $fees = \App\Fee::bySchool(\Auth::user()->school_id)->get();
+        $fees = \App\Fee::bySchool(\Auth::user()->getSchoolId())->get();
         return view('fees.all', ['fees' => $fees]);
     }
 
@@ -91,7 +91,7 @@ class FeeController extends Controller
         // ]);
         $fee = new \App\Fee;
         $fee->fee_name = $request->fee_name;
-        $fee->school_id = \Auth::user()->school_id;
+        $fee->school_id = \Auth::user()->getSchoolId();
         $fee->user_id = \Auth::user()->id;
         $fee->save();
         return back()->with('status', __('Saved'));
@@ -106,7 +106,7 @@ class FeeController extends Controller
         ]);
         $fee =  \App\Fee::firstOrNew(
             [
-                'school_id' => \Auth::user()->school_id,
+                'school_id' => \Auth::user()->getSchoolId(),
                 'fee_channel_id' => $request->channel,
                 'fee_type_id' => $request->type,
                 'session' => $request->session,
@@ -151,7 +151,7 @@ class FeeController extends Controller
     public function update(Request $request, $id)
     {
         $update = [
-            'school_id' => \Auth::user()->school_id,
+            'school_id' => \Auth::user()->getSchoolId(),
             'fee_channel_id' => $request->channel,
             'fee_type_id' => $request->type,
             'session' => $request->session,
@@ -218,7 +218,7 @@ class FeeController extends Controller
             }
             
             $newFee = \App\Fee::create([
-                'school_id' => \Auth::user()->school_id,
+                'school_id' => \Auth::user()->getSchoolId(),
                 'user_id' => \Auth::user()->id,
                 'fee_channel_id' => $newFeeChannel->id,
                 'fee_type_id' => $fee->fee_type_id,

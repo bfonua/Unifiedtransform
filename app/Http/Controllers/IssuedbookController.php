@@ -27,7 +27,7 @@ class IssuedbookController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(){
-      $books = \App\Book::bySchool(auth()->user()->school_id)
+      $books = \App\Book::bySchool(auth()->user()->getSchoolId())
                         ->where('quantity','>',0)
                         ->get();
       return view('library.issuebooks',['books'=>$books]);

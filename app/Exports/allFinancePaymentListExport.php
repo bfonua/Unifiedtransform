@@ -16,7 +16,7 @@ class allFinancePaymentListExport implements WithMultipleSheets
         $sheets = [];
         $year = date("Y");
         $classes = Myclass::query()
-            ->bySchool(\Auth::user()->school->id)
+            ->bySchool(\Auth::user()->getSchoolId())
             ->pluck('id');
         $sections = Section::whereIn('class_id', $classes)
             ->where('active', 1)

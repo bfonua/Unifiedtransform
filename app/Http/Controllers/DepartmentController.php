@@ -39,7 +39,7 @@ class DepartmentController extends Controller
         ]);
         $tb = new \App\Department;
         $tb->department_name = $request->department_name;
-        $tb->school_id = \Auth::user()->school_id;
+        $tb->school_id = \Auth::user()->getSchoolId();
         $tb->active = '1';
         $tb->save();
         return back()->with('status', __('Created'));

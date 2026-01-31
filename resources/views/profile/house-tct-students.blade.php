@@ -45,7 +45,13 @@
                                         <a href="{{url('user/'.$student->student->student_code)}}">{{$student->student->given_name.' '.$student->student->lst_name}}</a>
                                     </td>
                                     <td class="text-center">
-                                        {{$student->section->class->class_number}}{{$student->section->section_number}}
+                                        @if($student->section)
+                                            <a href="{{ url('section/tct_students/' . $student->section->id . '?section=1') }}">
+                                                {{$student->section->class->class_number}}{{$student->section->section_number}}
+                                            </a>
+                                        @else
+                                            -
+                                        @endif
                                     </td>
 
                             @endforeach

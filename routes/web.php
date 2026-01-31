@@ -283,9 +283,7 @@ Route::middleware(['auth', 'master.admin'])->group(function () {
         Route::get('student', 'UserController@redirectToRegisterStudent');
         Route::get('tct_student', 'UserController@redirectToRegisterTCTStudent'); //Redirect from current page to controller
         Route::get('teacher', function () {
-            $school_id = \Auth::user()->role == 'master' && session()->has('master_school_id') 
-                ? session('master_school_id') 
-                : \Auth::user()->school_id;
+            $school_id = \Auth::user()->getSchoolId();
             $school = \App\School::find($school_id);
             
             // Get classes for this school first (matching home page logic)
@@ -308,9 +306,7 @@ Route::middleware(['auth', 'master.admin'])->group(function () {
             return redirect()->route('register');
         });
         Route::get('accountant', function () {
-            $school_id = \Auth::user()->role == 'master' && session()->has('master_school_id') 
-                ? session('master_school_id') 
-                : \Auth::user()->school_id;
+            $school_id = \Auth::user()->getSchoolId();
             $school = \App\School::find($school_id);
             
             session([

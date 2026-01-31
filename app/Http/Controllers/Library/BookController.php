@@ -21,7 +21,7 @@ class BookController extends Controller
     }
 
     public function index() {
-        $books = Book::bySchool(auth()->user()->school_id)->paginate();
+        $books = Book::bySchool(auth()->user()->getSchoolId())->paginate();
 
         return view('library.books.index', compact('books'));
     }
@@ -31,13 +31,13 @@ class BookController extends Controller
     }
 
     public function edit(Book $book) {
-        $classes = Myclass::bySchool(auth()->user()->school_id)->get();
+        $classes = Myclass::bySchool(auth()->user()->getSchoolId())->get();
 
         return view('library.books.edit', compact('book', 'classes'));
     }
 
     public function create() {
-        $classes = Myclass::bySchool(auth()->user()->school_id)->get();
+        $classes = Myclass::bySchool(auth()->user()->getSchoolId())->get();
 
         return view('library.books.create', compact('classes'));
     }
@@ -55,7 +55,7 @@ class BookController extends Controller
             'price'     => $request->price,
             'img_path'  => $request->img_path,
             'class_id'  => $request->class_id,
-            'school_id' => auth()->user()->school_id,
+            'school_id' => auth()->user()->getSchoolId(),
             'user_id'   => auth()->user()->id
         ]);
 

@@ -17,7 +17,7 @@ class SyllabusController extends Controller
      public function index()
      {
         $files = Syllabus::with('myclass')
-                          ->bySchool(\Auth::user()->school_id)
+                          ->bySchool(\Auth::user()->getSchoolId())
                           ->where('active',1)
                           ->get();
         return view('syllabus.course-syllabus',['files'=>$files,'class_id' => 0]);
@@ -33,7 +33,7 @@ class SyllabusController extends Controller
       try{
         if(Schema::hasColumn('syllabuses','class_id')){
           $files = Syllabus::with('myclass')
-                          ->bySchool(\Auth::user()->school_id)
+                          ->bySchool(\Auth::user()->getSchoolId())
                           ->where('class_id', $class_id)
                           ->where('active',1)
                           ->get();
@@ -59,7 +59,7 @@ class SyllabusController extends Controller
       $tb->file_path = $request->file_path;
       $tb->title = $request->title;
       $tb->active = 1;
-      $tb->school_id = \Auth::user()->school_id;
+      $tb->school_id = \Auth::user()->getSchoolId();
       $tb->user_id = \Auth::user()->id;
       $tb->save();
       return back()->with('status', __('Uploaded'));

@@ -23,13 +23,17 @@
             @if (session('status'))
             <div class="alert alert-success">
                 {{ session('status') }}
-                {{-- Display View non-student users link --}}
+                {{-- Display appropriate link based on role --}}
                 @if (session('register_school_id'))
-                    <a href="{{ url('school/non-student-users/' . session('register_school_id')) }}" target="_blank" class="text-white pull-right">@lang('View Non-Student Users')</a>
+                    @if(session('register_role') == 'admin')
+                        <a href="{{ url('school/admin-list/' . session('register_school_id')) }}" target="_blank" class="text-white pull-right">@lang('View Admins')</a>
+                    @else
+                        <a href="{{ url('school/non-student-users/' . session('register_school_id')) }}" target="_blank" class="text-white pull-right">@lang('View Non-Student Users')</a>
+                    @endif
                 @endif
             </div>
             @endif
-            <div class="panel panel-default">
+            <div class="panel panel-default" style="margin-top: 20px;">
                 <div class="page-panel-title">@lang('Register') {{ucfirst(session('register_role'))}}</div>
 
                 <div class="panel-body">
@@ -449,6 +453,7 @@
                                 @endif
                             </div>
                         </div>
+                        @endif
                         @endif
 
                         <div class="form-group">

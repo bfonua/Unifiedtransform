@@ -59,7 +59,7 @@
                                             <div class="panel-body">
                                                 <h4>{{ now()->year }} Student Administration</h4>
                                                 <div class="row">
-                                                    <div class="col-md-3">
+                                                    <div class="col-md-4">
                                                         <div class="card bg-light mb-3">
                                                             <div class="card-header">Student Count</div>
                                                             <div class="card-body">
@@ -83,7 +83,7 @@
                                                                         <tr style="cursor: pointer;" onclick="window.location='{{ url('school/inactive') }}'">
                                                                             <td><span class="badge bg-error">Inactive</span></td>
                                                                             <td class="text-right">
-                                                                                {{ $inactive = $totalStudents - $totalActive }}
+                                                                                {{ $totalInactive }}
                                                                             </td>
                                                                         </tr>
                                                                     </tbody>
@@ -95,28 +95,28 @@
                                                                             <td>
                                                                                 Removed
                                                                             </td>
-                                                                            <td class="text-right">{{ $inactive }}</td>
+                                                                            <td class="text-right">{{ $inactiveOutput['removed'] ?? 0 }}</td>
                                                                         </tr>
                                                                         <tr>
                                                                             <td>
                                                                                 Withdrawn
                                                                             </td>
                                                                             <td class="text-right">
-                                                                                {{ $inactiveOutput['withdrawn'] }}</td>
+                                                                                {{ $inactiveOutput['withdrawn'] ?? 0 }}</td>
                                                                         </tr>
                                                                         <tr>
                                                                             <td>
                                                                                 Suspended
                                                                             </td>
                                                                             <td class="text-right">
-                                                                                {{ $inactiveOutput['suspended'] }}</td>
+                                                                                {{ $inactiveOutput['suspended'] ?? 0 }}</td>
                                                                         </tr>
                                                                         <tr>
                                                                             <td>
                                                                                 Expelled
                                                                             </td>
                                                                             <td class="text-right">
-                                                                                {{ $inactiveOutput['expelled'] }}</td>
+                                                                                {{ $inactiveOutput['expelled'] ?? 0 }}</td>
                                                                         </tr>
                                                                     </tbody>
                                                                 </table>

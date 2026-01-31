@@ -79,8 +79,10 @@ class UserController extends Controller
      */
     public function redirectToRegisterStudent()
     {
+        $school_id = \Auth::user()->getSchoolId();
+        
         $classes = Myclass::query()
-            ->bySchool(\Auth::user()->school->id)
+            ->bySchool($school_id)
             ->pluck('id');
 
         $sections = Section::with('class')
@@ -100,8 +102,10 @@ class UserController extends Controller
     // Update controller to redirect to TCT version of Registration Form
     public function redirectToRegisterTCTStudent()
     {
-        $classes = Myclass::with('sections')->where('school_id', \Auth::user()->school->id)->get();
-        $classes_id = Myclass::with('sections')->where('school_id', \Auth::user()->school->id)->pluck('id');
+        $school_id = \Auth::user()->getSchoolId();
+            
+        $classes = Myclass::with('sections')->where('school_id', $school_id)->get();
+        $classes_id = Myclass::with('sections')->where('school_id', $school_id)->pluck('id');
         $sections = Section::with('class')
             ->where('active', 1)
             ->whereIn('class_id', $classes_id)
@@ -211,7 +215,7 @@ class UserController extends Controller
         if ($this->userService->hasSectionId($section_id))
             return $this->userService->promoteSectionStudentsView(
                 $this->userService->getSectionStudentsWithStudentInfo($request, $section_id),
-                Myclass::with('sections')->bySchool(\Auth::user()->school_id)->get(),
+                Myclass::with('sections')->bySchool(\Auth::user()->getSchoolId())->get(),
                 $section_id
             );
         else
@@ -333,7 +337,7 @@ class UserController extends Controller
         $user->regrecord()->delete();
         $user->studentInfo->firstorFail()->delete();
         $user->delete();
-        $school_id = auth()->user()->school_id;
+        $school_id = auth()->user()->getSchoolId();
         Cache::forget('studentQuery-' . $school_id);
         Cache::forget('sections-' . $school_id);
         Cache::forget('sectionsActive-' . $school_id);
@@ -358,7 +362,10 @@ class UserController extends Controller
             Log::info('Email failed to send to this address: ' . $tb->email);
         }
 
-        return back()->with('status', __('Saved'));
+        return back()->with([
+            'status' => __('Saved'),
+            'register_school_id' => session('register_school_id')
+        ]);
     }
 
     /**
@@ -765,9 +772,7 @@ class UserController extends Controller
         $user = $this->user->find($id);
         
         // Get school_id - for master users, use session school_id
-        $school_id = \Auth::user()->role == 'master' && session()->has('master_school_id')
-            ? session('master_school_id')
-            : \Auth::user()->school_id;
+        $school_id = \Auth::user()->getSchoolId();
         
         $classes = Myclass::query()
             ->bySchool($school_id)
@@ -938,7 +943,7 @@ class UserController extends Controller
         $tb2->assigned = 0;
         $tb2->channel_id = '';
         $tb2->save();
-        $school_id = auth()->user()->school_id;
+        $school_id = auth()->user()->getSchoolId();
         Cache::forget('studentQuery-' . $school_id);
         Cache::forget('sections-' . $school_id);
         Cache::forget('sectionsActive-' . $school_id);

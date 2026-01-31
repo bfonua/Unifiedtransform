@@ -12,11 +12,11 @@ class AccountService {
     public $request;
 
     public function getSectorsBySchoolId(){
-        return AccountSector::where('school_id', auth()->user()->school_id)->get();
+        return AccountSector::where('school_id', auth()->user()->getSchoolId())->get();
     }
 
     public function getAccountsBySchoolId(){
-        return Account::where('school_id', auth()->user()->school_id)
+        return Account::where('school_id', auth()->user()->getSchoolId())
                           ->where('type', $this->account_type)
                           ->orderBy('id', 'desc')
                           ->take(50)
@@ -27,7 +27,7 @@ class AccountService {
         $sector = new AccountSector();
         $sector->name = $this->request->name;
         $sector->type = $this->request->type;
-        $sector->school_id = auth()->user()->school_id;
+        $sector->school_id = auth()->user()->getSchoolId();
         $sector->user_id = auth()->user()->id;
         $sector->save();
     }
@@ -63,13 +63,13 @@ class AccountService {
         $income->type = $this->account_type;
         $income->amount = $this->request->amount;
         $income->description = $this->request->description;
-        $income->school_id = auth()->user()->school_id;
+        $income->school_id = auth()->user()->getSchoolId();
         $income->user_id = auth()->user()->id;
         $income->save();
     }
 
     public function getAccountsByYear(){
-        return Account::where('school_id', auth()->user()->school_id)
+        return Account::where('school_id', auth()->user()->getSchoolId())
                           ->where('type', $this->account_type)
                           ->whereYear('created_at',$this->request->year)
                           ->get();

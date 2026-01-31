@@ -10,7 +10,7 @@
                 <h4 class="modal-title" id="myModalLabel">@lang('Set Inactive Form')</h4>
             </div>
             <div class="modal-body">
-                <form class="form-horizontal" action="{{url('/school/inactive')}}" method="post">
+                <form class="form-horizontal" id="setInactiveForm{{$user->id}}" action="{{url('/school/inactive')}}" method="post">
                     {{csrf_field()}}
                     <input type="hidden" value="{{$user->id}}" name="user_id">
                     <div class="form-group">
@@ -34,12 +34,16 @@
                     </div>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-danger btn-sm">@lang('Submit')</button>
+                <button type="submit" class="btn btn-danger btn-sm" id="submitInactiveBtn{{$user->id}}">@lang('Submit')</button>
             </div> 
         </form>
         </div>
     </div>
 </div>
 
-
-
+<script>
+    $('#setInactiveForm{{$user->id}}').on('submit', function() {
+        // Disable the submit button to prevent double submission
+        $('#submitInactiveBtn{{$user->id}}').prop('disabled', true).text('Submitting...');
+    });
+</script>

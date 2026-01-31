@@ -29,7 +29,7 @@
     </thead>
     <tbody>
         @foreach ($students as $stu)
-            @if($stu->student)
+            @if($stu->student && $stu->section && $stu->section->class && $stu->house)
                 <tr>
                     <td>{{$stu->tct_id}}</td>
                     <td>{{$stu->student->lst_name}}</td>

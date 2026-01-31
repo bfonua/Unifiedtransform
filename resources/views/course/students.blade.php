@@ -17,9 +17,11 @@
         <div class="col-md-10" id="main-container">
             @if(count($students) > 0)
             @foreach ($students as $student)
-            <h3>@lang('Course Students of Class'): {{$student->student->section->class->class_number}} @lang('Section'):
-                {{$student->student->section->section_number}}</h3>
-            @break
+                @if($student->student && $student->student->section && $student->student->section->class)
+                    <h3>@lang('Course Students of Class'): {{$student->student->section->class->class_number}} @lang('Section'):
+                        {{$student->student->section->section_number}}</h3>
+                    @break
+                @endif
             @endforeach
             <h4>@lang('Select Students to send message')</h4>
             @endif
@@ -40,6 +42,7 @@
                                 <th>@lang('Student Name')</th>
                             </tr>
                             @foreach ($students as $student)
+                            @if($student->student)
                             <tr>
                                 <td>
                                     <div class="checkbox">
@@ -54,6 +57,7 @@
                                         href="{{url('user/'.$student->student->student_code)}}">{{$student->student->name}}</a>
                                 </td>
                             </tr>
+                            @endif
                             @endforeach
                         </table>
                     </div>

@@ -15,7 +15,7 @@ class allFinanceAssignListExport implements WithMultipleSheets
         $year = date("Y");
         // $formList = "";
         $classes = Myclass::query()
-            ->bySchool(\Auth::user()->school->id)
+            ->bySchool(\Auth::user()->getSchoolId())
             ->pluck('id');
         $sections = Section::whereIn('class_id', $classes)
             ->where('active', 1)

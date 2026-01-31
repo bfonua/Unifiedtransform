@@ -338,7 +338,7 @@ class UserService
 
     public function getAdminDetails()
     {
-        $school_id = \Auth::user()->school->id;
+        $school_id = \Auth::user()->getSchoolId();
         
         // Cache for 30 minutes - classes/sections don't change often
         return Cache::remember("admin_details_{$school_id}", 30, function () use ($school_id) {
@@ -598,7 +598,7 @@ class UserService
         $tb->code = session('register_school_code');
         $tb->student_code = session('register_school_id') . date('y') . substr(number_format(time() * mt_rand(), 0, '', ''), 0, 5);
         $tb->gender = $request->gender;
-        $tb->phone_number = (!empty($request->phone_number)) ? $request->phone_number : null;
+        $tb->phone_number = $request->phone_number ?: '';
         $tb->verified = 1;
         $tb->save();
         return $tb;

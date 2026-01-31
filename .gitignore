@@ -18,3 +18,9 @@ yarn-error.log
 # Test files
 test_*.php
 recover_fees.php
+
+# Diagnostic and cleanup scripts
+diagnostic_form_gap.php
+cleanup_corrupted_record.php
+diagnostic_duplicate_inactive.php
+cleanup_duplicate_inactive.php
